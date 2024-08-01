@@ -18,7 +18,7 @@ const Login = () => {
                     <a href="#" className="text-decoration-none">Forgot password?</a>
                 </div>
                 <div className="mb-4">
-                    <SubmitButton color={"#009951"}/>
+                    <SubmitButton color={"#009951"}>Login</SubmitButton>
                 </div>
                 <p className="text-center">
                     Don't have an account?
