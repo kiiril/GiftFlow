@@ -18,7 +18,7 @@ const Signup = () => {
                     <input className="form-control" type="password" placeholder="Confirm password"/>
                 </div>
                 <div className="mb-4">
-                    <SubmitButton color={"#F9AE01"}/>
+                    <SubmitButton color={"#F9AE01"}>Signup</SubmitButton>
                 </div>
                 <p className="text-center">
                     Already have an account?
