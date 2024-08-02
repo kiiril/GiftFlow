@@ -4,6 +4,7 @@ import Signup from "./pages/Signup";
 import PostCard from "./components/PostCard";
 import React from "react";
 import FilterBar from "./components/FilterBar";
+import Profile from "./pages/Profile";
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
             <Login/>
             <Signup/>
             <PostCard/>
+            <Profile/>
         </div>
     );
 }
