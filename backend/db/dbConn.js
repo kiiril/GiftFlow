@@ -19,7 +19,7 @@ conn.connect((err) => {
 const dataPool = {}
 
 dataPool.getPosts = () => {
-    return new Promise ((resolve, reject)=>{
+    return new Promise ((resolve, reject)=> {
         conn.query("SELECT * FROM Post",  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
@@ -28,8 +28,35 @@ dataPool.getPosts = () => {
 }
 
 dataPool.getPost = (id) => {
-    return new Promise ((resolve, reject)=>{
+    return new Promise ((resolve, reject)=> {
         conn.query("SELECT * FROM Post WHERE id = ?", id,  (err,res)=> {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.createPost = (title, views, rating, description) => {
+    return new Promise((resolve, reject) => {
+        conn.query("INSERT INTO Post (title, views, rating, description) VALUES (?, ?, ?, ?)", [title, views, rating, description], (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.updatePost = (id, title, views, rating, description) => {
+    return new Promise((resolve, reject) => {
+        conn.query("UPDATE Post SET title = ?, views = ?, rating = ?, description = ? WHERE id = ?", [title, views, rating, description, id], (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.deletePost = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query("DELETE FROM Post WHERE id = ?", id, (err, res) => {
             if(err) return reject(err)
             return resolve(res);
         });
