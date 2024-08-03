@@ -63,5 +63,43 @@ dataPool.deletePost = (id) => {
     });
 }
 
+dataPool.getUsers = () => {
+    return new Promise ((resolve, reject)=> {
+        conn.query("SELECT * FROM User",  (err,res)=> {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.getUser = (id) => {
+    return new Promise ((resolve, reject)=> {
+        conn.query("SELECT * FROM User WHERE id = ?", id,  (err,res)=> {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.createUser = (email, password) => {
+    return new Promise((resolve, reject) => {
+        conn.query("INSERT INTO User (email, password) VALUES (?, ?)", [email, password], (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+// TODO: Update user
+
+dataPool.deleteUser = (id) => {
+    return new Promise((resolve, reject) => {
+        conn.query("DELETE FROM User WHERE id = ?", id, (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
 module.exports = dataPool;
 
