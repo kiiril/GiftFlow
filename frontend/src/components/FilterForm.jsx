@@ -53,7 +53,7 @@ const FilterForm = () => {
                 <Rating/>
             </div>
             <div className="m-3">
-                <SubmitButton color={"#ec644b"}>Clear</SubmitButton>
+                <SubmitButton textColor={"white"} backgroundColor={"#ec644b"}>Clear</SubmitButton>
             </div>
         </form>
     );

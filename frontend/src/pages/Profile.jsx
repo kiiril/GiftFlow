@@ -1,5 +1,6 @@
 import React from 'react';
 import ProfileTab from "../components/ProfileTab";
+import Account from "../components/Account";
 
 
 const Profile = () => {
@@ -22,7 +23,7 @@ const Profile = () => {
             <div className="tab-content col-8" id="v-pills-tabContent">
                 <div className="tab-pane fade show active" id="v-pills-account" role="tabpanel"
                      aria-labelledby="v-pills-account-tab" tabIndex="0">
-                    Some info about the user
+                    <Account/>
                 </div>
                 <div className="tab-pane fade" id="v-pills-posts" role="tabpanel"
                      aria-labelledby="v-pills-posts-tab" tabIndex="0">...

@@ -1,11 +1,12 @@
 import React from 'react';
 
-const SubmitButton = ({children, color}) => {
+const SubmitButton = ({children, textColor, backgroundColor, className}) => {
+    const completeStyle = `btn border border-dark btn-shadow fw-bold w-100 ${className}`;
     return (
         <button
-            className="btn border border-dark btn-shadow text-white fw-bold w-100"
+            className={completeStyle}
             type="submit"
-            style={{backgroundColor: color}}
+            style={{backgroundColor: backgroundColor, color: textColor}}
         >
             {children}
         </button>
