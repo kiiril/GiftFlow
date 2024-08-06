@@ -8,12 +8,10 @@ import Profile from "./pages/Profile";
 
 function App() {
     return (
-        <div>
-            <FilterBar/>
-            <Login/>
-            <Signup/>
+        <div className="col-8 m-5">
             <PostCard/>
-            <Profile/>
+            <PostCard/>
+            <PostCard/>
         </div>
     );
 }
