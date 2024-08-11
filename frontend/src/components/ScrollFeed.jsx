@@ -12,7 +12,7 @@ const ScrollFeed = () => {
         setPosts(response.data);
     }
 
-    useEffect(()=>{
+    useEffect( ()=>{
         fetchPosts();
     }, []);
 

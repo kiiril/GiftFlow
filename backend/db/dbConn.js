@@ -81,6 +81,15 @@ dataPool.getUser = (id) => {
     });
 }
 
+dataPool.getUserByEmail = (email) => {
+    return new Promise ((resolve, reject) => {
+        conn.query("SELECT * FROM User WHERE email = ?", email, (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
 dataPool.createUser = (email, password) => {
     return new Promise((resolve, reject) => {
         conn.query("INSERT INTO User (email, password) VALUES (?, ?)", [email, password], (err, res) => {
