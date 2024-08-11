@@ -18,7 +18,7 @@ const ScrollFeed = () => {
 
 
     return (
-        <div className="col-8 m-5">
+        <div className="mx-auto w-75">
             <FilterBar/>
             {posts.map(post =>
                 <PostCard key={post.id} post={post}/>

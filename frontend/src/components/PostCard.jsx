@@ -68,7 +68,7 @@ const PostCard = ({post}) => {
                         </div>
                         <div className="d-flex align-items-center mb-4">
                             <FontAwesomeIcon icon={faCoins} className="me-1"/>
-                            <span>{postData.price}</span>
+                            <span>{postData.price}$</span>
                         </div>
                         <div className="d-flex align-items-center justify-content-between my-auto mx-5">
                             <div>
