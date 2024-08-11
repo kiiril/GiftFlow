@@ -29,7 +29,7 @@ const FilterForm = () => {
     }
 
     return (
-        <form className="collapse m-auto w-50 border border-1 rounded mt-2" id="filters">
+        <form className="collapse position-absolute z-3 w-100 bg-white border border-1 rounded mt-2" id="filters"  style={{ top: '100%', left: 0 }}>
             <Select
                 options={options}
                 isMulti

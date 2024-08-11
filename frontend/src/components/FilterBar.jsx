@@ -15,9 +15,8 @@ const FilterBar = () => {
     const animatedComponents = makeAnimated();
 
     return (
-        // TODO: add colors styling for select
-        <div>
-            <div className="d-flex justify-content-between align-items-center w-50">
+        <div className="position-relative w-100 mb-2">
+            <div className="d-flex justify-content-between align-items-center w-100">
                 <Select
                     options={options}
                     isMulti
