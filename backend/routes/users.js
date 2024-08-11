@@ -41,6 +41,35 @@ users.post("/", async (req, res, next) => {
     }
 });
 
+users.post("/login", async (req, res, next) => {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        if (email && password) {
+            const queryResult = await db.getUserByEmail(email);
+            if (queryResult.length > 0) {
+                const user = queryResult[0];
+                if (password === user.password) {
+                    res.status(200);
+                    res.json({user, isAuth: true});
+                    console.log("SESSION VALID"); // return success msg
+                } else {
+                    console.log("INCORRECT PASSWORD"); // return error msg
+                }
+            } else {
+                console.log("USER NOT REGISTERED"); // return error msg
+            }
+        } else {
+            console.log("Please enter email and password!"); // return the error message
+        }
+        res.end();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+        next();
+    }
+});
+
 // TODO: Implement the PUT method
 
 users.delete("/:id", async (req, res, next) => {
