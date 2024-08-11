@@ -6,15 +6,12 @@ import React from "react";
 import FilterBar from "./components/FilterBar";
 import Profile from "./pages/Profile";
 import ScrollFeed from "./components/ScrollFeed";
+import Landing from "./components/Landing";
+import Main from "./pages/Main";
 
 function App() {
     return (
-        // <div className="col-8 m-5">
-        //     <PostCard/>
-        //     <PostCard/>
-        //     <PostCard/>
-        // </div>
-        <ScrollFeed/>
+        <Main/>
     );
 }
 
