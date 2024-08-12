@@ -8,11 +8,12 @@ import Profile from "./pages/Profile";
 import ScrollFeed from "./components/ScrollFeed";
 import Landing from "./components/Landing";
 import Main from "./pages/Main";
+import Account from "./components/Account";
 
 function App() {
     return (
         // <Main/>
-        <Login/>
+        <Account/>
     );
 }
 
