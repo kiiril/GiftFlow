@@ -1,19 +1,18 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import Logo from "../components/Logo";
 import SubmitButton from "../components/SubmitButton";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {AuthContext, AuthProvider} from "../contexts/AuthProvider";
 
 const Login = () => {
-    const [user, setUser] = useState({
-        email: "",
-        password: ""
-    });
+    const navigate = useNavigate();
+    const {login, user, setUser} = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await axios.post("http://localhost:8080/users/login", user);
-        console.log(response);
+        login();
+        navigate("/"); // TODO: check how to handle this redirection
     }
 
     const handleChange = async (e) => {
@@ -22,6 +21,7 @@ const Login = () => {
             [e.target.name]: e.target.value
         });
     }
+
     return (
         <div className="d-flex align-items-center justify-content-center mt-4">
             <form onSubmit={handleSubmit}>

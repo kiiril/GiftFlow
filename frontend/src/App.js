@@ -9,11 +9,31 @@ import ScrollFeed from "./components/ScrollFeed";
 import Landing from "./components/Landing";
 import Main from "./pages/Main";
 import Account from "./components/Account";
+import {AuthProvider} from "./contexts/AuthProvider";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import Error from "./pages/Error";
 
 function App() {
+    const router = createBrowserRouter([
+        {
+            path: "/",
+            element: <Account/>,
+            errorElement: <Error/>
+        },
+        {
+            path: "/login",
+            element: <Login/>
+        },
+        {
+            path: "/signup",
+            element: <Signup/>
+        }
+    ])
+
     return (
-        // <Main/>
-        <Account/>
+        <AuthProvider>
+            <RouterProvider router={router}/>
+        </AuthProvider>
     );
 }
 

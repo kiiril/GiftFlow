@@ -1,19 +1,17 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import SubmitButton from "../components/SubmitButton";
-import Logo from "../components/Logo";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {AuthContext} from "../contexts/AuthProvider";
 
 const Signup = () => {
-    const [user, setUser] = useState({
-        email: "",
-        password: ""
-    });
+    const navigate = useNavigate();
+    const {signup, user, setUser} = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await axios.post("http://localhost:8080/users", user);
-        console.log(response);
+        signup();
+        navigate("/");
     }
 
     const handleChange = async (e) => {
