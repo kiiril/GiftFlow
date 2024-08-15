@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Logo from "../components/Logo";
 import SubmitButton from "../components/SubmitButton";
 import axios from "axios";
@@ -7,17 +7,27 @@ import {AuthContext, AuthProvider} from "../contexts/AuthProvider";
 
 const Login = () => {
     const navigate = useNavigate();
-    const {login, user, setUser} = useContext(AuthContext);
+    const {login, getUserCookies, removeUserCookies} = useContext(AuthContext);
+
+    const [inputs, setInputs] = useState({
+        email: "",
+        password: ""
+    });
+
+    useEffect(() => {
+        // setInputs(getUserCookies())
+        removeUserCookies();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        login();
+        await login(inputs);
         navigate("/"); // TODO: check how to handle this redirection
     }
 
     const handleChange = async (e) => {
-        setUser({
-            ...user,
+        setInputs({
+            ...inputs,
             [e.target.name]: e.target.value
         });
     }
@@ -28,10 +38,10 @@ const Login = () => {
                 {/*<Logo/>*/}
                 <h1 className="mt-5 mb-4 text-center">Login</h1>
                 <div className="mb-4">
-                    <input className="form-control" name="email" value={user.email} onChange={handleChange} type="email" placeholder="Email"/>
+                    <input className="form-control" name="email" value={inputs.email} onChange={handleChange} type="email" placeholder="Email"/>
                 </div>
                 <div className="mb-4">
-                    <input className="form-control" name="password" value={user.password} onChange={handleChange} type="password" placeholder="Password"/>
+                    <input className="form-control" name="password" value={inputs.password} onChange={handleChange} type="password" placeholder="Password"/>
                 </div>
                 <div className="text-center mb-4">
                     <a href="#" className="text-decoration-none">Forgot password?</a>

@@ -74,7 +74,7 @@ users.post("/login", async (req, res, next) => {
                 const user = queryResult[0];
                 if (password === user.password) {
                     res.status(200);
-                    res.json(user) // TODO add indication that user logged in
+                    res.json(user);
                     console.log("SESSION VALID"); // return success msg
                 } else {
                     console.log("INCORRECT PASSWORD"); // return error msg

@@ -9,18 +9,29 @@ import axios from "axios";
 import {AuthContext} from "../contexts/AuthProvider";
 
 const Account = () => {
-    const {user, setUser} = useContext(AuthContext);
+    const {setUserCookies, getUserCookies} = useContext(AuthContext);
+
+    const [inputs, setInputs] = useState({
+        name: "",
+        surname: "",
+        gender: "",
+        dateOfBirthday: ""
+    });
+
+    useEffect(() => {
+        setInputs(getUserCookies());
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(user)
-        const response = await axios.put(`http://localhost:8080/users/${user.id}`, user);
+        const response = await axios.put(`http://localhost:8080/users/${inputs.id}`, inputs);
         console.log(response);
+        setUserCookies(inputs);
     }
 
     const handleChange = (e) => {
-        setUser({
-            ...user,
+        setInputs({
+            ...inputs,
             [e.target.name]: e.target.value
         });
     }
@@ -30,7 +41,7 @@ const Account = () => {
             <div className="col-5 mb-4">
                 <label htmlFor="name">Your name</label>
                 <div className="input-group">
-                    <input type="text" className="form-control border-end-0" value={user.name} onChange={handleChange} name="name" id="name" placeholder="Name"/>
+                    <input type="text" className="form-control border-end-0" value={inputs.name} onChange={handleChange} name="name" id="name" placeholder="Name"/>
                     <span className="input-group-text bg-white border-start-0">
                         <FontAwesomeIcon icon={faPen}/>
                     </span>
@@ -39,7 +50,7 @@ const Account = () => {
             <div className="col-5 mb-4">
                 <label htmlFor="surname">Your surname</label>
                 <div className="input-group">
-                    <input type="text" className="form-control border-end-0" value={user.surname} onChange={handleChange} name="surname" id="surname" placeholder="Surname"/>
+                    <input type="text" className="form-control border-end-0" value={inputs.surname} onChange={handleChange} name="surname" id="surname" placeholder="Surname"/>
                     <span className="input-group-text bg-white border-start-0">
                         <FontAwesomeIcon icon={faPen}/>
                     </span>
@@ -48,19 +59,19 @@ const Account = () => {
 
             <div className="mb-4">
                 <div className="form-check-inline">
-                    <input className="form-check-input me-2" type="radio" name="gender" value="male" onChange={handleChange} checked={user.gender === "male"} id="male"/>
+                    <input className="form-check-input me-2" type="radio" name="gender" value="male" onChange={handleChange} checked={inputs.gender === "male"} id="male"/>
                     <label className="form-check-label" htmlFor="male">
                         Male
                     </label>
                 </div>
                 <div className="form-check-inline">
-                    <input className="form-check-input me-2" type="radio" name="gender" value="female" onChange={handleChange} checked={user.gender === "female"} id="female"/>
+                    <input className="form-check-input me-2" type="radio" name="gender" value="female" onChange={handleChange} checked={inputs.gender === "female"} id="female"/>
                     <label className="form-check-label" htmlFor="female">
                         Female
                     </label>
                 </div>
                 <div className="form-check-inline">
-                    <input className="form-check-input me-2" type="radio" name="gender" value="undefined" onChange={handleChange} checked={user.gender === "undefined"} id="notToSay"/>
+                    <input className="form-check-input me-2" type="radio" name="gender" value="undefined" onChange={handleChange} checked={inputs.gender === "undefined"} id="notToSay"/>
                     <label className="form-check-label" htmlFor="notToSay">
                         Prefer not to say
                     </label>
@@ -74,8 +85,8 @@ const Account = () => {
                         <DatePicker
                             name="birthday"
                             format="DD/MM/YYYY"
-                            value={user.dateOfBirthday === null ? null : dayjs(user.dateOfBirthday, "YYYY-MM-DD")}
-                            onChange={(value) => setUser({...user, dateOfBirthday: value ? dayjs(value).format("YYYY-MM-DD") : ""})}
+                            value={inputs.dateOfBirthday === "" ? null : dayjs(inputs.dateOfBirthday, "YYYY-MM-DD")}
+                            onChange={(value) => setInputs({...inputs, dateOfBirthday: value ? dayjs(value).format("YYYY-MM-DD") : ""})}
                         />
                     </LocalizationProvider>
                 </div>
