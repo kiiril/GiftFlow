@@ -17,7 +17,7 @@ function App() {
     const router = createBrowserRouter([
         {
             path: "/",
-            element: <Account/>,
+            element: <Main/>,
             errorElement: <Error/>
         },
         {
@@ -27,6 +27,10 @@ function App() {
         {
             path: "/signup",
             element: <Signup/>
+        },
+        {
+            path: "/profile",
+            element: <Profile/>
         }
     ])
 

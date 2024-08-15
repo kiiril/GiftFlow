@@ -16,7 +16,7 @@ const Login = () => {
 
     useEffect(() => {
         // setInputs(getUserCookies())
-        removeUserCookies();
+        removeUserCookies(); // FIXME just instead logout for now
     }, []);
 
     const handleSubmit = async (e) => {

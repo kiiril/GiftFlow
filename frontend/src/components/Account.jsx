@@ -19,7 +19,10 @@ const Account = () => {
     });
 
     useEffect(() => {
-        setInputs(getUserCookies());
+        // FIXME not necessary behaviour
+        const cookies = getUserCookies();
+        if (cookies)
+            setInputs(cookies);
     }, []);
 
     const handleSubmit = async (e) => {
