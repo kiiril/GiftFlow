@@ -28,12 +28,36 @@ users.get("/:id", async (req, res, next) => {
     }
 });
 
-users.post("/", async (req, res, next) => {
+// users.post("/", async (req, res, next) => {
+//     try {
+//         const {email, password} = req.body;
+//         const newUser = await db.createUser(email, password);
+//         res.json(newUser);
+//         res.status(200);
+//         res.end();
+//     } catch (e) {
+//         console.log(e);
+//         res.sendStatus(500);
+//         next();
+//     }
+// });
+
+users.post("/signup", async (req, res, next) => {
     try {
         const {email, password} = req.body;
-        const newUser = await db.createUser(email, password);
-        res.status(200);
-        res.end();
+        if (email && password) {
+            const queryResult = await db.getUserByEmail(email);
+            if (queryResult.length === 0) {
+                const newUser = await db.createUser(email, password);
+                res.status(200);
+                res.json(newUser); // FIXME think what must be sent
+                res.end();
+            } else {
+                console.log("User already registered"); // return error msg
+            }
+        } else {
+            console.log("Please enter email and password!"); // return the error message
+        }
     } catch (e) {
         console.log(e);
         res.sendStatus(500);
@@ -43,15 +67,14 @@ users.post("/", async (req, res, next) => {
 
 users.post("/login", async (req, res, next) => {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
+        const {email, password} = req.body;
         if (email && password) {
             const queryResult = await db.getUserByEmail(email);
             if (queryResult.length > 0) {
                 const user = queryResult[0];
                 if (password === user.password) {
                     res.status(200);
-                    res.json({user, isAuth: true});
+                    res.json(user);
                     console.log("SESSION VALID"); // return success msg
                 } else {
                     console.log("INCORRECT PASSWORD"); // return error msg
@@ -70,7 +93,19 @@ users.post("/login", async (req, res, next) => {
     }
 });
 
-// TODO: Implement the PUT method
+users.put("/:id", async (req, res, next) => {
+    try {
+        console.log("Body", req.body)
+        const updatedUser = await db.updateUser(req.params.id, req.body);
+        res.status(200);
+        res.json(updatedUser);
+        res.end();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+        next();
+    }
+});
 
 users.delete("/:id", async (req, res, next) => {
     try {

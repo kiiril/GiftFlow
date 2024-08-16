@@ -19,7 +19,7 @@ conn.connect((err) => {
 const dataPool = {}
 
 dataPool.getPosts = () => {
-    return new Promise ((resolve, reject)=> {
+    return new Promise((resolve, reject)=> {
         conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Topic pt ON p.id = pt.post_id JOIN Topic t ON pt.topic_id = t.id GROUP BY p.id, p.title",  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
@@ -28,7 +28,7 @@ dataPool.getPosts = () => {
 }
 
 dataPool.getPost = (id) => {
-    return new Promise ((resolve, reject)=> {
+    return new Promise((resolve, reject)=> {
         conn.query("SELECT * FROM Post WHERE id = ?", id,  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
@@ -64,7 +64,7 @@ dataPool.deletePost = (id) => {
 }
 
 dataPool.getUsers = () => {
-    return new Promise ((resolve, reject)=> {
+    return new Promise((resolve, reject)=> {
         conn.query("SELECT * FROM User",  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
@@ -73,7 +73,7 @@ dataPool.getUsers = () => {
 }
 
 dataPool.getUser = (id) => {
-    return new Promise ((resolve, reject)=> {
+    return new Promise((resolve, reject)=> {
         conn.query("SELECT * FROM User WHERE id = ?", id,  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
@@ -82,9 +82,9 @@ dataPool.getUser = (id) => {
 }
 
 dataPool.getUserByEmail = (email) => {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         conn.query("SELECT * FROM User WHERE email = ?", email, (err, res) => {
-            if(err) return reject(err)
+            if (err) return reject(err)
             return resolve(res);
         });
     });
@@ -99,7 +99,15 @@ dataPool.createUser = (email, password) => {
     });
 }
 
-// TODO: Update user
+dataPool.updateUser = (id, {email, name, surname, dateOfBirthday, gender})=> {
+    console.log(id, email, name, surname, dateOfBirthday, gender)
+    return new Promise((resolve, reject) => {
+        conn.query("UPDATE User SET email = ?, name = ?, surname = ?, dateOfBirthday = ?, gender = ? WHERE id = ?", [email, name, surname, dateOfBirthday, gender, id], (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
 
 dataPool.deleteUser = (id) => {
     return new Promise((resolve, reject) => {

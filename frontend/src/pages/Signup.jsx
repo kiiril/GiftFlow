@@ -1,24 +1,27 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import SubmitButton from "../components/SubmitButton";
-import Logo from "../components/Logo";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {AuthContext} from "../contexts/AuthProvider";
 
 const Signup = () => {
-    const [user, setUser] = useState({
+    const navigate = useNavigate();
+    const {signup} = useContext(AuthContext);
+
+    const [inputs, setInputs] = useState({
         email: "",
         password: ""
-    });
+    })
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await axios.post("http://localhost:8080/users", user);
-        console.log(response);
+        await signup(inputs);
+        navigate("/");
     }
 
     const handleChange = async (e) => {
-        setUser({
-            ...user,
+        setInputs({
+            ...inputs,
             [e.target.name]: e.target.value
         });
     }
@@ -29,10 +32,10 @@ const Signup = () => {
             <form onSubmit={handleSubmit}>
                 <h1 className="mt-5 mb-4 text-center">Signup</h1>
                 <div className="mb-4">
-                    <input className="form-control" name="email" value={user.email} onChange={handleChange} type="email" placeholder="Email"/>
+                    <input className="form-control" name="email" value={inputs.email} onChange={handleChange} type="email" placeholder="Email"/>
                 </div>
                 <div className="mb-4">
-                    <input className="form-control" name="password" value={user.password} onChange={handleChange} type="password" placeholder="Create password"/>
+                    <input className="form-control" name="password" value={inputs.password} onChange={handleChange} type="password" placeholder="Create password"/>
                 </div>
                 <div className="mb-4">
                     <input className="form-control" type="password" placeholder="Confirm password"/>
