@@ -46,7 +46,7 @@ const PostCard = ({post}) => {
                         src={postData.image_url}
                         alt="post"
                         className="img-fluid h-100 w-100"
-                        style={{objectFit: "cover", height: "100%"}}
+                        style={{objectFit: "contain", aspectRatio: "1/1"}}
                     />
                 </div>
                 <div className="col-12 col-md-6">

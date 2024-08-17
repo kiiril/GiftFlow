@@ -18,9 +18,9 @@ conn.connect((err) => {
 
 const dataPool = {}
 
-dataPool.getPosts = () => {
+dataPool.getPosts = (limit, offset) => {
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Topic pt ON p.id = pt.post_id JOIN Topic t ON pt.topic_id = t.id GROUP BY p.id, p.title",  (err,res)=> {
+        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Topic pt ON p.id = pt.post_id JOIN Topic t ON pt.topic_id = t.id GROUP BY p.id, p.title LIMIT ? OFFSET ?", [limit, offset], (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
         });
