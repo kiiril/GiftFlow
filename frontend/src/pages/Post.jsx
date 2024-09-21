@@ -1,12 +1,13 @@
 import React, {useEffect} from 'react';
+import {useParams} from "react-router-dom";
+import axios from "axios";
+import TopicTag from "../components/TopicTag";
 import {Checkbox, Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import TopicTag from "./TopicTag";
-import {faCoins, faLocationDot, faHeart as fullHeart} from "@fortawesome/free-solid-svg-icons";
-import {faComment, faPaperPlane, faHeart as emptyHeart} from "@fortawesome/free-regular-svg-icons";
-import {useNavigate} from "react-router-dom";
+import {faCoins, faHeart as fullHeart, faLocationDot} from "@fortawesome/free-solid-svg-icons";
+import {faComment, faHeart as emptyHeart, faPaperPlane} from "@fortawesome/free-regular-svg-icons";
 
-const PostCard = ({post}) => {
+const Post = () => {
     const [postData, setPostData] = React.useState({
             id: "",
             title: "",
@@ -23,10 +24,16 @@ const PostCard = ({post}) => {
             image_urls: []
         }
     );
-    const navigate = useNavigate();
+    const params = useParams();
+
+    const fetchPost = async () => {
+        const response = await axios.get(`http://localhost:8080/posts/${params.id}`);
+        setPostData(response.data);
+        console.log(response.data);
+    }
 
     useEffect(() => {
-        setPostData(post);
+        fetchPost();
     }, []);
 
     const savePost = (e) => {
@@ -67,6 +74,23 @@ const PostCard = ({post}) => {
                             <span className="carousel-control-next-icon" aria-hidden="true"></span>
                             <span className="visually-hidden">Next</span>
                         </button>
+
+                        {/* THUMBNAILS */}
+                        <div className="carousel-indicators">
+                            {postData.image_urls.map((url, index) =>
+                                <button
+                                    type="button"
+                                    data-bs-target={`#${postData.id}`}
+                                    data-bs-slide-to={index}
+                                    className={`${index === 0 ? "active" : ""} thumbnail`}
+                                >
+                                    <img
+                                        src={url}
+                                        className="d-block w-100" alt="..."
+                                    />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="col-12 col-md-6">
@@ -79,7 +103,7 @@ const PostCard = ({post}) => {
                         <h4 className="text-center my-2">{postData.title}</h4>
                         <p className="mb-2">{postData.description}</p>
                         <div className="d-flex align-items-center mb-2">
-                        <Rating value={postData.rating} readOnly={true}/>
+                            <Rating value={postData.rating} readOnly={true}/>
                             <span className="ms-1">(5.0)</span>
                         </div>
                         <div className="d-flex align-items-center mb-2">
@@ -94,7 +118,8 @@ const PostCard = ({post}) => {
                             <div>
                                 <Checkbox
                                     icon={<FontAwesomeIcon icon={emptyHeart} size={"2xl"} style={{color: "red"}}/>}
-                                    checkedIcon={<FontAwesomeIcon icon={fullHeart} size={"2xl"} style={{color: "red"}}/>}
+                                    checkedIcon={<FontAwesomeIcon icon={fullHeart} size={"2xl"}
+                                                                  style={{color: "red"}}/>}
                                     checked={postData.saved === 1}
                                     onChange={savePost}
                                 />
@@ -104,8 +129,6 @@ const PostCard = ({post}) => {
                             </div>
                             <FontAwesomeIcon icon={faPaperPlane} size={"2xl"}/>
                         </div>
-                        {/* FIXME change structure below */}
-                        <button className="btn btn-primary" onClick={() => navigate(`posts/${post.id}`)}>Go to post</button>
                     </div>
                 </div>
             </div>
@@ -113,4 +136,4 @@ const PostCard = ({post}) => {
     );
 };
 
-export default PostCard;
+export default Post;

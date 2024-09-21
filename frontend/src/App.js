@@ -12,6 +12,7 @@ import Account from "./components/Account";
 import {AuthProvider} from "./contexts/AuthProvider";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Error from "./pages/Error";
+import Post from "./pages/Post";
 
 function App() {
     const router = createBrowserRouter([
@@ -31,8 +32,12 @@ function App() {
         {
             path: "/profile",
             element: <Profile/>
+        },
+        {
+            path: "/posts/:id",
+            element: <Post/>
         }
-    ])
+    ]);
 
     return (
         <AuthProvider>

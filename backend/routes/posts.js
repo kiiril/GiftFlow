@@ -19,9 +19,9 @@ posts.get("/", async (req, res, next) => {
 
 posts.get("/:id", async (req, res, next) => {
     try {
-        const post = await db.getPost(req.params.id);
+        const post = await db.getPost(parseInt(req.params.id));
         res.status(200);
-        res.json(post);
+        res.json(post[0]); // fixme: mb structure better
         res.end();
     } catch (e) {
         console.log(e);
