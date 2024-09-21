@@ -29,7 +29,7 @@ dataPool.getPosts = (limit, offset) => {
 
 dataPool.getPost = (id) => {
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT * FROM Post WHERE id = ?", id,  (err,res)=> {
+        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Topic pt ON p.id = pt.post_id JOIN Topic t ON pt.topic_id = t.id WHERE p.id = ? GROUP BY p.id, p.title", id,  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
         });
