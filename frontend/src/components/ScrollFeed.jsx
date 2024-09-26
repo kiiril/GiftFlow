@@ -39,11 +39,25 @@ const ScrollFeed = () => {
 
 
     return (
-        <div className="mx-auto w-75">
+        <div className="container">
             <FilterBar/>
-            {posts.map(post =>
-                <PostCard key={post.id} post={post}/>
-            )}
+            <div className="row g-3">
+                <div className="col-12 col-md-6 col-lg-4">
+                    {posts.map(post =>
+                        <PostCard key={post.id} post={post}/>
+                    )}
+                </div>
+                <div className="col-12 col-md-6 col-lg-4">
+                    {posts.map(post =>
+                        <PostCard key={post.id} post={post}/>
+                    )}
+                </div>
+                <div className="col-12 col-md-6 col-lg-4">
+                    {posts.map(post =>
+                        <PostCard key={post.id} post={post}/>
+                    )}
+                </div>
+            </div>
             <div ref={lastElement} style={{height: "20px", backgroundColor: "red"}}/>
             {/* just for indication of the last post, will be removed */}
         </div>
