@@ -1,9 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Checkbox, Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import TopicTag from "./TopicTag";
-import {faCoins, faLocationDot, faHeart as fullHeart} from "@fortawesome/free-solid-svg-icons";
-import {faComment, faPaperPlane, faHeart as emptyHeart} from "@fortawesome/free-regular-svg-icons";
+import {faCoins, faLocationDot, faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
+import {faComment, faPaperPlane, faHeart as emptyHeart, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 import {useNavigate} from "react-router-dom";
 
 const PostCard = ({post}) => {
@@ -41,75 +41,82 @@ const PostCard = ({post}) => {
     }
 
     return (
-        <div className="card flex-wrap m-0 p-0" style={{height: "auto"}}>
-            <div className="row g-0">
-                <div className="col-12 col-md-6">
-                    <div className="carousel slide" id={postData.id}>
-                        <div className="carousel-inner">
-                            {postData.image_urls.map((url, index) =>
-                                <div className={`carousel-item ${index === 0 ? "active" : ""}`}>
-                                    <img
-                                        src={url}
-                                        alt="post"
-                                        className="img-fluid h-100 w-100"
-                                        style={{objectFit: "contain", aspectRatio: "1/1"}}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                        <button className="carousel-control-prev" type="button" data-bs-target={`#${postData.id}`}
-                                data-bs-slide="prev">
-                            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span className="visually-hidden">Previous</span>
-                        </button>
-                        <button className="carousel-control-next" type="button" data-bs-target={`#${postData.id}`}
-                                data-bs-slide="next">
-                            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span className="visually-hidden">Next</span>
-                        </button>
+        <button className="btn p-0 text-start border-0 card shadow-sm" onChange={(e) => e.stopPropagation()}>
+            <img src={postData.image_urls[0]} className="card-img-top" alt="Something"/>
+            <div className="card-body w-100">
+                <h3 className="card-title fw-bold">
+                    {postData.title}
+                </h3>
+
+                <div className="d-flex align-items-center fw-light mb-3">
+                    <i className="bi bi-geo-alt"></i>
+                    <span>Poland, Warsaw</span>
+
+                    <i className="bi bi-dot"></i>
+
+                    <span className="badge rounded-pill text-bg-success">
+                        ECO
+                    </span>
+                </div>
+
+                <div className="card-text mb-3">
+                    {postData.description.length === 0 ? "No description" : postData.description.length > 100 ? postData.description.substring(0, 150) + "..." : postData.description}
+                </div>
+
+                <div className="d-flex align-items-center mb-3">
+                    <Rating
+                        value={postData.rating}
+                        icon={<FontAwesomeIcon icon={fullStar}/>}
+                        emptyIcon={<FontAwesomeIcon icon={emptyStar}/>}
+                        readOnly
+                        precision={0.1}
+                        size="small"
+                    />
+                    <span className="ms-2">({postData.rating.toFixed(1)})</span>
+                </div>
+
+                <p className="fw-bold mb-5">Price: ${postData.price}</p>
+
+                <div className="d-flex justify-content-between align-items-center mb-3 px-3">
+                    <div className="d-flex align-items-center">
+                        <input
+                            type="checkbox"
+                            id={`like-${postData.id}`}
+                            className="d-none"
+                            onChange={savePost}
+                            checked={postData.saved}
+                        />
+                        <label htmlFor={`like-${postData.id}`} className="me-1">
+                            <FontAwesomeIcon
+                                icon={postData.saved ? fullHeart : emptyHeart}
+                                style={{color: postData.saved ? "red" : "black"}}
+                                className="fs-4"
+                            />
+                        </label>
+                        <span>1K</span>
+                    </div>
+
+                    <div className="d-flex align-items-center">
+                        <FontAwesomeIcon icon={faComment} className="me-1 fs-4"/>
+                        <span>2.2K</span>
+                    </div>
+
+                    <div className="d-flex align-items-center">
+                        <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1"/>
+                        <span>1K</span>
                     </div>
                 </div>
-                <div className="col-12 col-md-6">
-                    <div className="card-body p-2 h-100 d-flex flex-column mx-2">
-                        <div className="d-flex flex-row-reverse align-items-between flex-wrap mb-2">
-                            {postData.topics.map(topic =>
-                                <TopicTag color={topic.color}>{topic.name}</TopicTag>
-                            )}
-                        </div>
-                        <h4 className="text-center my-2">{postData.title}</h4>
-                        <p className="mb-2">{postData.description}</p>
-                        <div className="d-flex align-items-center mb-2">
-                        <Rating value={postData.rating} readOnly={true}/>
-                            <span className="ms-1">(5.0)</span>
-                        </div>
-                        <div className="d-flex align-items-center mb-2">
-                            <FontAwesomeIcon icon={faLocationDot} className="me-1"/>
-                            <span>Poland, Warsaw</span>
-                        </div>
-                        <div className="d-flex align-items-center mb-4">
-                            <FontAwesomeIcon icon={faCoins} className="me-1"/>
-                            <span>{postData.price}$</span>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between my-auto mx-5">
-                            <div>
-                                <Checkbox
-                                    icon={<FontAwesomeIcon icon={emptyHeart} size={"2xl"} style={{color: "red"}}/>}
-                                    checkedIcon={<FontAwesomeIcon icon={fullHeart} size={"2xl"} style={{color: "red"}}/>}
-                                    checked={postData.saved === 1}
-                                    onChange={savePost}
-                                />
-                            </div>
-                            <div className="me-2">
-                                <FontAwesomeIcon icon={faComment} size={"2xl"}/>
-                            </div>
-                            <FontAwesomeIcon icon={faPaperPlane} size={"2xl"}/>
-                        </div>
-                        {/* FIXME change structure below */}
-                        <button className="btn btn-primary" onClick={() => navigate(`posts/${post.id}`)}>Go to post</button>
-                    </div>
-                </div>
+
+                {/* TODO add tags */}
+                {/*<div className="mb-2 px-3">*/}
+                {/*    {postData.topics.map(tag => (*/}
+                {/*        <span key={tag.name} className="badge bg-secondary me-2 mb-1 p-2">*/}
+                {/*            {tag.name}*/}
+                {/*        </span>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
             </div>
-        </div>
+        </button>
     );
 };
 
