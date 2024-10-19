@@ -75,7 +75,9 @@ const PostCard = ({post}) => {
                     <span className="ms-2">({postData.rating.toFixed(1)})</span>
                 </div>
 
-                <p className="fw-bold mb-5">Price: ${postData.price}</p>
+                <p className="fw-bold fs-4 mb-4">${postData.price}</p>
+
+                {/*<div className="text-break mb-3">#test#polina#love#first#broken#heart#gym#bro</div>*/}
 
                 <div className="d-flex justify-content-between align-items-center mb-3 px-3">
                     <div className="d-flex align-items-center">
