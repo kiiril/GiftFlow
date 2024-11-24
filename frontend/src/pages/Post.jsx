@@ -204,6 +204,22 @@ const Post = () => {
                                 </button>
                             }
                     </div>
+
+                    <div className="input-group rounded-pill bg-white px-2 py-1 shadow">
+                        <input
+                            type="text"
+                            className="form-control border-0 rounded-pill shadow-none me-1"
+                            placeholder="Search here..."
+                            style={{caretColor: 'red'}}
+                            onChange={(e) => setCommentValue(e.target.value)}
+                        />
+                        {commentValue.trim() &&
+                        <button
+                            className="btn btn-dark rounded-circle d-flex align-items-center justify-content-center">
+                            <FontAwesomeIcon icon={faPaperPlane} />
+                        </button>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
