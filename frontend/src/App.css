@@ -23,3 +23,37 @@
     object-fit: contain; /* ensures the image fills the area without stretching */
     width: 100%;
 }
+
+.nav-link.active {
+    border: 2px solid #74c0fc !important;
+    box-shadow: 0 0.25em 0 #74c0fc !important;
+}
+
+.account-tab {
+    transition: none !important; /* Disable transition */
+}
+
+.account-tab:hover {
+    border: 2px solid #74c0fc !important;
+    box-shadow: 0 0.25em 0 #74c0fc !important;
+}
+
+.react-calendar {
+    /* TODO: customize as needed */
+    border-radius: 10px;
+    width: 100%;
+    font-size: 1.5rem;
+}
+
+.react-calendar__tile {
+    position: relative;
+    aspect-ratio: 1/1;
+    padding: 5px;
+    border: 1px solid #ddd !important; {/* fixme remove doubled borders */}
+}
+
+.react-calendar__tile > abbr {
+    position: absolute; /* Position the date in the top-left corner */
+    top: 5%;
+    left: 5%;
+}
