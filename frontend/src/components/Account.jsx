@@ -7,6 +7,10 @@ import SubmitButton from "./SubmitButton";
 import dayjs from "dayjs";
 import axios from "axios";
 import {AuthContext} from "../contexts/AuthProvider";
+import AutocompleteDropdown from "./AutocompleteDropdown";
+
+const countries = ["Belarus", "Bahrain"]
+const cities = ["Minsk", "Pinsk", "Mogilev"]
 
 const Account = () => {
     const {setUserCookies, getUserCookies} = useContext(AuthContext);
@@ -40,65 +44,113 @@ const Account = () => {
     }
 
     return (
-        <form className="p-4" onSubmit={handleSubmit}>
-            <div className="col-5 mb-4">
-                <label htmlFor="name">Your name</label>
-                <div className="input-group">
-                    <input type="text" className="form-control border-end-0" value={inputs.name} onChange={handleChange} name="name" id="name" placeholder="Name"/>
-                    <span className="input-group-text bg-white border-start-0">
-                        <FontAwesomeIcon icon={faPen}/>
-                    </span>
+        <div className="p-3">
+            <form onSubmit={handleSubmit}>
+                <div className="row mb-4">
+                    <div className="col">
+                        <label htmlFor="firstName" className="form-label">First Name</label>
+                        <input className="form-control"
+                               name="firstName"
+                               value={inputs.firstName}
+                               onChange={handleChange}
+                               type="text"
+                               placeholder="John"
+                        />
+                    </div>
+                    <div className="col">
+                        <label htmlFor="lastName" className="form-label">Last Name</label>
+                        <input className="form-control"
+                               name="lastName"
+                               value={inputs.lastName}
+                               onChange={handleChange}
+                               type="text"
+                               placeholder="Doe"
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className="col-5 mb-4">
-                <label htmlFor="surname">Your surname</label>
-                <div className="input-group">
-                    <input type="text" className="form-control border-end-0" value={inputs.surname} onChange={handleChange} name="surname" id="surname" placeholder="Surname"/>
-                    <span className="input-group-text bg-white border-start-0">
-                        <FontAwesomeIcon icon={faPen}/>
-                    </span>
-                </div>
-            </div>
 
-            <div className="mb-4">
-                <div className="form-check-inline">
-                    <input className="form-check-input me-2" type="radio" name="gender" value="male" onChange={handleChange} checked={inputs.gender === "male"} id="male"/>
-                    <label className="form-check-label" htmlFor="male">
-                        Male
-                    </label>
+                <div className="mb-4">
+                    <label htmlFor="email" className="form-label">Your email</label>
+                    <input className="form-control"
+                           name="email"
+                           value={inputs.email}
+                           onChange={handleChange}
+                           type="email"
+                           placeholder="example@gmail.com"
+                    />
                 </div>
-                <div className="form-check-inline">
-                    <input className="form-check-input me-2" type="radio" name="gender" value="female" onChange={handleChange} checked={inputs.gender === "female"} id="female"/>
-                    <label className="form-check-label" htmlFor="female">
-                        Female
-                    </label>
-                </div>
-                <div className="form-check-inline">
-                    <input className="form-check-input me-2" type="radio" name="gender" value="undefined" onChange={handleChange} checked={inputs.gender === "undefined"} id="notToSay"/>
-                    <label className="form-check-label" htmlFor="notToSay">
-                        Prefer not to say
-                    </label>
-                </div>
-            </div>
 
-            <div className="mb-5">
-                <label htmlFor="date">Your birthday</label>
-                <div id="date">
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                {/* Gender */}
+                <div className="d-flex w-100 justify-content-between pe-5 mb-4">
+                    <div className="form-check">
+                        <input className="form-check-input" type="radio" name="gender" id="radioMale"/>
+                        <label className="form-check-label" htmlFor="radioMale">
+                            Male
+                        </label>
+                    </div>
+                    <div className="form-check">
+                        <input className="form-check-input" type="radio" name="gender" id="radioFemale"/>
+                        <label className="form-check-label" htmlFor="radioFemale">
+                            Female
+                        </label>
+                    </div>
+                    <div className="form-check">
+                        <input className="form-check-input" type="radio" name="gender" id="radioOther"/>
+                        <label className="form-check-label" htmlFor="radioOther">
+                            Prefer not to say
+                        </label>
+                    </div>
+                </div>
+
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <div className="mb-4">
+                        <label htmlFor="birthday" className="d-block form-label">
+                            Date of Birth
+                        </label>
                         <DatePicker
+                            id="birthday"
                             name="birthday"
                             format="DD/MM/YYYY"
                             value={inputs.dateOfBirthday === "" ? null : dayjs(inputs.dateOfBirthday, "YYYY-MM-DD")}
-                            onChange={(value) => setInputs({...inputs, dateOfBirthday: value ? dayjs(value).format("YYYY-MM-DD") : ""})}
+                            onChange={(value) => setInputs({
+                                ...inputs,
+                                dateOfBirthday: value ? dayjs(value).format("YYYY-MM-DD") : ""
+                            })}
+                            sx={{
+                                "& .MuiInputBase-input": {
+                                    padding: "0.75em"
+                                }
+                            }}
+                            className="mb-4"
                         />
-                    </LocalizationProvider>
+                    </div>
+                </LocalizationProvider>
+
+                {/* fixme move to post creation */}
+                {/*<div className="row mb-5">*/}
+                {/*    <div className="col">*/}
+                {/*    <AutocompleteDropdown label={"Country"} items={countries} index={2}/>*/}
+                {/*    </div>*/}
+                {/*    <div className="col">*/}
+                {/*        <AutocompleteDropdown label={"City"} items={cities} index={0}/>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
+
+                <div className="row">
+                    <div className="col">
+                        <SubmitButton>
+                            Save
+                        </SubmitButton>
+                    </div>
+
+                    <div className="col">
+                        <SubmitButton>
+                            Cancel
+                        </SubmitButton>
+                    </div>
                 </div>
-            </div>
-            <div className="d-flex justify-content-between col-6">
-                <SubmitButton textColor="black" backgroundColor={"#AAF0D1"} className="me-5">Save</SubmitButton>
-                <SubmitButton textColor="black" backgroundColor={"#E6E6E6"}>Cancel</SubmitButton>
-            </div>
-        </form>
+            </form>
+        </div>
     );
 };
 
