@@ -32,8 +32,8 @@ posts.get("/:id", async (req, res, next) => {
 
 posts.post("/", async (req, res, next) => {
     try {
-        const {title, views, rating, description} = req.body;
-        const newPost = await db.createPost(title, views, rating, description);
+        const {userId, title, description, imageUrls, price} = req.body;
+        const newPost = await db.createPost(userId, title, description, imageUrls, price);
         res.status(200);
         res.end();
     } catch (e) {
@@ -45,8 +45,8 @@ posts.post("/", async (req, res, next) => {
 
 posts.put("/:id", async (req, res, next) => {
     try {
-        const {title, views, rating, description} = req.body;
-        const updatedPost = await db.updatePost(req.params.id, title, views, rating, description);
+        const {title, description, imageUrls, price} = req.body;
+        const updatedPost = await db.updatePost(req.params.id, title, description, imageUrls, price);
         res.status(200);
         res.end();
     } catch (e) {

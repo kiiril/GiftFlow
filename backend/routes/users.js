@@ -1,104 +1,56 @@
 const express = require("express");
 const users = express.Router();
+const bcrypt = require("bcrypt");
 const db = require("../db/dbConn");
 
-users.get("/", async (req, res, next) => {
-    try {
-        const users = await db.getUsers();
-        res.status(200);
-        res.json(users);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+users.post("/login", async (req, res, next) => {
+    // todo: add some checks
+    const {email, password} = req.body;
+    let user = await db.getUserByEmail(email);
 
-users.get("/:id", async (req, res, next) => {
-    try {
-        const user = await db.getUser(req.params.id);
-        res.status(200);
-        res.json(user);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+    user = user[0]
 
-// users.post("/", async (req, res, next) => {
-//     try {
-//         const {email, password} = req.body;
-//         const newUser = await db.createUser(email, password);
-//         res.json(newUser);
-//         res.status(200);
-//         res.end();
-//     } catch (e) {
-//         console.log(e);
-//         res.sendStatus(500);
-//         next();
-//     }
-// });
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    req.session.userId = user.id;
+    res.json({ message: 'Login successful' });
+});
 
 users.post("/signup", async (req, res, next) => {
-    try {
-        const {email, password} = req.body;
-        if (email && password) {
-            const queryResult = await db.getUserByEmail(email);
-            if (queryResult.length === 0) {
-                const newUser = await db.createUser(email, password);
-                res.status(200);
-                res.json(newUser); // FIXME think what must be sent
-                res.end();
-            } else {
-                console.log("User already registered"); // return error msg
-            }
-        } else {
-            console.log("Please enter email and password!"); // return the error message
-        }
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+    // todo: add more checks
+    const {email, password} = req.body;
 
-users.post("/login", async (req, res, next) => {
+    // Validate input
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required.' });
+    }
+
+    // Check if user already exists
+    const existingUser = await db.getUserByEmail(email);
+    if (existingUser[0]) {
+        return res.status(400).json({ message: 'User already exists.' }); // fixme: maybe it is not good to expose this info
+    }
+
     try {
-        const {email, password} = req.body;
-        if (email && password) {
-            const queryResult = await db.getUserByEmail(email);
-            if (queryResult.length > 0) {
-                const user = queryResult[0];
-                if (password === user.password) {
-                    res.status(200);
-                    res.json(user);
-                    console.log("SESSION VALID"); // return success msg
-                } else {
-                    console.log("INCORRECT PASSWORD"); // return error msg
-                }
-            } else {
-                console.log("USER NOT REGISTERED"); // return error msg
-            }
-        } else {
-            console.log("Please enter email and password!"); // return the error message
-        }
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await db.createUser(email, hashedPassword);
+        // Automatically log the user in
+        req.session.userId = newUser.id;
+        res.status(201).json({ message: 'Signup successful' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Something went wrong during signup.' });
         next();
     }
 });
 
 users.put("/:id", async (req, res, next) => {
+    const {name, surname, dateOfBirthday, location, gender} = req.body;
     try {
-        console.log("Body", req.body)
-        const updatedUser = await db.updateUser(req.params.id, req.body);
+        const updatedUser = await db.updateUser(req.params.id, name, surname, dateOfBirthday, location, gender);
         res.status(200);
-        res.json(updatedUser);
         res.end();
     } catch (e) {
         console.log(e);
