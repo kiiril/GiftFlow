@@ -18,9 +18,10 @@ conn.connect((err) => {
 
 const dataPool = {}
 
+// POSTS
 dataPool.getPosts = (limit, offset) => {
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Topic pt ON p.id = pt.post_id JOIN Topic t ON pt.topic_id = t.id GROUP BY p.id, p.title LIMIT ? OFFSET ?", [limit, offset], (err,res)=> {
+        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Tag pt ON p.id = pt.post_id JOIN Tag t ON pt.tag_id = t.id GROUP BY p.id, p.title LIMIT ? OFFSET ?", [limit, offset], (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
         });
@@ -29,30 +30,41 @@ dataPool.getPosts = (limit, offset) => {
 
 dataPool.getPost = (id) => {
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Topic pt ON p.id = pt.post_id JOIN Topic t ON pt.topic_id = t.id WHERE p.id = ? GROUP BY p.id, p.title", id,  (err,res)=> {
+        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Tag pt ON p.id = pt.post_id JOIN Tag t ON pt.tag_id = t.id WHERE p.id = ? GROUP BY p.id, p.title", id,  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
         });
     });
 }
 
-dataPool.createPost = (title, views, rating, description) => {
+dataPool.createPost = (user_id, title, description, imageUrls, price) => {
     return new Promise((resolve, reject) => {
-        conn.query("INSERT INTO Post (title, views, rating, description) VALUES (?, ?, ?, ?)", [title, views, rating, description], (err, res) => {
-            if(err) return reject(err)
-            return resolve(res);
-        });
+        const imageUrlsJson = JSON.stringify(imageUrls);
+        conn.query(
+            "INSERT INTO Post (user_id, title, description, image_urls, price) VALUES (?, ?, ?, ?, ?)",
+            [user_id, title, description, imageUrlsJson, price],
+            (err, res) => {
+                if (err) return reject(err)
+                return resolve(res);
+            }
+        );
     });
 }
 
-dataPool.updatePost = (id, title, views, rating, description) => {
+dataPool.updatePost = (post_id, title, description, imageUrls, price) => {
     return new Promise((resolve, reject) => {
-        conn.query("UPDATE Post SET title = ?, views = ?, rating = ?, description = ? WHERE id = ?", [title, views, rating, description, id], (err, res) => {
-            if(err) return reject(err)
-            return resolve(res);
-        });
+        const imageUrlsJson = JSON.stringify(imageUrls);
+
+        conn.query(
+            "UPDATE Post SET title = ?, description = ?, image_urls = ?, price = ? WHERE id = ?",
+            [title, description, imageUrlsJson, price, post_id],
+            (err, res) => {
+                if (err) return reject(err);
+                return resolve(res);
+            }
+        );
     });
-}
+};
 
 dataPool.deletePost = (id) => {
     return new Promise((resolve, reject) => {
@@ -63,15 +75,41 @@ dataPool.deletePost = (id) => {
     });
 }
 
-dataPool.getUsers = () => {
+
+// COMMENTS
+dataPool.getComments = (limit, offset) => {
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT * FROM User",  (err,res)=> {
+        conn.query("SELECT * FROM Comment LIMIT ? OFFSET ?", [limit, offset], (err, res)=> {
             if(err) return reject(err)
             return resolve(res);
         });
     });
 }
 
+dataPool.getComment = (id) => {
+    return new Promise((resolve, reject)=> {
+        conn.query("SELECT * FROM Comment WHERE id = ?", id, (err, res)=> {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.createComment = (userId, postId, parentCommentId, content) => {
+    return new Promise((resolve, reject) => {
+        conn.query("INSERT INTO Comment (user_id, post_id, parent_comment_id, content) VALUES (?, ?, ?, ?)",
+            [userId, postId, parentCommentId, content],
+            (err, res) => {
+                if(err) return reject(err)
+                return resolve(res);
+            }
+        )
+    })
+}
+// update and delete comment?
+
+
+// USERS
 dataPool.getUser = (id) => {
     return new Promise((resolve, reject)=> {
         conn.query("SELECT * FROM User WHERE id = ?", id,  (err,res)=> {
@@ -99,12 +137,13 @@ dataPool.createUser = (email, password) => {
     });
 }
 
-dataPool.updateUser = (id, {email, name, surname, dateOfBirthday, gender})=> {
-    console.log(id, email, name, surname, dateOfBirthday, gender)
+dataPool.updateUser = (id, name, surname, dateOfBirthday, location, gender)=> {
     return new Promise((resolve, reject) => {
-        conn.query("UPDATE User SET email = ?, name = ?, surname = ?, dateOfBirthday = ?, gender = ? WHERE id = ?", [email, name, surname, dateOfBirthday, gender, id], (err, res) => {
-            if(err) return reject(err)
-            return resolve(res);
+        conn.query("UPDATE User SET name = ?, surname = ?, date_of_birthday = ?, location = ?, gender = ? WHERE id = ?",
+            [name, surname, dateOfBirthday, location, gender, id],
+            (err, res) => {
+                if(err) return reject(err)
+                return resolve(res);
         });
     });
 }
