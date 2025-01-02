@@ -9,18 +9,19 @@ import {useNavigate} from "react-router-dom";
 const PostCard = ({post}) => {
     const [postData, setPostData] = React.useState({
             id: "",
+            user_id: null,
             title: "",
-            rating: 0,
             description: "",
-            saved: 0,
-            price: "",
-            topics: [
-                {
-                    name: "",
-                    color: ""
-                }
-            ],
-            image_urls: []
+            image_urls: [],
+            price: 0,
+            posted_at: null,
+            views: 0,
+            rating: 0,
+            like_count: 0,
+            comment_count: 0,
+            share_count: 0,
+            location: "",
+            tags: []
         }
     );
     const navigate = useNavigate();
@@ -41,7 +42,10 @@ const PostCard = ({post}) => {
     }
 
     return (
-        <button className="btn p-0 text-start border-0 card shadow-sm" onChange={(e) => e.stopPropagation()}>
+        <button
+            className="btn p-0 text-start border-0 card shadow-sm h-100"
+            onChange={(e) => e.stopPropagation()}
+        >
             <img src={postData.image_urls[0]} className="card-img-top" alt="Something"/>
             <div className="card-body w-100">
                 <h3 className="card-title fw-bold">
@@ -50,13 +54,21 @@ const PostCard = ({post}) => {
 
                 <div className="d-flex align-items-center fw-light mb-3">
                     <i className="bi bi-geo-alt"></i>
-                    <span>Poland, Warsaw</span>
+                    <span>{postData.location}</span>
 
-                    <i className="bi bi-dot"></i>
+                    {postData.tags.map(tag => (
+                        tag.name
+                            ?
+                        <div>
+                            <i className="bi bi-dot"></i>
 
-                    <span className="badge rounded-pill text-bg-success">
-                        ECO
-                    </span>
+                            <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
+                                {tag.name}
+                            </span>
+                        </div>
+                            :
+                            null
+                    ))}
                 </div>
 
                 <div className="card-text mb-3">
@@ -77,8 +89,6 @@ const PostCard = ({post}) => {
 
                 <p className="fw-bold fs-4 mb-4">${postData.price}</p>
 
-                {/*<div className="text-break mb-3">#test#polina#love#first#broken#heart#gym#bro</div>*/}
-
                 <div className="d-flex justify-content-between align-items-center mb-3 px-3">
                     <div className="d-flex align-items-center">
                         <input
@@ -95,17 +105,17 @@ const PostCard = ({post}) => {
                                 className="fs-4"
                             />
                         </label>
-                        <span>1K</span>
+                        <span>{postData.like_count}</span>
                     </div>
 
                     <div className="d-flex align-items-center">
                         <FontAwesomeIcon icon={faComment} className="me-1 fs-4"/>
-                        <span>2.2K</span>
+                        <span>{postData.comment_count}</span>
                     </div>
 
                     <div className="d-flex align-items-center">
                         <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1"/>
-                        <span>1K</span>
+                        <span>{postData.share_count}</span>
                     </div>
                 </div>
 

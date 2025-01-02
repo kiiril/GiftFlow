@@ -6,6 +6,7 @@ posts.get("/", async (req, res, next) => {
     try {
         const {page = 1, limit = 10} = req.query;
         const offset = (page - 1) * limit;
+        console.log(page, offset, limit)
         const posts = await db.getPosts(parseInt(limit), offset);
         res.status(200);
         res.json(posts);

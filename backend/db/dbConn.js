@@ -20,8 +20,9 @@ const dataPool = {}
 
 // POSTS
 dataPool.getPosts = (limit, offset) => {
+    // fixme: decide if no tags are allowed
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Tag pt ON p.id = pt.post_id JOIN Tag t ON pt.tag_id = t.id GROUP BY p.id, p.title LIMIT ? OFFSET ?", [limit, offset], (err,res)=> {
+        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS tags FROM Post p LEFT JOIN Post_x_Tag pt ON p.id = pt.post_id LEFT JOIN Tag t ON pt.tag_id = t.id GROUP BY p.id, p.title LIMIT ? OFFSET ?", [limit, offset], (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
         });
@@ -30,7 +31,7 @@ dataPool.getPosts = (limit, offset) => {
 
 dataPool.getPost = (id) => {
     return new Promise((resolve, reject)=> {
-        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS topics FROM Post p JOIN Post_x_Tag pt ON p.id = pt.post_id JOIN Tag t ON pt.tag_id = t.id WHERE p.id = ? GROUP BY p.id, p.title", id,  (err,res)=> {
+        conn.query("SELECT p.*, JSON_ARRAYAGG(JSON_OBJECT('name', t.name, 'color', t.color)) AS tags FROM Post p JOIN Post_x_Tag pt ON p.id = pt.post_id JOIN Tag t ON pt.tag_id = t.id WHERE p.id = ? GROUP BY p.id, p.title", id,  (err,res)=> {
             if(err) return reject(err)
             return resolve(res);
         });

@@ -8,7 +8,7 @@ import {faCoins, faHeart as fullHeart, faLocationDot, faStar as fullStar} from "
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 
 const Post = () => {
-    const [postData, setPostData] = React.useState({
+    const [postData, setPostData] = useState({
             id: "",
             title: "",
             rating: 0,
