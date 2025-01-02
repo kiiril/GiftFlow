@@ -6,34 +6,45 @@ import axios from "axios";
 const ScrollFeed = () => {
     const [posts, setPosts] = React.useState([]);
     const [page, setPage] = React.useState(1);
-    const [limit, setLimit] = React.useState(1);
+    const [limit, setLimit] = React.useState(10);
+    const [hasMore, setHasMore] = React.useState(true);
     const lastElement = React.useRef(); // last element in the feed
     const observer = React.useRef(); // observer for infinite scrolling
 
     useEffect(() => {
+        if (!hasMore) return;
+
         if (observer.current) observer.current.disconnect();
         const callback = (entries, observer) => {
             if (entries[0].isIntersecting) {
-                setPage(page + 1);
+                setPage((prevPage) => prevPage + 1);
             }
         }
         observer.current = new IntersectionObserver(callback);
         observer.current.observe(lastElement.current);
-    }, [posts]);
+    }, [posts, hasMore]);
 
     const fetchPosts = async () => {
-        const response = await axios.get("http://localhost:8080/posts", {
+        if (!hasMore) return;
+
+        const response = await axios.get("http://localhost:8080/posts/", {
             params: {
                 limit: limit,
                 page: page
             }
         });
-        console.log(response.data)
-        setPosts([...posts, ...response.data]);
-        // setTotalCount(response.headers["x-total-count"]);
+        const newPosts = response.data;
+
+        // If fewer posts than the limit are returned, we've reached the end
+        if (newPosts.length < limit) {
+            setHasMore(false);
+        }
+
+        setPosts(prevPosts => [...prevPosts, ...newPosts]);
     }
 
     useEffect( ()=> {
+        // double fetching remains only in React.StrictMode (development mode)
         fetchPosts();
     }, [page]);
 
@@ -42,21 +53,11 @@ const ScrollFeed = () => {
         <div className="container">
             <FilterBar/>
             <div className="row g-3">
-                <div className="col-12 col-md-6 col-lg-4">
-                    {posts.map(post =>
-                        <PostCard key={post.id} post={post}/>
-                    )}
-                </div>
-                <div className="col-12 col-md-6 col-lg-4">
-                    {posts.map(post =>
-                        <PostCard key={post.id} post={post}/>
-                    )}
-                </div>
-                <div className="col-12 col-md-6 col-lg-4">
-                    {posts.map(post =>
-                        <PostCard key={post.id} post={post}/>
-                    )}
-                </div>
+                {posts.map(post => (
+                    <div key={post.id} className="col-12 col-md-6 col-lg-4">
+                        <PostCard post={post} />
+                    </div>
+                ))}
             </div>
             <div ref={lastElement} style={{height: "20px", backgroundColor: "red"}}/>
             {/* just for indication of the last post, will be removed */}
