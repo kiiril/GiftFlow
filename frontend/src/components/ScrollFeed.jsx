@@ -44,6 +44,7 @@ const ScrollFeed = () => {
     }
 
     useEffect( ()=> {
+        // double fetching remains only in React.StrictMode (development mode)
         fetchPosts();
     }, [page]);
 

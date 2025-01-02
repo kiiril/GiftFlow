@@ -47,10 +47,13 @@ const PostCard = ({post}) => {
             onChange={(e) => e.stopPropagation()}
         >
             <img src={postData.image_urls[0]} className="card-img-top" alt="Something"/>
-            <div className="card-body w-100">
-                <h3 className="card-title fw-bold">
-                    {postData.title}
-                </h3>
+            <div className="card-body w-100 d-flex flex-column">
+                <div style={{height: '3.6rem'}} className="mb-3">
+                    <h3 className="card-title fw-bold title-clamp m-0">
+                        {postData.title}
+                    </h3>
+                </div>
+
 
                 <div className="d-flex align-items-center fw-light mb-3">
                     <i className="bi bi-geo-alt"></i>
@@ -59,20 +62,21 @@ const PostCard = ({post}) => {
                     {postData.tags.map(tag => (
                         tag.name
                             ?
-                        <div>
-                            <i className="bi bi-dot"></i>
-
-                            <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
-                                {tag.name}
-                            </span>
-                        </div>
+                            <div>
+                                <i className="bi bi-dot"></i>
+                                <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
+                                    {tag.name}
+                                </span>
+                            </div>
                             :
                             null
                     ))}
                 </div>
 
-                <div className="card-text mb-3">
-                    {postData.description.length === 0 ? "No description" : postData.description.length > 100 ? postData.description.substring(0, 150) + "..." : postData.description}
+                <div style={{height: '4.5rem'}} className="mb-3">
+                    <div className="description-clamp">
+                        {postData.description || "No description"}
+                    </div>
                 </div>
 
                 <div className="d-flex align-items-center mb-3">
@@ -89,44 +93,37 @@ const PostCard = ({post}) => {
 
                 <p className="fw-bold fs-4 mb-4">${postData.price}</p>
 
-                <div className="d-flex justify-content-between align-items-center mb-3 px-3">
-                    <div className="d-flex align-items-center">
-                        <input
-                            type="checkbox"
-                            id={`like-${postData.id}`}
-                            className="d-none"
-                            onChange={savePost}
-                            checked={postData.saved}
-                        />
-                        <label htmlFor={`like-${postData.id}`} className="me-1">
-                            <FontAwesomeIcon
-                                icon={postData.saved ? fullHeart : emptyHeart}
-                                style={{color: postData.saved ? "red" : "black"}}
-                                className="fs-4"
+                <div className="mt-auto">
+                    <div className="d-flex justify-content-between align-items-center px-3">
+                        <div className="d-flex align-items-center">
+                            <input
+                                type="checkbox"
+                                id={`like-${postData.id}`}
+                                className="d-none"
+                                onChange={savePost}
+                                checked={postData.saved}
                             />
-                        </label>
-                        <span>{postData.like_count}</span>
-                    </div>
+                            <label htmlFor={`like-${postData.id}`} className="me-1">
+                                <FontAwesomeIcon
+                                    icon={postData.saved ? fullHeart : emptyHeart}
+                                    style={{color: postData.saved ? "red" : "black"}}
+                                    className="fs-4"
+                                />
+                            </label>
+                            <span>{postData.like_count}</span>
+                        </div>
 
-                    <div className="d-flex align-items-center">
-                        <FontAwesomeIcon icon={faComment} className="me-1 fs-4"/>
-                        <span>{postData.comment_count}</span>
-                    </div>
+                        <div className="d-flex align-items-center">
+                            <FontAwesomeIcon icon={faComment} className="me-1 fs-4"/>
+                            <span>{postData.comment_count}</span>
+                        </div>
 
-                    <div className="d-flex align-items-center">
-                        <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1"/>
-                        <span>{postData.share_count}</span>
+                        <div className="d-flex align-items-center">
+                            <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1"/>
+                            <span>{postData.share_count}</span>
+                        </div>
                     </div>
                 </div>
-
-                {/* TODO add tags */}
-                {/*<div className="mb-2 px-3">*/}
-                {/*    {postData.topics.map(tag => (*/}
-                {/*        <span key={tag.name} className="badge bg-secondary me-2 mb-1 p-2">*/}
-                {/*            {tag.name}*/}
-                {/*        </span>*/}
-                {/*    ))}*/}
-                {/*</div>*/}
             </div>
         </button>
     );
