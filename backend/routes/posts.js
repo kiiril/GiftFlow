@@ -6,7 +6,6 @@ posts.get("/", async (req, res, next) => {
     try {
         const {page = 1, limit = 10} = req.query;
         const offset = (page - 1) * limit;
-        console.log(page, offset, limit)
         const posts = await db.getPosts(parseInt(limit), offset);
         res.status(200);
         res.json(posts);
@@ -60,6 +59,33 @@ posts.put("/:id", async (req, res, next) => {
 posts.delete("/:id", async (req, res, next) => {
     try {
         const deletedPost = await db.deletePost(req.params.id);
+        res.status(200);
+        res.end();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+        next();
+    }
+});
+
+posts.get("/:id/comments", async (req, res, next) => {
+    try {
+        const comments = await db.getPostComments(parseInt(req.params.id));
+        res.status(200);
+        res.json(comments);
+        res.end();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+        next();
+    }
+});
+
+posts.post("/:id/comments", async (req, res, next) => {
+    try {
+        const {content} = req.body
+        const user_id = req.session.user_id;
+        const newComment = await db.createPostComment(req.params.id, user_id, content);
         res.status(200);
         res.end();
     } catch (e) {
