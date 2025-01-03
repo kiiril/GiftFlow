@@ -68,4 +68,31 @@ posts.delete("/:id", async (req, res, next) => {
     }
 });
 
+posts.get("/:id/comments", async (req, res, next) => {
+    try {
+        const comments = await db.getPostComments(parseInt(req.params.id));
+        res.status(200);
+        res.json(comments);
+        res.end();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+        next();
+    }
+});
+
+posts.post("/:id/comments", async (req, res, next) => {
+    try {
+        const {content} = req.body
+        const user_id = req.session.user_id;
+        const newComment = await db.createPostComment(req.params.id, user_id, content);
+        res.status(200);
+        res.end();
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(500);
+        next();
+    }
+});
+
 module.exports = posts;
