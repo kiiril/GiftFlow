@@ -8,35 +8,56 @@ import {faCoins, faHeart as fullHeart, faLocationDot, faStar as fullStar} from "
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 
 const Post = () => {
-    const [postData, setPostData] = useState({
+    const [postData, setPostData] = React.useState({
             id: "",
+            user_id: null,
             title: "",
-            rating: 0,
             description: "",
-            saved: 0,
-            price: "",
-            topics: [
-                {
-                    name: "",
-                    color: ""
-                }
-            ],
-            image_urls: []
+            image_urls: [],
+            price: 0,
+            posted_at: null,
+            views: 0,
+            rating: 0,
+            like_count: 0,
+            comment_count: 0,
+            share_count: 0,
+            location: "",
+            tags: [],
+            publisher_info: {
+                username: "",
+                avatar_url: ""
+            }
         }
     );
+    const [comments, setComments] = React.useState([])
+
     const params = useParams();
 
-    const fetchPost = async () => {
+    const fetchPosts = async () => {
         const response = await axios.get(`http://localhost:8080/posts/${params.id}`);
         setPostData(response.data);
-        console.log(response.data);
+    }
+
+    const fetchComments = async () => {
+        const response = await axios.get(`http://localhost:8080/posts/${params.id}/comments/`);
+        setComments(response.data);
     }
 
     useEffect(() => {
-        fetchPost();
+        fetchPosts();
+        fetchComments();
     }, []);
 
     const [commentValue, setCommentValue] = useState("")
+
+    const createComment = () => {
+        axios.post(`http://localhost:8080/posts/${params.id}/comments/`, {
+            content: commentValue
+        }).then(() => {
+            fetchComments();
+            setCommentValue("");
+        })
+    }
 
     const savePost = (e) => {
         const {checked} = e.target;
@@ -100,22 +121,29 @@ const Post = () => {
 
                                 <div className="d-flex align-items-center fw-light mb-3">
                                     <i className="bi bi-geo-alt"></i>
-                                    <span>Poland, Warsaw</span>
+                                    <span>{postData.location}</span>
 
-                                    <i className="bi bi-dot"></i>
-
-                                    <span className="badge rounded-pill text-bg-success me-5">
-                                        ECO
-                                    </span>
+                                    {postData.tags.map(tag => (
+                                        tag.name
+                                            ?
+                                            <div>
+                                                <i className="bi bi-dot"></i>
+                                                <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
+                                                    {tag.name}
+                                                </span>
+                                            </div>
+                                            :
+                                            null
+                                    ))}
                                 </div>
                             </div>
 
                             <div className="d-flex align-items-center mb-3">
-                                <img src="https://avatar.iran.liara.run/public" alt="User Avatar"
+                                <img src={postData.publisher_info.avatar_url} alt="User Avatar"
                                      className="rounded-circle me-2"
                                      style={{width: '50px', height: '50px'}}/>
                                 <div>
-                                    <h6 className="mb-0">John Doe</h6>
+                                    <h6 className="mb-0">{postData.publisher_info.username}</h6>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +165,7 @@ const Post = () => {
                                 <span className="ms-2">({postData.rating.toFixed(1)})</span>
                             </div>
                         </div>
-                        <p className="fw-bold fs-3 text-end">${postData.price}.00</p>
+                        <p className="fw-bold fs-3 text-end">${postData.price}</p>
                     </div>
                 </div>
             </div>
@@ -146,25 +174,37 @@ const Post = () => {
                 <div className="col-12 col-md-6 col-lg-6"></div>
 
                 <div className="col-12 col-md-6 col-lg-6">
-                    <h5 className="fw-bold mb-3">10 comments</h5>
+                    <h5 className="fw-bold mb-3">{comments.length} comments</h5>
 
-                    <div className="d-flex align-items-start mb-3 ps-3">
-                        <img src="https://via.placeholder.com/40" alt="User Avatar" className="rounded-circle me-2"
-                             style={{width: '40px', height: '40px'}}/>
+                    {comments.map(comment => (
+                        <div className="d-flex align-items-start mb-3 ps-3">
+                            <img src={comment.user_info.avatar_url} alt="User Avatar" className="rounded-circle me-2"
+                                 style={{width: '40px', height: '40px'}}
+                            />
 
-                        <div>
-                            <p className="mb-1">
-                                <span className="fw-bold me-2">Carla Besessen</span>
-                                <span>This is the comment text written by the user. It can span multiple lines if needed.</span>
-                            </p>
+                            <div>
+                                <p className="mb-1">
+                                    <span className="fw-bold me-2">{comment.user_info.username}</span>
+                                    <span>{comment.content}</span>
+                                </p>
 
+                                <div className="d-flex align-items-center text-muted">
+                                    <small className="me-3">2mo</small>
+                                    <small>Reply</small>
+                                </div>
 
-                            <div className="d-flex align-items-center text-muted">
-                                <small className="me-3">2mo</small>
-                                <small>Reply</small>
+                                {/*/!* Expand Replies Button *!/*/}
+                                {/*{comment.child_comments && comment.child_comments.length > 0 && (*/}
+                                {/*    <button*/}
+                                {/*        className="btn btn-link p-0 text-decoration-none mt-1"*/}
+                                {/*        style={{ fontSize: "0.9rem" }}*/}
+                                {/*    >*/}
+                                {/*        View {comment.child_comments.length} Replies*/}
+                                {/*    </button>*/}
+                                {/*)}*/}
                             </div>
                         </div>
-                    </div>
+                    ))}
 
                     <div className="d-flex align-items-start mb-3 ps-3">
                         <img src="https://via.placeholder.com/40" alt="User Avatar" className="rounded-circle me-2"
@@ -185,41 +225,31 @@ const Post = () => {
                         </div>
                     </div>
 
-                    {/* fixme: input is nice, button is not*/}
-                    <div className="position-relative">
-                        <input
-                            type="text"
-                            className="form-control shadow-none rounded-pill py-2"
-                            placeholder="Search here..."
-                            aria-describedby="send"
-                            onChange={(e) => setCommentValue(e.target.value)}
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        if (commentValue.trim()) {
+                            createComment();
+                        }
+                    }}>
+                        <div className="input-group rounded-pill bg-white px-2 py-1 shadow">
+                            <input
+                                type="text"
+                                className="form-control border-0 rounded-pill shadow-none me-1"
+                                placeholder="Type here"
+                                style={{caretColor: 'red'}}
+                                value={commentValue}
+                                onChange={(e) => setCommentValue(e.target.value)}
                             />
                             {commentValue.trim() &&
-                                <button
-                                    className="btn btn-dark position-absolute top-50 translate-middle-y end-0 me-1 rounded-circle"
-                                    type="button"
-                                    id="send"
-                                >
+                            <button
+                                className="btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                                type="submit"
+                            >
                                 <FontAwesomeIcon icon={faPaperPlane} />
-                                </button>
+                            </button>
                             }
-                    </div>
-
-                    <div className="input-group rounded-pill bg-white px-2 py-1 shadow">
-                        <input
-                            type="text"
-                            className="form-control border-0 rounded-pill shadow-none me-1"
-                            placeholder="Search here..."
-                            style={{caretColor: 'red'}}
-                            onChange={(e) => setCommentValue(e.target.value)}
-                        />
-                        {commentValue.trim() &&
-                        <button
-                            className="btn btn-dark rounded-circle d-flex align-items-center justify-content-center">
-                            <FontAwesomeIcon icon={faPaperPlane} />
-                        </button>
-                        }
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
