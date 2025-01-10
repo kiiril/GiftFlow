@@ -7,17 +7,12 @@ import {AuthContext, AuthProvider} from "../contexts/AuthProvider";
 
 const Login = () => {
     const navigate = useNavigate();
-    const {login, getUserCookies, removeUserCookies} = useContext(AuthContext);
+    const {login} = useContext(AuthContext);
 
     const [inputs, setInputs] = useState({
         email: "",
         password: ""
     });
-
-    useEffect(() => {
-        // setInputs(getUserCookies())
-        removeUserCookies(); // FIXME just instead logout for now
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
