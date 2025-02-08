@@ -58,7 +58,6 @@
     left: 5%;
 }
 
-/* Add these CSS classes to your stylesheet */
 .title-clamp {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -72,4 +71,26 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.custom-hover:hover {
+    background-color: var(--bs-gray-100);
+}
+
+.p-treeselect-header {
+    justify-content: end !important;
+}
+
+.p-tree-container {
+    padding: 0 !important;
+}
+
+.p-treeselect-items-wrapper {
+    padding: 0 1rem !important;
+}
+
+/* fix for dropdown menu appears at the top when scrolling page up */
+.dropdown-menu {
+    transform: translate3d(0px, 5px, 0px) !important;
+    inset: auto !important;
 }

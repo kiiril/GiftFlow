@@ -55,8 +55,8 @@ const Profile = () => {
                 </div>
             </nav>
 
-            <div className="d-flex">
-                <ul className="nav nav-pills flex-column col-4 h-100 px-4" id="v-pills-tab" role="tablist"
+            <div className="d-flex mx-8">
+                <ul className="nav nav-pills flex-column col-3 h-100" id="v-pills-tab" role="tablist"
                     aria-orientation="vertical">
                     <ProfileTab
                         icon={faUser}
