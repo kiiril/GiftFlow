@@ -4,7 +4,7 @@ import Landing from "../components/Landing";
 
 const Main = () => {
     return (
-        <div style={{backgroundColor: "#fffcf4"}}>
+        <div style={{backgroundColor: "var(--background-light)"}}>
             <Landing/>
             <h1 className="ms-5 ps-4">Let's specify your desires:</h1>
             <ScrollFeed/>

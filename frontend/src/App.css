@@ -10,6 +10,27 @@
             1px 1px 0 #000;
 }
 
+.primary-button {
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 15px;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 0.0625em #141413;
+    transition: transform .3s cubic-bezier(.5,2.5,.7,.7), box-shadow .3s cubic-bezier(.5,2.5,.7,.7);
+    transform: translateY(0);
+}
+
+.primary-button:hover {
+    box-shadow: 0 0 0 0.0625em #141413, 0 0.375em 0 0 #141413;
+    transform: translateY(-0.375em);
+}
+
+.primary-button:focus, .primary-button:active {
+    box-shadow: 0 0 0 0.0625em #141413, 0 0.203125em 0 0 #141413;
+    transform: translateY(-0.203125em);
+}
+
 .my-btn {
     transition: opacity 0.3s ease-in-out, color 0.3s ease-in-out;
 }
