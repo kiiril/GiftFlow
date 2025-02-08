@@ -10,6 +10,8 @@ const port = 8080; // 8108
 const posts = require("./routes/posts");
 const users = require("./routes/users");
 const comments = require("./routes/comments");
+const tags = require("./routes/tags");
+const locations = require("./routes/locations");
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // server static files, TODO restrict from everyone, organise structure
 
@@ -35,6 +37,8 @@ app.use(session({
 app.use("/posts", posts);
 app.use("/users", users);
 app.use("/comments", comments);
+app.use("/tags", tags);
+app.use("/locations", locations);
 
 app.get("/", (req, res) => {
     res.send("Hello, World!");

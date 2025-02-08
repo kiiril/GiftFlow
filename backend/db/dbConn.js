@@ -233,5 +233,31 @@ dataPool.deleteUser = (id) => {
     });
 }
 
+dataPool.getTags = () => {
+    return new Promise((resolve, reject) => {
+        conn.query("SELECT * FROM Tag", (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
+dataPool.getLocations = () => {
+    // todo: optimize for performance (pagination)
+    const query = `
+        SELECT
+            r.id AS id,
+            r.name AS label,
+            r.countries_json AS children
+        FROM RegionSorted r
+    `;
+    return new Promise((resolve, reject) => {
+        conn.query(query, (err, res) => {
+            if(err) return reject(err)
+            return resolve(res);
+        });
+    });
+}
+
 module.exports = dataPool;
 

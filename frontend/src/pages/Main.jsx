@@ -1,12 +1,12 @@
 import React from 'react';
-import Landing from "../components/Landing";
 import ScrollFeed from "../components/ScrollFeed";
+import Landing from "../components/Landing";
 
 const Main = () => {
     return (
-        <div>
+        <div style={{backgroundColor: "#fffcf4"}}>
             <Landing/>
-            <h1 className="ms-3 my-4">Let's specify your desires:</h1>
+            <h1 className="ms-5 ps-4">Let's specify your desires:</h1>
             <ScrollFeed/>
         </div>
     );

@@ -6,14 +6,11 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import SubmitButton from "./SubmitButton";
 import dayjs from "dayjs";
 import axios from "axios";
-import {AuthContext} from "../contexts/AuthProvider";
-import AutocompleteDropdown from "./AutocompleteDropdown";
 
 const countries = ["Belarus", "Bahrain"]
 const cities = ["Minsk", "Pinsk", "Mogilev"]
 
 const Account = () => {
-    const {setUserCookies, getUserCookies} = useContext(AuthContext);
 
     const [inputs, setInputs] = useState({
         name: "",
@@ -22,18 +19,10 @@ const Account = () => {
         dateOfBirthday: ""
     });
 
-    useEffect(() => {
-        // FIXME not necessary behaviour
-        const cookies = getUserCookies();
-        if (cookies)
-            setInputs(cookies);
-    }, []);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const response = await axios.put(`http://localhost:8080/users/${inputs.id}`, inputs);
         console.log(response);
-        setUserCookies(inputs);
     }
 
     const handleChange = (e) => {

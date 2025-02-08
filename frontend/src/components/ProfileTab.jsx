@@ -2,7 +2,7 @@ import React from 'react';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const ProfileTab = ({icon, title, description, active, children}) => {
-    const className = `nav-link account-tab d-flex align-items-center rounded rounded-4 bg-white text-black fs-5 mx-3 my-3`;
+    const className = `nav-link account-tab d-flex align-items-center rounded rounded-4 bg-white text-black fs-5 my-3`;
     return (
         <li className="nav-item">
             <a
