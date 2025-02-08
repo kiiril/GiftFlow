@@ -1,3 +1,7 @@
+:root {
+    --background-light: #FFFCF4;
+}
+
 * {
     font-family: "Montserrat", sans-serif;
     padding: 0;

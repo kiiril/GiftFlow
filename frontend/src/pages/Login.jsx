@@ -1,7 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import Logo from "../components/Logo";
 import SubmitButton from "../components/SubmitButton";
-import axios from "axios";
 import {Link, useNavigate} from "react-router-dom";
 import {AuthContext, AuthProvider} from "../contexts/AuthProvider";
 
