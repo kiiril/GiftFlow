@@ -31,6 +31,39 @@
     transform: translateY(-0.203125em);
 }
 
+.nav-link-custom {
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    color: #2C3E50;
+    font-size: 1.5rem;
+    border-radius: 15px;
+}
+
+.nav-link-custom:hover {
+    color: #2C3E50;
+    background-color: #EBDBBC;
+}
+
+.dropdown-item-custom {
+    cursor: pointer;
+    font-weight: bold;
+    color: #2C3E50;
+    padding: 0.6rem 1.2rem;
+}
+
+.dropdown-item-custom:hover {
+    color: #2C3E50;
+    background-color: #EBDBBC;
+}
+
+.dropdown-menu-custom {
+    border-radius: 10px;
+    overflow: hidden; /* Ensures child elements don't break border-radius */
+    padding: 0;
+    font-size: 1.25rem;
+}
+
 .my-btn {
     transition: opacity 0.3s ease-in-out, color 0.3s ease-in-out;
 }
@@ -111,7 +144,7 @@
 }
 
 /* fix for dropdown menu appears at the top when scrolling page up */
-.dropdown-menu {
-    transform: translate3d(0px, 5px, 0px) !important;
-    inset: auto !important;
-}
+/*.dropdown-menu {*/
+/*    transform: translate3d(0px, 5px, 0px) !important;*/
+/*    inset: auto !important;*/
+/*}*/
