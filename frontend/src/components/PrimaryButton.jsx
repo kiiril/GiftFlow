@@ -5,7 +5,7 @@ const PrimaryButton = (
         text="Button",
         backgroundColor = "#C24632",
         textColor = "#FFFFFF",
-        className="text-center fs-5 px-4 py-2 me-3"
+        className="text-center fs-5 fw-bold px-4 py-2"
     }) => {
     return (
         <a
