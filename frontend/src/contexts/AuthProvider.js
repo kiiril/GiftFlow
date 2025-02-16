@@ -6,6 +6,13 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // Holds the authenticated user's information, fixme: probably not needed
 
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
     // Signup function
     const signup = async ({email, password}) => {
         try {
@@ -26,6 +33,7 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post("http://localhost:8080/users/login", { email, password });
             if (response.status === 200) {
                 setUser(response.data);
+                localStorage.setItem('user', JSON.stringify(response.data));
                 return response.data;
             }
         } catch (error) {

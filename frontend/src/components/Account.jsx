@@ -7,9 +7,6 @@ import SubmitButton from "./SubmitButton";
 import dayjs from "dayjs";
 import axios from "axios";
 
-const countries = ["Belarus", "Bahrain"]
-const cities = ["Minsk", "Pinsk", "Mogilev"]
-
 const Account = () => {
 
     const [inputs, setInputs] = useState({
