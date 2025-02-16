@@ -8,6 +8,8 @@ import {AuthProvider} from "./contexts/AuthProvider";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Error from "./pages/Error";
 import Post from "./pages/Post";
+import NewProfile from "./pages/NewProfile";
+import Header from "./components/Header";
 
 function App() {
     const router = createBrowserRouter([
@@ -31,12 +33,19 @@ function App() {
         {
             path: "/posts/:id",
             element: <Post/>
+        },
+        {
+            path: "/newProfile",
+            element: <NewProfile/>
         }
     ]);
 
     return (
         <AuthProvider>
-            <RouterProvider router={router}/>
+            <div style={{backgroundColor: "var(--background-light)", width: "100vw", height: "100vh"}}>
+                <Header/>
+                <RouterProvider router={router}/>
+            </div>
         </AuthProvider>
     );
 }

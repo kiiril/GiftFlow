@@ -11,6 +11,7 @@
 }
 
 .primary-button {
+    text-align: center;
     text-decoration: none;
     cursor: pointer;
     display: inline-block;
@@ -19,6 +20,17 @@
     box-shadow: 0 0 0 0.0625em #141413;
     transition: transform .3s cubic-bezier(.5,2.5,.7,.7), box-shadow .3s cubic-bezier(.5,2.5,.7,.7);
     transform: translateY(0);
+}
+
+/* todo: move to a separate class */
+.form-control {
+    background-color: transparent;
+    border: 2px solid rgba(44, 62, 80, 0.5); /* #2C3E50 with 50% of transparency */
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #2C3E50;
 }
 
 .primary-button:hover {
