@@ -2,14 +2,14 @@ import './App.css';
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import React from "react";
-import Profile from "./pages/Profile";
 import Main from "./pages/Main";
 import {AuthProvider} from "./contexts/AuthProvider";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Error from "./pages/Error";
 import Post from "./pages/Post";
-import NewProfile from "./pages/NewProfile";
+import Profile from "./pages/Profile";
 import Header from "./components/Header";
+import UserCalendar from "./pages/UserCalendar";
 
 function App() {
     const router = createBrowserRouter([
@@ -27,16 +27,16 @@ function App() {
             element: <Signup/>
         },
         {
-            path: "/profile",
-            element: <Profile/>
-        },
-        {
             path: "/posts/:id",
             element: <Post/>
         },
         {
-            path: "/newProfile",
-            element: <NewProfile/>
+            path: "/profile",
+            element: <Profile/>
+        },
+        {
+            path: "/calendar",
+            element: <UserCalendar/>
         }
     ]);
 
