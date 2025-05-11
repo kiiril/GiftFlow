@@ -22,6 +22,32 @@
     transform: translateY(0);
 }
 
+.primary-button:hover {
+    box-shadow: 0 0 0 0.0625em #141413, 0 0.375em 0 0 #141413;
+    transform: translateY(-0.375em);
+}
+
+.primary-button:focus, .primary-button:active {
+    box-shadow: 0 0 0 0.0625em #141413, 0 0.203125em 0 0 #141413;
+    transform: translateY(-0.203125em);
+}
+
+.secondary-button {
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 15px;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 0.0625em #141413;
+}
+
+.secondary-button:hover {
+    background-color: #f0f0f0 !important;
+    border-color: #cccccc !important;
+    /* todo: change colors and/or effects */
+}
+
 /* todo: move to a separate class */
 .form-control {
     background-color: transparent;
@@ -33,14 +59,14 @@
     border-color: #2C3E50;
 }
 
-.primary-button:hover {
-    box-shadow: 0 0 0 0.0625em #141413, 0 0.375em 0 0 #141413;
-    transform: translateY(-0.375em);
+.form-select {
+    background-color: transparent;
+    border: 2px solid rgba(44, 62, 80, 0.5); /* #2C3E50 with 50% of transparency */
 }
 
-.primary-button:focus, .primary-button:active {
-    box-shadow: 0 0 0 0.0625em #141413, 0 0.203125em 0 0 #141413;
-    transform: translateY(-0.203125em);
+.form-select:focus {
+    box-shadow: none;
+    border-color: #2C3E50;
 }
 
 .nav-link-custom {
@@ -160,3 +186,56 @@
 /*    transform: translate3d(0px, 5px, 0px) !important;*/
 /*    inset: auto !important;*/
 /*}*/
+
+/*.accordion-button:focus {*/
+/*    box-shadow: none;*/
+/*}*/
+
+/*.accordion-button:not(.collapsed) {*/
+/*    box-shadow: none;*/
+/*    background-color: transparent;*/
+/*}*/
+
+/*.accordion-item {*/
+/*    border-bottom: none;*/
+/*}*/
+
+/*.accordion-body {*/
+/*    background-color: #f8f9fa; !* Bootstrap light gray *!*/
+/*    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);*/
+/*    border-top: none; !* no explicit border needed with shadow *!*/
+/*}*/
+
+/*.accordion-button {*/
+/*    border-bottom: 1px solid rgba(0, 0, 0, 0.1); !* subtle separation *!*/
+/*}*/
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.accordion-item {
+    border-bottom: none;
+}
+
+.accordion-body {
+    background-color: #f8f9fa;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-top: none;
+}
+
+.accordion-button {
+    border-bottom: none; /* removed to avoid weird overlap */
+}
+
+
+
+
+
+
+
