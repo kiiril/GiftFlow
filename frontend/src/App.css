@@ -110,7 +110,7 @@
     opacity: 0.85; /* fixme make darker */
 }
 
-.card-img-top {
+.card-img-top, .card-img-left {
     aspect-ratio: 1/1; /* you can adjust this to fit the design */
     object-fit: contain; /* ensures the image fills the area without stretching */
     width: 100%;
