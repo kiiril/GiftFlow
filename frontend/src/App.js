@@ -10,6 +10,7 @@ import Post from "./pages/Post";
 import Profile from "./pages/Profile";
 import Header from "./components/Header";
 import UserCalendar from "./pages/UserCalendar";
+import MyPosts from "./pages/MyPosts";
 
 function App() {
     const router = createBrowserRouter([
@@ -37,6 +38,10 @@ function App() {
         {
             path: "/calendar",
             element: <UserCalendar/>
+        },
+        {
+            path: "/myposts",
+            element: <MyPosts/>
         }
     ]);
 
