@@ -1,3 +1,8 @@
+.form-check-input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .btn-shadow {
     box-shadow: 0 0.375em 0 0 black; /* Shadow effect */
 }
@@ -40,12 +45,6 @@
     border-radius: 15px;
     box-sizing: border-box;
     box-shadow: 0 0 0 0.0625em #141413;
-}
-
-.secondary-button:hover {
-    background-color: #f0f0f0 !important;
-    border-color: #cccccc !important;
-    /* todo: change colors and/or effects */
 }
 
 /* todo: move to a separate class */
@@ -232,6 +231,56 @@
 .accordion-button {
     border-bottom: none; /* removed to avoid weird overlap */
 }
+
+/* fixme: mb needed */
+/*.carousel-inner img {*/
+/*    max-height: 70vh;*/
+/*    object-fit: cover;*/
+/*    width: 100%;*/
+/*}*/
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;       /* allow items to wrap as needed */
+    align-items: center;
+}
+
+/* Keep each block unbreakable internally */
+.meta__loc,
+.meta__tags {
+    white-space: nowrap;   /* never break lines _inside_ this block */
+    flex-shrink: 0;        /* don’t let it shrink below its intrinsic width */
+}
+
+/* Reposition the caret to the far right */
+.dropdown-toggle {
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.dropdown-toggle::after {
+    margin-left: 0;
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.active {
+    background-color: #F0EEE6 !important;
+    color: #2C3E50 !important;
+}
+
+.custom-dashed {
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='4' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.dropdown-menu {
+    max-height: 30vh;
+    overflow-y: auto;
+}
+
+
 
 
 

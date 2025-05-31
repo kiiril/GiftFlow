@@ -1,5 +1,7 @@
 :root {
     --background-light: #FFFCF4;
+    --bs-body-color:    #2C3E50;
+    --bs-headings-color: #2C3E50;
 }
 
 * {
@@ -14,6 +16,7 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: #2C3E50;
 }
 
 code {

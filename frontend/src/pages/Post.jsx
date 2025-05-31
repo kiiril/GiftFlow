@@ -29,6 +29,7 @@ const Post = () => {
             }
         }
     );
+    const [expanded, setExpanded] = useState(false);
     const [comments, setComments] = React.useState([])
 
     const params = useParams();
@@ -100,6 +101,7 @@ const Post = () => {
                                 </div>
                             )}
                         </div>
+
                         <button className="carousel-control-prev" type="button" data-bs-target={`#${postData.id}`}
                                 data-bs-slide="prev">
                             <span className="visually-hidden">Previous</span>
@@ -112,33 +114,35 @@ const Post = () => {
                 </div>
 
                 <div className="col-12 col-md-6 col-lg-6">
-                    <div className="card-body pt-0">
-                        <div className="d-flex justify-content-between align-items-start">
+                    <div className="card-body d-flex flex-column h-100">
+                        <div className="d-flex align-items-start">
                             <div className="flex-grow-1 me-3">
                                 <h3 className="card-title fw-bold">
                                     {postData.title}
                                 </h3>
 
-                                <div className="d-flex align-items-center fw-light mb-3">
-                                    <i className="bi bi-geo-alt"></i>
-                                    <span>{postData.location}</span>
+                                <div className="d-flex flex-wrap align-items-center meta mb-3">
+                                    {/* 1) Location block */}
+                                    <div className="d-flex fw-light align-items-center meta__loc me-2">
+                                        <i className="bi bi-geo-alt me-1"></i>
+                                        <span>{postData.location}</span>
+                                    </div>
 
-                                    {postData.tags.map(tag => (
-                                        tag.name
-                                            ?
-                                            <div>
-                                                <i className="bi bi-dot"></i>
-                                                <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
-                                                    {tag.name}
-                                                </span>
-                                            </div>
-                                            :
-                                            null
-                                    ))}
+                                    {/* 2) Badges block */}
+                                    <div className="d-flex align-items-center meta__tags">
+                                        {postData.tags.map((tag) => (
+                                            <span
+                                                className="badge rounded-pill me-1"
+                                                style={{backgroundColor: tag.color}}
+                                            >
+                                                {tag.name}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="d-flex align-items-center mb-3">
+                            <div className="d-flex align-items-center flex-shrink-0">
                                 <img src={postData.publisher_info.avatar_url} alt="User Avatar"
                                      className="rounded-circle me-2"
                                      style={{width: '50px', height: '50px'}}/>
@@ -148,12 +152,57 @@ const Post = () => {
                             </div>
                         </div>
 
+                        {/*<div className="card-text mb-3" style={{textAlign: "justify"}}>*/}
+                        {/*    {postData.description.length === 0 ? "No description" : postData.description}*/}
+                        {/*</div>*/}
+
                         <div className="card-text mb-3" style={{textAlign: "justify"}}>
-                            {postData.description.length === 0 ? "No description" : postData.description}
+                            {postData.description.length === 0 ? (
+                                "No description"
+                            ) : postData.description.length > 250 ? (
+                                <>
+                                    <p
+                                        className="mb-1"
+                                        style={{
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: expanded ? 'none' : 3,
+                                            WebkitBoxOrient: 'vertical'
+                                        }}
+                                    >
+                                        {postData.description}
+                                    </p>
+                                    {/* fixme: change color */}
+                                    <button
+                                        className="btn btn-link fw-light p-0"
+                                        onClick={() => setExpanded(!expanded)}
+                                    >
+                                        {expanded ? 'Show less' : 'Read more'}
+                                    </button>
+                                </>
+                            ) : (
+                                <p className="mb-0">{postData.description}</p>
+                            )}
                         </div>
 
-                        <div className="d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center mb-3">
+
+                        <div className="d-flex align-items-center gap-5 mb-4">
+                            <div className="d-flex align-items-center ">
+                                <FontAwesomeIcon
+                                    icon={postData.saved ? fullHeart : emptyHeart}
+                                    style={{color: postData.saved ? "red" : "black"}}
+                                    className="fs-4 me-1"
+                                />
+                                <span>{postData.like_count}</span>
+                            </div>
+
+                            <div className="d-flex align-items-center ">
+                                <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1"/>
+                                <span>{postData.share_count}</span>
+                            </div>
+
+                            <div className="d-flex align-items-center gap-2 ms-auto">
                                 <Rating
                                     value={postData.rating}
                                     icon={<FontAwesomeIcon icon={fullStar}/>}
@@ -162,18 +211,16 @@ const Post = () => {
                                     precision={0.1}
                                     size="small"
                                 />
-                                <span className="ms-2">({postData.rating.toFixed(1)})</span>
+                                <span>({postData.rating.toFixed(1)})</span>
                             </div>
                         </div>
-                        <p className="fw-bold fs-3 text-end">${postData.price}</p>
+                        <div className="fw-bold fs-3 text-end">${postData.price}</div>
                     </div>
                 </div>
             </div>
 
             <div className="row">
-                <div className="col-12 col-md-6 col-lg-6"></div>
-
-                <div className="col-12 col-md-6 col-lg-6">
+                <div className="col-12 col-md-6 col-lg-6 offset-md-6">
                     <h5 className="fw-bold mb-3">{comments.length} comments</h5>
 
                     {comments.map(comment => (
@@ -206,25 +253,6 @@ const Post = () => {
                         </div>
                     ))}
 
-                    <div className="d-flex align-items-start mb-3 ps-3">
-                        <img src="https://via.placeholder.com/40" alt="User Avatar" className="rounded-circle me-2"
-                             style={{width: '40px', height: '40px'}}/>
-
-                        <div>
-                            <p className="mb-1">
-                                <span className="fw-bold me-2">Carla Besessen</span>
-                                <small className="text-muted">2mo</small>
-                            </p>
-
-
-                            <div className="d-flex align-items-center">
-                                <span>This is the comment text written by the user. It can span multiple lines if needed.</span>
-                            </div>
-
-                            <small className="text-muted">Reply</small>
-                        </div>
-                    </div>
-
                     <form onSubmit={(e) => {
                         e.preventDefault();
                         if (commentValue.trim()) {
@@ -241,12 +269,12 @@ const Post = () => {
                                 onChange={(e) => setCommentValue(e.target.value)}
                             />
                             {commentValue.trim() &&
-                            <button
-                                className="btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
-                                type="submit"
-                            >
-                                <FontAwesomeIcon icon={faPaperPlane} />
-                            </button>
+                                <button
+                                    className="btn btn-dark rounded-circle d-flex align-items-center justify-content-center"
+                                    type="submit"
+                                >
+                                    <FontAwesomeIcon icon={faPaperPlane} />
+                                </button>
                             }
                         </div>
                     </form>
