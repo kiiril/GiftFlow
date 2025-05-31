@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import SecondaryButton from "./SecondaryButton";
 
 const PriceDropdown = ({title}) => {
     const [fromInput, setFromInput] = useState("");
@@ -12,9 +13,10 @@ const PriceDropdown = ({title}) => {
     }
 
     return (
-        <div className="dropdown">
+        <div className="position-relative">
             <button
-                className="btn btn-outline-dark dropdown-toggle"
+                className="btn dropdown-toggle text-start w-100"
+                style={{border: "2px solid rgba(44, 62, 80, 0.5)"}}
                 type="button"
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
@@ -23,11 +25,13 @@ const PriceDropdown = ({title}) => {
                 {title}
             </button>
 
-            <ul className="dropdown-menu">
-                <div className="p-2" style={{minWidth: "15rem"}}>
-                    <div className="row mb-3">
+            <ul className="dropdown-menu mt-2">
+                <div className="p-2">
+                    <div className="row mb-3" style={{minWidth: "15rem"}}>
                         <div className="col">
-                            <label className="form-label">From</label>
+                            <label className="form-label">
+                                From
+                            </label>
                             <input
                                 type="text"
                                 className="form-control"
@@ -37,7 +41,9 @@ const PriceDropdown = ({title}) => {
                             />
                         </div>
                         <div className="col">
-                            <label className="form-label">To</label>
+                            <label className="form-label">
+                                To
+                            </label>
                             <input
                                 type="text"
                                 className="form-control"
@@ -48,11 +54,12 @@ const PriceDropdown = ({title}) => {
                         </div>
                     </div>
 
-                    <div className="row">
-                        <div className="col">
-                            <button className="btn btn-outline-success w-100">Apply</button>
-                        </div>
-                    </div>
+                    <SecondaryButton
+                        text={"Change"}
+                        onHoverTextColor={"#FFFFFF"}
+                        onHoverBackgroundColor={"#2C3E50"}
+                        className={"py-1 w-100"}
+                    />
                 </div>
 
             </ul>

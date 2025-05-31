@@ -17,7 +17,8 @@ const SortButton = () => {
 
     return (
         <button
-            className="btn btn-outline-dark d-flex align-items-center"
+            className="btn d-flex align-items-center w-100"
+            style={{border: "2px solid rgba(44, 62, 80, 0.5)"}}
             onClick={toggleSortOrder}
         >
             <span className="me-2">Rating</span>
