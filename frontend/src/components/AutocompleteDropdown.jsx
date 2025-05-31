@@ -1,60 +1,84 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import {useClickOutside} from "../hooks/useClickOutside";
 
-const AutocompleteDropdown = ({label, items, index}) => {
-    const [inputValue, setInputValue] = useState("");
-    const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
+const AutocompleteDropdown = ({
+                                                 label = 'Select',
+                                                 items = [],
+                                                 defaultValue = '',
+                                                 index = 0,
+                                                 className = '',
+                                                 onChange,
+                                                 ...inputAttr
+                                             }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(defaultValue);
+    const [selectedItem, setSelectedItem] = useState(defaultValue);
+    const containerRef = useRef();
 
-    const handleChange = (e) => {
-        const value = e.target.value;
-        setInputValue(value);
+    useEffect(() => {
+        setSearchTerm(defaultValue);
+        setSelectedItem(defaultValue);
+    }, [defaultValue]);
 
-        if (value.trim() === "") {
-            setFilteredSuggestions([]);
-            setShowSuggestions(false);
-        } else {
-            const filtered = items.filter((item) =>
-                item.toLowerCase().startsWith(value.toLowerCase())
-            );
-            setFilteredSuggestions(filtered);
-            setShowSuggestions(true);
-        }
-    };
+    const handleClickOutside = () => {
+        setIsOpen(false);
+        setSearchTerm(selectedItem);
+    }
 
-    const handleSelect = (suggestion) => {
-        setInputValue(suggestion);
-        setShowSuggestions(false);
+    useClickOutside(containerRef, handleClickOutside);
+
+    const filteredItems = useMemo(() => {
+        const term = searchTerm.toLowerCase();
+        return term === ''
+            ? items
+            : items.filter(it => it.toLowerCase().includes(term));
+    }, [items, searchTerm]);
+
+    const onItemToggle = (value) => {
+        setSelectedItem(value);
+        setSearchTerm(value);
+        setIsOpen(false);
+        onChange?.(value);
     };
 
     return (
-        <div className="position-relative">
+        <div className="position-relative w-100" ref={containerRef}>
             <input
-                className="form-control mb-1"
                 type="text"
-                value={inputValue}
-                onChange={handleChange}
-                onFocus={() => setShowSuggestions(filteredSuggestions.length > 0)}
+                className={`form-control ${className}`}
                 placeholder={label}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={() => setIsOpen(true)}
+                aria-autocomplete="list"
+                aria-expanded={isOpen}
+                {...inputAttr}
             />
-            {showSuggestions && (
+
+            {isOpen && (
                 <ul
-                    className={`list-group position-absolute z-${index} w-100`}
+                    className="list-group position-absolute w-100 mt-1"
                 >
-                    {filteredSuggestions.length > 0 ? (
-                        filteredSuggestions.map((suggestion, index) => (
+                    {filteredItems.length > 0 ? (
+                        filteredItems.map((item, i) => (
                             <li
-                                key={index}
-                                onClick={() => handleSelect(suggestion)}
-                                className="list-group-item list-group-item-action"
-                                style={{
-                                    cursor: "pointer",
-                                }}
+                                key={i}
+                                role="option"
+                                aria-selected={item === selectedItem}
+                                className={
+                                    'list-group-item list-group-item-action border-0' +
+                                    (item === selectedItem ? ' active' : '')
+                                }
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => onItemToggle(item)}
                             >
-                                {suggestion}
+                                {item}
                             </li>
                         ))
                     ) : (
-                        <li className="list-group-item">No suggestions found</li>
+                        <li className="list-group-item text-muted">
+                            No suggestions found
+                        </li>
                     )}
                 </ul>
             )}

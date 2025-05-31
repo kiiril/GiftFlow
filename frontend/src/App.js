@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Header from "./components/Header";
 import UserCalendar from "./pages/UserCalendar";
 import MyPosts from "./pages/MyPosts";
+import CreateEditPost from "./pages/CreateEditPost";
 
 function App() {
     const router = createBrowserRouter([
@@ -42,6 +43,14 @@ function App() {
         {
             path: "/myposts",
             element: <MyPosts/>
+        },
+        {
+            path: "/posts/new",
+            element: <CreateEditPost/>
+        },
+        {
+            path: "/posts/:postId/edit",
+            element: <CreateEditPost/>
         }
     ]);
 

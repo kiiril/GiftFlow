@@ -40,7 +40,7 @@ const Header = () => {
             {
                 user ? (
                     <div className="d-flex align-items-center gap-4">
-                        <PrimaryButton text={"Create"} backgroundColor={"#91B58B"} className="fs-5 fw-bold px-4 py-1"/>
+                        <PrimaryButton text={"Create"} className="fs-5 fw-bold px-4 py-1" backgroundColor={"#2C3E50"}/>
 
                         <div className="dropdown">
                             <button

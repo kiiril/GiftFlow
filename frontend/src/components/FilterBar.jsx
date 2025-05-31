@@ -1,5 +1,4 @@
 import React from 'react';
-import TagsDropdown from "./TagsDropdown";
 import PriceDropdown from "./PriceDropdown";
 import SortButton from "./SortButton";
 import AutocompleteDropdown from "./AutocompleteDropdown";
@@ -45,8 +44,6 @@ const FilterBar = () => {
 
     return (
         <div className="d-flex align-items-center mb-5">
-            <TagsDropdown/>
-
             <PriceDropdown
                 title={"Price"}
             />
