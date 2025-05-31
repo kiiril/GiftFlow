@@ -276,6 +276,11 @@
     transform: translateY(-50%);
 }
 
+/* to change the caret */
+/*.dropdown-toggle::after {*/
+/*    content: none !important;*/
+/*}*/
+
 .active {
     background-color: #F0EEE6 !important;
     color: #2C3E50 !important;

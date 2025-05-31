@@ -126,7 +126,8 @@ const LocationDropdown = () => {
     return (
         <div className="dropdown">
             <button
-                className="btn btn-outline-dark dropdown-toggle"
+                className="btn dropdown-toggle text-start w-100"
+                style={{border: "2px solid rgba(44, 62, 80, 0.5)"}}
                 type="button"
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
