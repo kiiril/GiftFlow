@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
-import SubmitButton from "../components/SubmitButton";
 import {Link, useNavigate} from "react-router-dom";
-import {AuthContext, AuthProvider} from "../contexts/AuthProvider";
+import {AuthContext} from "../contexts/AuthProvider";
 import PrimaryButton from "../components/PrimaryButton";
 
 const Login = () => {
