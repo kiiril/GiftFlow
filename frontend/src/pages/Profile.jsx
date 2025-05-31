@@ -3,10 +3,9 @@ import axios from "axios";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import SubmitButton from "../components/SubmitButton";
-import PrimaryButton from "../components/PrimaryButton";
+import SecondaryButton from "../components/SecondaryButton";
 
-const Profile = props => {
+const Profile = () => {
     const [inputs, setInputs] = useState({
         name: "",
         surname: "",
@@ -28,23 +27,27 @@ const Profile = props => {
     }
 
     return (
-        <div className="py-5 fs-5" style={{color: "#2C3E50", paddingLeft: "15rem", paddingRight: "15rem"}}>
-            <form onSubmit={handleSubmit} style={{borderRadius: "15px"}}>
-                <div className="row mb-4">
-                    <div className="col-3 d-flex flex-column align-items-center gap-3">
+        <div className="container" style={{padding: "4rem 15rem"}}>
+            <form onSubmit={handleSubmit}>
+                <div className="row mb-4 gx-5">
+                    <div className="col-auto d-flex flex-column align-items-center gap-3">
                         <img
                             src="https://avatar.iran.liara.run/public"
                             alt="User Avatar"
                             className="rounded-circle"
-                            style={{width: '150px', height: '150px'}}
+                            style={{ width: "150px", height: "150px" }}
                         />
-                        <PrimaryButton text={"Change"} className="px-4" backgroundColor={"transparent"}
-                                       textColor={"#141413"}/>
+                        <SecondaryButton
+                            text={"Change"}
+                            onHoverTextColor={"#FFFFFF"}
+                            onHoverBackgroundColor={"#2C3E50"}
+                            className={"py-1"}
+                        />
                     </div>
 
-                    <div className="col-9">
-                        <div className="mb-4">
-                            <label htmlFor="username" className="form-label">Username</label>
+                    <div className="col">
+                        <div className="mb-3">
+                            <label htmlFor="username" className="form-label fw-bold">Username</label>
                             <input
                                 type="text"
                                 id="username"
@@ -56,9 +59,10 @@ const Profile = props => {
 
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div>
-                                <label htmlFor="birthday" className="d-block form-label">
+                                <label htmlFor="birthday" className="form-label fw-bold">
                                     Date of Birth
                                 </label>
+
                                 <DatePicker
                                     id="birthday"
                                     name="birthday"
@@ -74,7 +78,11 @@ const Profile = props => {
                                             padding: "0.5rem 0.75rem",
                                         },
                                         "& .MuiInputBase-root": {
-                                            border: "2px solid rgba(44, 62, 80, 0.5)"
+                                            border: "2px solid rgba(44, 62, 80, 0.5)",
+                                            "&:focus-within": {
+                                                borderColor: "#2C3E50",
+                                                color: "#2C3E50"
+                                            },
                                         },
                                         "& .MuiOutlinedInput-notchedOutline": {
                                             border: "none"
@@ -89,7 +97,7 @@ const Profile = props => {
                 <div className="row">
                     {/* fixme: don't use margins like that... temporary */}
                     <div className="mb-4">
-                        <label htmlFor="email" className="form-label">Email</label>
+                        <label htmlFor="email" className="form-label fw-bold">Email</label>
                         <input
                             type="email"
                             id="email"
@@ -99,7 +107,7 @@ const Profile = props => {
                         />
                     </div>
 
-                    <label className="form-label">Gender</label>
+                    <label className="form-label fw-bold">Gender</label>
                     <div className="d-flex w-100 justify-content-between mb-4">
                         <div className="form-check">
                             <input className="form-check-input" type="radio" name="gender" id="radioMale"/>
@@ -116,7 +124,7 @@ const Profile = props => {
                     </div>
 
                     <div className="mb-5">
-                        <label htmlFor="bio" className="form-label">Bio / About Me</label>
+                        <label htmlFor="bio" className="form-label fw-bold">About Me</label>
                         <textarea
                             id="bio"
                             className="form-control"
@@ -137,9 +145,9 @@ const Profile = props => {
                     {/*    ></textarea>*/}
                     {/*</div>*/}
 
-                    <div className="d-flex justify-content-between gap-5">
-                        <PrimaryButton className="py-2 w-100" text={"Save"} backgroundColor={"#91B58B"}/>
-                        <PrimaryButton className="py-2 w-100" text={"Cancel"} backgroundColor={"#3D3D3A"}/>
+                    <div className="d-flex justify-content-between gap-3">
+                        <SecondaryButton text={"Create"} onHoverTextColor={"#FFFFFF"} onHoverBackgroundColor={"#91B58B"} className="flex-grow-1"/>
+                        <SecondaryButton text={"Cancel"} onHoverBackgroundColor={"#F0EEE6"} className="flex-grow-1"/>
                     </div>
                 </div>
             </form>
