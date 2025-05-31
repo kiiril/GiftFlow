@@ -3,6 +3,15 @@
     box-shadow: none !important;
 }
 
+/*.form-check-input:checked[type=radio] {*/
+/*    --bs-form-check-bg-image: none !important;*/
+/*}*/
+
+.form-check-input:checked[type=radio] {
+    background-color: #2C3E50;
+    border-color: #2C3E50;
+}
+
 .btn-shadow {
     box-shadow: 0 0.375em 0 0 black; /* Shadow effect */
 }
@@ -44,7 +53,7 @@
     display: inline-block;
     border-radius: 15px;
     box-sizing: border-box;
-    box-shadow: 0 0 0 0.0625em #141413;
+    box-shadow: 0 0 0 0.0625em #2C3E50;
 }
 
 /* todo: move to a separate class */
@@ -56,6 +65,7 @@
 .form-control:focus {
     box-shadow: none;
     border-color: #2C3E50;
+    background-color: transparent;
 }
 
 .form-select {
@@ -276,7 +286,7 @@
 }
 
 .dropdown-menu {
-    max-height: 30vh;
+    max-height: 70vh;
     overflow-y: auto;
 }
 

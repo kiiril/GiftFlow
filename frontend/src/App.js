@@ -56,7 +56,7 @@ function App() {
 
     return (
         <AuthProvider>
-            <div style={{backgroundColor: "var(--background-light)", width: "100vw", height: "100vh"}}>
+            <div style={{backgroundColor: "var(--background-light)"}}>
                 <Header/>
                 <RouterProvider router={router}/>
             </div>
