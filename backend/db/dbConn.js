@@ -406,7 +406,49 @@ dataPool.isPostSavedByUser = (post_id, user_id) => {
     });
 }
 
-module.exports = dataPool;
+dataPool.getPostsByUser = (userId, limit, offset) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT
+                p.*,
+                (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT('name', t.name, 'color', t.color)
+                    )
+                    FROM Post_x_Tag AS pt
+                    JOIN Tag AS t ON pt.tag_id = t.id
+                    WHERE pt.post_id = p.id
+                ) AS tags,
+                JSON_OBJECT(
+                    'username', u.username,
+                    'avatar_url', u.avatar_url
+                ) AS publisher_info,
+                (
+                    SELECT COUNT(*)
+                    FROM PostLikes AS pl
+                    WHERE pl.post_id = p.id
+                ) AS like_count,
+                (
+                    SELECT COUNT(*)
+                    FROM Comment AS c
+                    WHERE c.post_id = p.id
+                ) AS comment_count,
+                (
+                    SELECT COUNT(*)
+                    FROM PostShares AS ps
+                    WHERE ps.post_id = p.id
+                ) AS shares_count
+            FROM Post AS p
+            LEFT JOIN User AS u ON p.user_id = u.id
+            WHERE p.user_id = ?
+            LIMIT ? OFFSET ?
+        `;
+        pool.query(query, [userId, limit, offset], (err, res) => {
+            if (err) return reject(err);
+            return resolve(res);
+        });
+    });
+}
 
 
 // COMMENTS
