@@ -6,6 +6,7 @@ import {Checkbox, Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCoins, faHeart as fullHeart, faLocationDot, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
+import {API_BASE_URL} from "../constants";
 
 const Post = () => {
     const [postData, setPostData] = React.useState({
@@ -16,13 +17,14 @@ const Post = () => {
             image_urls: [],
             price: 0,
             posted_at: null,
-            views: 0,
             rating: 0,
             like_count: 0,
-            comment_count: 0,
             share_count: 0,
             location: "",
-            tags: [],
+            tags: [{
+                name: "",
+                color: ""
+            }],
             publisher_info: {
                 username: "",
                 avatar_url: ""
@@ -60,16 +62,24 @@ const Post = () => {
         })
     }
 
-    const savePost = (e) => {
-        const {checked} = e.target;
-        setPostData(
-            {
-                ...postData,
-                saved: checked ? 1 : 0
+    const savePostToFavourites = async () => {
+        try {
+            const endpoint = postData.isSaved
+                ? `http://localhost:8080/posts/${postData.id}/unsave`
+                : `http://localhost:8080/posts/${postData.id}/save`;
+
+            const response = await axios.post(endpoint);
+            if (response.data.success) {
+                setPostData((prevData) => ({
+                    ...prevData,
+                    isSaved: !prevData.isSaved,
+                    like_count: prevData.isSaved ? prevData.like_count - 1 : prevData.like_count + 1
+                }));
             }
-        )
-        // TODO send a request to the server to save the post to favorites
-    }
+        } catch (error) {
+            console.error("Error saving/unsaving post:", error);
+        }
+    };
 
     return (
         <div className="card border-0" style={{margin: "8rem"}}>
@@ -94,7 +104,7 @@ const Post = () => {
                             {postData.image_urls.map((url, index) =>
                                 <div className={`carousel-item ${index === 0 ? "active" : ""}`}>
                                     <img
-                                        src={url}
+                                        src={API_BASE_URL + url}
                                         alt="post"
                                         className="img-fluid"
                                     />
@@ -143,7 +153,7 @@ const Post = () => {
                             </div>
 
                             <div className="d-flex align-items-center flex-shrink-0">
-                                <img src={postData.publisher_info.avatar_url} alt="User Avatar"
+                                <img src={API_BASE_URL + postData.publisher_info.avatar_url} alt="User Avatar"
                                      className="rounded-circle me-2"
                                      style={{width: '50px', height: '50px'}}/>
                                 <div>
@@ -188,12 +198,21 @@ const Post = () => {
 
 
                         <div className="d-flex align-items-center gap-5 mb-4">
-                            <div className="d-flex align-items-center ">
-                                <FontAwesomeIcon
-                                    icon={postData.saved ? fullHeart : emptyHeart}
-                                    style={{color: postData.saved ? "red" : "black"}}
-                                    className="fs-4 me-1"
+                            <div className="d-flex align-items-center">
+                                <input
+                                    type="checkbox"
+                                    id={`like-${postData.id}`}
+                                    className="d-none"
+                                    onChange={savePostToFavourites}
+                                    checked={postData.isSaved}
                                 />
+                                <label htmlFor={`like-${postData.id}`} className="me-1">
+                                    <FontAwesomeIcon
+                                        icon={postData.isSaved ? fullHeart : emptyHeart}
+                                        style={{color: postData.isSaved ? "red" : "black"}}
+                                        className="fs-4"
+                                    />
+                                </label>
                                 <span>{postData.like_count}</span>
                             </div>
 
@@ -225,7 +244,7 @@ const Post = () => {
 
                     {comments.map(comment => (
                         <div className="d-flex align-items-start mb-3 ps-3">
-                            <img src={comment.user_info.avatar_url} alt="User Avatar" className="rounded-circle me-2"
+                            <img src={API_BASE_URL + comment.user_info.avatar_url} alt="User Avatar" className="rounded-circle me-2"
                                  style={{width: '40px', height: '40px'}}
                             />
 

@@ -12,6 +12,7 @@ const users = require("./routes/users");
 const comments = require("./routes/comments");
 const tags = require("./routes/tags");
 const locations = require("./routes/locations");
+const auth = require("./routes/auth");
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // server static files, TODO restrict from everyone, organise structure
 
@@ -30,10 +31,11 @@ app.use(session({
     cookie: {
         httpOnly: true,
         secure: false, // set to true in production with HTTPS
-        maxAge: 3600000, // 1 hour
+        maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
 }));
 
+app.use("/auth", auth);
 app.use("/posts", posts);
 app.use("/users", users);
 app.use("/comments", comments);

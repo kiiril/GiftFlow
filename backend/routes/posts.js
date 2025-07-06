@@ -1,98 +1,26 @@
 const express = require("express");
-const posts = express.Router();
+const router = express.Router();
 const db = require("../db/dbConn");
+const {getAllPosts, createPost, getPost, updatePost, deletePost, getComments, createComment, savePostToFavourites,
+    removePostFromFavourites
+} = require("../controllers/postController");
 
-posts.get("/", async (req, res, next) => {
-    try {
-        const {page = 1, limit = 10} = req.query;
-        const offset = (page - 1) * limit;
-        const posts = await db.getPosts(parseInt(limit), offset);
-        res.status(200);
-        res.json(posts);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.get("/", getAllPosts);
 
-posts.get("/:id", async (req, res, next) => {
-    try {
-        const post = await db.getPost(parseInt(req.params.id));
-        res.status(200);
-        res.json(post[0]); // fixme: mb structure better
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.post("/", createPost);
 
-posts.post("/", async (req, res, next) => {
-    try {
-        const {userId, title, description, imageUrls, price} = req.body;
-        const newPost = await db.createPost(userId, title, description, imageUrls, price);
-        res.status(200);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.post("/:id/save", savePostToFavourites);
 
-posts.put("/:id", async (req, res, next) => {
-    try {
-        const {title, description, imageUrls, price} = req.body;
-        const updatedPost = await db.updatePost(req.params.id, title, description, imageUrls, price);
-        res.status(200);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.post("/:id/unsave", removePostFromFavourites);
 
-posts.delete("/:id", async (req, res, next) => {
-    try {
-        const deletedPost = await db.deletePost(req.params.id);
-        res.status(200);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.get("/:id", getPost);
 
-posts.get("/:id/comments", async (req, res, next) => {
-    try {
-        const comments = await db.getPostComments(parseInt(req.params.id));
-        res.status(200);
-        res.json(comments);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.put("/:id", updatePost);
 
-posts.post("/:id/comments", async (req, res, next) => {
-    try {
-        const {content} = req.body
-        const user_id = req.session.user_id;
-        const newComment = await db.createPostComment(req.params.id, user_id, content);
-        res.status(200);
-        res.end();
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500);
-        next();
-    }
-});
+router.delete("/:id", deletePost);
 
-module.exports = posts;
+router.get("/:id/comments", getComments);
+
+router.post("/:id/comments", createComment);
+
+module.exports = router;

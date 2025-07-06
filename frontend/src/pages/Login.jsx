@@ -38,7 +38,7 @@ const Login = () => {
                                     Sign in to your account
                                 </h1>
 
-                                <form onSubmit={handleSubmit}>
+                                <form>
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label fw-bold">
                                             Email
@@ -76,6 +76,7 @@ const Login = () => {
                                         <PrimaryButton
                                             backgroundColor={"#91B58B"}
                                             className={"w-100"}
+                                            onClick={handleSubmit}
                                         >
                                             Login
                                         </PrimaryButton>

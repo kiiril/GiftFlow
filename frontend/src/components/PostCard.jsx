@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {Checkbox, Rating} from "@mui/material";
+import {Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import TopicTag from "./TopicTag";
-import {faCoins, faLocationDot, faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
+import {faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
 import {faComment, faPaperPlane, faHeart as emptyHeart, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 import {useNavigate} from "react-router-dom";
+import {API_BASE_URL} from "../constants";
+import axios from "axios";
 
 const PostCard = ({post}) => {
+    const navigate = useNavigate();
     const [postData, setPostData] = React.useState({
             id: "",
             user_id: null,
@@ -21,32 +23,40 @@ const PostCard = ({post}) => {
             comment_count: 0,
             share_count: 0,
             location: "",
-            tags: []
+            tags: [],
+            isSaved: false
         }
     );
-    const navigate = useNavigate();
 
     useEffect(() => {
         setPostData(post);
     }, []);
 
-    const savePost = (e) => {
-        const {checked} = e.target;
-        setPostData(
-            {
-                ...postData,
-                saved: checked ? 1 : 0
+    const savePostToFavourites = async () => {
+        try {
+            const endpoint = postData.isSaved
+                ? `http://localhost:8080/posts/${postData.id}/unsave`
+                : `http://localhost:8080/posts/${postData.id}/save`;
+
+            const response = await axios.post(endpoint);
+            if (response.data.success) {
+                setPostData((prevData) => ({
+                    ...prevData,
+                    isSaved: !prevData.isSaved,
+                    like_count: prevData.isSaved ? prevData.like_count - 1 : prevData.like_count + 1
+                }));
             }
-        )
-        // TODO send a request to the server to save the post to favorites
-    }
+        } catch (error) {
+            console.error("Error saving/unsaving post:", error);
+        }
+    };
 
     return (
         <button
             className="btn p-0 text-start border-0 card shadow-sm h-100"
-            onChange={(e) => e.stopPropagation()}
+            onClick={(e) => navigate(`/posts/${postData.id}`)}
         >
-            <img src={postData.image_urls[0]} className="card-img-top" alt="Something"/>
+            <img src={API_BASE_URL + postData.image_urls[0]} className="card-img-top" alt="Something"/>
             <div className="card-body w-100 d-flex flex-column">
                 <div style={{height: '3.6rem'}} className="mb-3">
                     <h3 className="card-title fw-bold title-clamp m-0">
@@ -100,13 +110,13 @@ const PostCard = ({post}) => {
                                 type="checkbox"
                                 id={`like-${postData.id}`}
                                 className="d-none"
-                                onChange={savePost}
-                                checked={postData.saved}
+                                onChange={savePostToFavourites}
+                                checked={postData.isSaved}
                             />
                             <label htmlFor={`like-${postData.id}`} className="me-1">
                                 <FontAwesomeIcon
-                                    icon={postData.saved ? fullHeart : emptyHeart}
-                                    style={{color: postData.saved ? "red" : "black"}}
+                                    icon={postData.isSaved ? fullHeart : emptyHeart}
+                                    style={{color: postData.isSaved ? "red" : "black"}}
                                     className="fs-4"
                                 />
                             </label>

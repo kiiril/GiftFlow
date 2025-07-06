@@ -4,19 +4,30 @@ import axios from "axios";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // Holds the authenticated user's information, fixme: probably not needed
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true); // Important to avoid flashing redirects
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get("http://localhost:8080/users/me", {
+                    withCredentials: true,
+                });
+                setUser(response.data);
+            } catch (err) {
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
     }, []);
 
     // Signup function
-    const signup = async ({email, password}) => {
+    const signup = async ({username, email, password}) => {
         try {
-            const response = await axios.post("http://localhost:8080/users/signup", { email, password });
+            const response = await axios.post("http://localhost:8080/auth/signup", { username, email, password }, {withCredentials: true});
             if (response.status === 201) {
                 setUser(response.data);
                 return response.data;
@@ -30,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     // Login function
     const login = async ({email, password}) => {
         try {
-            const response = await axios.post("http://localhost:8080/users/login", { email, password });
+            const response = await axios.post("http://localhost:8080/auth/login", { email, password }, {withCredentials: true});
             if (response.status === 200) {
                 setUser(response.data);
                 localStorage.setItem('user', JSON.stringify(response.data));
@@ -42,39 +53,8 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Logout function
-    // const logout = async () => {
-    //     try {
-    //         const response = await axios.post("http://localhost:8080/users/logout");
-    //         if (response.status === 200) {
-    //             setUser(null); // Clear user data
-    //         }
-    //     } catch (error) {
-    //         console.error("Logout failed:", error);
-    //         throw error;
-    //     }
-    // };
-
-    // Check session on app load or page refresh
-    // const checkSession = async () => {
-    //     try {
-    //         const response = await axios.get("http://localhost:8080/users/me");
-    //         if (response.status === 200) {
-    //             setUser(response.data); // Set the logged-in user
-    //         }
-    //     } catch (error) {
-    //         console.warn("No active session:", error);
-    //         setUser(null);
-    //     }
-    // };
-
-    // Run `checkSession` once when the app loads
-    // useEffect(() => {
-    //     checkSession();
-    // }, []);
-
     return (
-        <AuthContext.Provider value={{ user, signup, login }}>
+        <AuthContext.Provider value={{ user, signup, login, loading }}>
             {children}
         </AuthContext.Provider>
     );

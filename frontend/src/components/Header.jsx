@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {faCalendarDays} from "@fortawesome/free-regular-svg-icons"
 import {AuthContext} from "../contexts/AuthProvider";
+import {API_BASE_URL} from "../constants";
 
 const Header = () => {
     const {user} = useContext(AuthContext);
@@ -50,7 +51,7 @@ const Header = () => {
                                 aria-expanded="false"
                             >
                                 <img
-                                    src="https://avatar.iran.liara.run/public"
+                                    src={API_BASE_URL + user.avatar_url}
                                     alt="User Avatar"
                                     className="rounded-circle"
                                     style={{width: '40px', height: '40px', cursor: 'pointer'}}
@@ -60,7 +61,7 @@ const Header = () => {
                                 className="dropdown-menu dropdown-menu-end dropdown-menu-custom mt-2"
                             >
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="#">
+                                    <a className="dropdown-item dropdown-item-custom" href="/profile">
                                         <FontAwesomeIcon icon={faUser} className="fa-fw me-1"/> Profile
                                     </a>
                                 </li>

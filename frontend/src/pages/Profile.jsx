@@ -1,48 +1,110 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import SecondaryButton from "../components/SecondaryButton";
+import {API_BASE_URL} from "../constants";
 
 const Profile = () => {
-    const [inputs, setInputs] = useState({
-        name: "",
-        surname: "",
-        gender: "",
-        dateOfBirthday: ""
-    });
+    const [userData, setUserData] = useState({});
+    const [originalUserData, setOriginalUserData] = useState({});
+    const [isChanged, setIsChanged] = useState(false);
 
-    const handleSubmit = async (e) => {
+    useEffect(() => {
+        const response =  axios.get(`http://localhost:8080/users/me`, {}).then(response => {
+            setUserData(response.data);
+            setOriginalUserData(response.data);
+        });
+    }, []);
+
+    const handleUpdate = async (e) => {
         e.preventDefault();
-        const response = await axios.put(`http://localhost:8080/users/${inputs.id}`, inputs);
-        console.log(response);
+        const formData = new FormData();
+
+        const avatarFile = document.getElementById("avatarUpload").files[0];
+        if (avatarFile) {
+            formData.append("avatar", avatarFile);
+        }
+
+        formData.append("username", userData.username);
+        formData.append("date_of_birthday", userData.date_of_birthday);
+        formData.append("location", userData.location);
+        formData.append("gender", userData.gender);
+        formData.append("bio", userData.bio);
+
+        try {
+            const response = await axios.put(`http://localhost:8080/users/me`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            console.log("Profile updated successfully:", response.data);
+            setOriginalUserData(response.data); // Update original data
+            setUserData(response.data); // Update current data
+            setIsChanged(false);
+        } catch (error) {
+            console.error("Error updating profile:", error);
+        }
     }
 
     const handleChange = (e) => {
-        setInputs({
-            ...inputs,
+        const updatedData = {
+            ...userData,
             [e.target.name]: e.target.value
-        });
+        };
+        setUserData(updatedData);
+        setIsChanged(JSON.stringify(updatedData) !== JSON.stringify(originalUserData));
     }
+
+    const handleDateChange = (value) => {
+        const updatedData = {
+            ...userData,
+            date_of_birthday: value ? dayjs(value).format("YYYY-MM-DD") : null
+        };
+        setUserData(updatedData);
+        setIsChanged(JSON.stringify(updatedData) !== JSON.stringify(originalUserData));
+    };
+
+    const handleAvatarChange = () => {
+        const avatarFile = document.getElementById("avatarUpload").files[0];
+        if (avatarFile) {
+            setIsChanged(true);
+        }
+    }
+
+    const handleCancel = () => {
+        setUserData(originalUserData);
+        setIsChanged(false);
+    };
 
     return (
         <div className="container" style={{padding: "4rem 15rem"}}>
-            <form onSubmit={handleSubmit}>
+            <form>
                 <div className="row mb-4 gx-5">
                     <div className="col-auto d-flex flex-column align-items-center gap-3">
                         <img
-                            src="https://avatar.iran.liara.run/public"
+                            src={API_BASE_URL + userData.avatar_url}
                             alt="User Avatar"
                             className="rounded-circle"
                             style={{ width: "150px", height: "150px" }}
                         />
-                        <SecondaryButton
-                            text={"Change"}
-                            onHoverTextColor={"#FFFFFF"}
-                            onHoverBackgroundColor={"#2C3E50"}
-                            className={"py-1"}
-                        />
+                        <>
+                            <input
+                                type="file"
+                                id="avatarUpload"
+                                style={{display: "none"}}
+                                accept="image/png, image/jpeg, image/jpg, image/svg"
+                                onChange={handleAvatarChange}
+                            />
+                            <SecondaryButton
+                                text={"Change"}
+                                onHoverTextColor={"#FFFFFF"}
+                                onHoverBackgroundColor={"#2C3E50"}
+                                className={"py-1"}
+                                onClick={() => document.getElementById("avatarUpload").click()}
+                            />
+                        </>
                     </div>
 
                     <div className="col">
@@ -51,9 +113,11 @@ const Profile = () => {
                             <input
                                 type="text"
                                 id="username"
+                                name={"username"}
                                 className="form-control py-2"
                                 placeholder="Enter your username"
-                                defaultValue="auto_generated_username"
+                                value={userData.username || ""}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -67,11 +131,9 @@ const Profile = () => {
                                     id="birthday"
                                     name="birthday"
                                     format="DD/MM/YYYY"
-                                    value={inputs.dateOfBirthday === "" ? null : dayjs(inputs.dateOfBirthday, "YYYY-MM-DD")}
-                                    onChange={(value) => setInputs({
-                                        ...inputs,
-                                        dateOfBirthday: value ? dayjs(value).format("YYYY-MM-DD") : ""
-                                    })}
+                                    value={userData.date_of_birthday ? dayjs(userData.date_of_birthday, "YYYY-MM-DD") : null}
+                                    onChange={handleDateChange}
+                                    maxDate={dayjs()}
                                     sx={{
                                         width: "100%",
                                         "& .MuiInputBase-input": {
@@ -102,7 +164,7 @@ const Profile = () => {
                             type="email"
                             id="email"
                             className="form-control py-2"
-                            value="user@example.com"
+                            value={userData.email || ""}
                             readOnly
                         />
                     </div>
@@ -110,15 +172,15 @@ const Profile = () => {
                     <label className="form-label fw-bold">Gender</label>
                     <div className="d-flex w-100 justify-content-between mb-4">
                         <div className="form-check">
-                            <input className="form-check-input" type="radio" name="gender" id="radioMale"/>
+                            <input className="form-check-input" type="radio" name="gender" id="radioMale" value={"Male"} checked={userData.gender === "Male"} onChange={handleChange}/>
                             <label className="form-check-label" htmlFor="radioMale">Male</label>
                         </div>
                         <div className="form-check">
-                            <input className="form-check-input" type="radio" name="gender" id="radioFemale"/>
+                            <input className="form-check-input" type="radio" name="gender" id="radioFemale" value={"Female"} checked={userData.gender === "Female"} onChange={handleChange}/>
                             <label className="form-check-label" htmlFor="radioFemale">Female</label>
                         </div>
                         <div className="form-check">
-                            <input className="form-check-input" type="radio" name="gender" id="radioOther"/>
+                            <input className="form-check-input" type="radio" name="gender" id="radioOther" value={"Other"} checked={userData.gender === "Other"} onChange={handleChange}/>
                             <label className="form-check-label" htmlFor="radioOther">Prefer not to say</label>
                         </div>
                     </div>
@@ -130,6 +192,9 @@ const Profile = () => {
                             className="form-control"
                             rows="3"
                             placeholder="Tell us about yourself..."
+                            name="bio"
+                            value={userData.bio || ""}
+                            onChange={handleChange}
                         ></textarea>
                     </div>
 
@@ -145,10 +210,16 @@ const Profile = () => {
                     {/*    ></textarea>*/}
                     {/*</div>*/}
 
-                    <div className="d-flex justify-content-between gap-3">
-                        <SecondaryButton text={"Create"} onHoverTextColor={"#FFFFFF"} onHoverBackgroundColor={"#91B58B"} className="flex-grow-1"/>
-                        <SecondaryButton text={"Cancel"} onHoverBackgroundColor={"#F0EEE6"} className="flex-grow-1"/>
-                    </div>
+                    {
+                        isChanged && (
+                            <div className="d-flex justify-content-between gap-3">
+                                <SecondaryButton text={"Update"} onHoverTextColor={"#FFFFFF"}
+                                                 onHoverBackgroundColor={"#91B58B"} className="flex-grow-1" onClick={handleUpdate}/>
+                                <SecondaryButton text={"Cancel"} onHoverBackgroundColor={"#F0EEE6"} className="flex-grow-1"
+                                                 onClick={handleCancel}/>
+                            </div>
+                        )
+                    }
                 </div>
             </form>
         </div>
