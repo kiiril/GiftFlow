@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/dbConn");
 const {getAllPosts, createPost, getPost, updatePost, deletePost, getComments, createComment, savePostToFavourites,
-    removePostFromFavourites
+    removePostFromFavourites, getAllMyPosts
 } = require("../controllers/postController");
 
 router.get("/", getAllPosts);
+
+router.get("/me", getAllMyPosts);
 
 router.post("/", createPost);
 

@@ -3,7 +3,7 @@ import FilterBar from "./FilterBar";
 import PostCard from "./PostCard";
 import axios from "axios";
 
-const ScrollFeed = () => {
+const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
     const [posts, setPosts] = React.useState([]);
     const [page, setPage] = React.useState(1);
     const [limit, setLimit] = React.useState(10);
@@ -27,7 +27,7 @@ const ScrollFeed = () => {
     const fetchPosts = async () => {
         if (!hasMore) return;
 
-        const response = await axios.get("http://localhost:8080/posts/", {
+        const response = await axios.get(fetchPostsUrl, {
             params: {
                 limit: limit,
                 page: page
@@ -43,6 +43,10 @@ const ScrollFeed = () => {
         setPosts(prevPosts => [...prevPosts, ...newPosts]);
     }
 
+    const handlePostDeleted = (postId) => {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+    };
+
     useEffect( ()=> {
         fetchPosts();
     }, [page]);
@@ -51,12 +55,12 @@ const ScrollFeed = () => {
     return (
         <div className="container">
             <FilterBar/>
-            <div className="row g-3">
-                {posts.map(post => (
-                    <div key={post.id} className="col-12 col-md-6 col-lg-4">
-                        <PostCard post={post} />
-                    </div>
-                ))}
+            <div
+                className={isSingleColumn ? "d-flex flex-column gap-3" : "row g-3"}
+                style={isSingleColumn ? { maxHeight: "80vh", overflowY: "auto" } : {}}
+                key={posts.length}
+            >
+                {posts.map((post) => renderPost(post, handlePostDeleted))}
             </div>
             <div ref={lastElement} style={{height: "20px", backgroundColor: "red"}}/>
             {/* just for indication of the last post, will be removed */}
