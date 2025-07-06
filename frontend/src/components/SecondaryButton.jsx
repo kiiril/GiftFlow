@@ -8,6 +8,7 @@ const SecondaryButton = (
         onHoverTextColor = "#2C3E50",
         onHoverBackgroundColor = "#EBDBBC",
         className,
+        onClick,
         ...rest
     }) => {
     const [hover, setHover] = useState(false);
@@ -18,6 +19,7 @@ const SecondaryButton = (
 
     return (
         <a
+            role={"button"}
             className={`secondary-button fs-5 fw-bold px-4 ${paddingClass} ${className}`}
             style={{
                 backgroundColor: hover ? onHoverBackgroundColor : backgroundColor,
@@ -25,6 +27,7 @@ const SecondaryButton = (
             }}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
+            onClick={onClick}
             {...rest}
         >
             {text}

@@ -40,7 +40,7 @@ const Signup = () => {
                                     Create account
                                 </h1>
 
-                                <form onSubmit={handleSubmit}>
+                                <form>
                                     <div className="mb-3">
                                         <label htmlFor="username" className="form-label fw-bold">Username</label>
                                         <input className="form-control"
@@ -84,6 +84,7 @@ const Signup = () => {
                                         <PrimaryButton
                                             text="Sign Up"
                                             className={"w-100"}
+                                            onClick={handleSubmit}
                                         />
                                     </div>
 

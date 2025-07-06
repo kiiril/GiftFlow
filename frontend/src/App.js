@@ -12,9 +12,23 @@ import Header from "./components/Header";
 import UserCalendar from "./pages/UserCalendar";
 import MyPosts from "./pages/MyPosts";
 import CreateEditPost from "./pages/CreateEditPost";
+import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 function App() {
     const router = createBrowserRouter([
+        {
+            element: <ProtectedRoutes/>,
+            children: [
+                {
+                    path: "/profile",
+                    element: <Profile/>
+                },
+                {
+                    path: "/myposts",
+                    element: <MyPosts/>
+                },
+            ]
+        },
         {
             path: "/",
             element: <Main/>,
@@ -33,16 +47,8 @@ function App() {
             element: <Post/>
         },
         {
-            path: "/profile",
-            element: <Profile/>
-        },
-        {
             path: "/calendar",
             element: <UserCalendar/>
-        },
-        {
-            path: "/myposts",
-            element: <MyPosts/>
         },
         {
             path: "/posts/new",
