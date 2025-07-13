@@ -2,6 +2,7 @@ const db = require("../db/dbConn");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const {request} = require("express");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -14,7 +15,7 @@ const storage = multer.diskStorage({
         const timestamp = Date.now();
         const random = Math.round(Math.random() * 1e9);
         const ext = path.extname(file.originalname);
-        cb(null, `${timestamp}-${random}${ext}`);
+        cb(null, `${timestamp}-${random}${ext}`); // todo: this is the best naming
     },
 });
 
@@ -40,6 +41,7 @@ async function getAllPosts(req, res, next){
         const offset = (page - 1) * limit;
 
         const posts = await db.getPosts(parseInt(limit), offset);
+        console.log(posts);
 
         const userId = req.session.user_id;
         // Add isSaved field for each post
@@ -59,7 +61,7 @@ async function getAllPosts(req, res, next){
 
 async function handlePostCreate(req, res, next) {
     try {
-        const { userId, title, location, tagIds, description, price } = req.body;
+        const { title, location, tagIds, description, price } = req.body;
         const imageFiles = req.files;
 
         let imageUrls = [];
@@ -72,8 +74,10 @@ async function handlePostCreate(req, res, next) {
             imageUrls.push("/uploads/posts/placeholder.png");
         }
 
+        const userId = req.session.user_id;
+
         const createdPost = await db.createPost(
-            userId,
+            parseInt(userId),
             title,
             location,
             JSON.parse(tagIds),
@@ -95,12 +99,10 @@ async function getPost(req, res, next) {
     try {
         const postId = parseInt(req.params.id);
 
-        const rows = await db.getPost(postId);
-        if (rows.length === 0) {
+        const post = await db.getPost(postId);
+        if (!post) {
             return res.status(404).send({ message: "Post not found" });
         }
-
-        const post = rows[0];
 
         const userId = req.session.user_id;
         if (userId) {
@@ -118,40 +120,52 @@ async function getPost(req, res, next) {
 async function handlePostUpdate(req, res, next) {
     try {
         const postId = parseInt(req.params.id);
-        const { title, location, tagIds, description, price } = req.body;
+        const { title, location, tagIds, description, price, currency } = req.body;
         const imageFiles = req.files;
 
-        let imageUrls = [];
-        if (imageFiles.length > 0) {
-            const rows = await db.getPost(postId);
-            const oldImages = rows[0]?.image_urls || [];
-            if (oldImages) {
-                for (const oldImage of oldImages) {
-                    const oldPath = path.join(__dirname, "..", oldImage);
-                    fs.unlink(oldPath, err => {
-                        if (err && err.code !== "ENOENT") {
-                            console.error("Failed to delete old image:", err);
-                        }
-                    });
-            }
-        }
-            for (const imageFile of imageFiles) {
-                const imageUrl = `/uploads/posts/${imageFile.filename}`;
-                imageUrls.push(imageUrl);
+        const images = JSON.parse(req.body.images)
+
+        const current = await db.getPostImages(postId);
+
+        const keepRows = [];
+        const newRows = [];
+        let order = 0;
+        let fileIndex = 0;
+
+        for (const id of images) {
+            if (id === -1) {
+                const file = imageFiles[fileIndex++];
+                newRows.push({
+                    path: `/uploads/posts/${file.filename}`,
+                    order: order++,
+                });
+            } else {
+                keepRows.push({ id, order: order++ });
             }
         }
 
-        const updatedPost = await db.updatePost(
+        await db.updatePost(
             postId,
             title,
             location,
             JSON.parse(tagIds),
             description,
             parseFloat(price),
-            imageUrls
+            currency,
+            keepRows,
+            newRows,
         )
 
-        return res.status(200).json(updatedPost);
+        const keepIds = new Set(keepRows.map(row => row.id));
+        const filesToDelete = current.filter(img => !keepIds.has(img.id)).map(img => img.path);
+
+        for (const img_path of filesToDelete) {
+            fs.unlink(path.join(__dirname, "..", img_path), err => {
+                if (err && err.code !== "ENOENT") console.error("unlink:", err);
+            });
+        }
+
+        return res.sendStatus(204);
     } catch (err) {
         console.log("Error updating post:", err);
         return res.status(500).send({ message: "Internal Server Error" });
@@ -160,15 +174,16 @@ async function handlePostUpdate(req, res, next) {
 
 const updatePost = [upload.array("images", 5), handlePostUpdate];
 
+// fixme: adjust to new logic
 async function deletePost(req, res, next) {
     try {
         const postId = parseInt(req.params.id);
-        const rows = await db.getPost(postId);
-        if (rows.length === 0) {
+        const post = await db.getPost(postId);
+        if (!post) {
             return res.status(404).send({ message: "Post not found" });
         }
 
-        const oldImages = rows[0]?.image_urls || [];
+        const oldImages = post.images.map(img => img.path) || [];
         if (oldImages) {
             for (const oldImage of oldImages) {
                 const oldPath = path.join(__dirname, "..", oldImage);
@@ -269,9 +284,30 @@ async function getAllMyPosts(req, res, next) {
     }
 }
 
+async function getMyPost(req, res, next) {
+    try {
+        const userId = req.session.user_id;
+        if (!userId) {
+            return res.status(401).send({ message: "Unauthorized" });
+        }
+
+        const postId = parseInt(req.params.id);
+        const post = await db.getPostByUser(postId, userId);
+        if (!post) {
+            return res.status(404).send({ message: "Post not found" });
+        }
+
+        return res.status(200).json(post);
+    } catch (err) {
+        console.log("Error fetching my post:", err);
+        return res.status(500).send({ message: "Internal Server Error" });
+    }
+}
+
 module.exports = {
     getAllPosts,
     getAllMyPosts,
+    getMyPost,
     createPost,
     getPost,
     updatePost,

@@ -127,7 +127,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
                                                 className="badge rounded-pill me-1"
                                                 style={{backgroundColor: tag.color}}
                                             >
-                                                    {tag.name}
+                                                    {tag.label}
                                                 </span>
                                         ))}
                                     </div>
