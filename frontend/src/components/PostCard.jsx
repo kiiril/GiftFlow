@@ -24,6 +24,7 @@ const PostCard = ({post}) => {
             share_count: 0,
             location: "",
             tags: [],
+            currency: "USD",
             isSaved: false
         }
     );
@@ -70,12 +71,12 @@ const PostCard = ({post}) => {
                     <span>{postData.location}</span>
 
                     {postData.tags.map(tag => (
-                        tag.name
+                        tag.label
                             ?
                             <div>
                                 <i className="bi bi-dot"></i>
                                 <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
-                                    {tag.name}
+                                    {tag.label}
                                 </span>
                             </div>
                             :

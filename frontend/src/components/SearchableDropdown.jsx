@@ -1,4 +1,4 @@
-import React, {useState, useRef, useMemo} from 'react';
+import React, {useState, useRef, useMemo, useEffect} from 'react';
 import {useClickOutside} from "primereact/hooks";
 
 /**
@@ -10,7 +10,7 @@ import {useClickOutside} from "primereact/hooks";
  * - defaultValue: single value or array of values
  * - onChange: callback with selected value(s)
  */
-const SearchableSelect = ({
+const SearchableDropdown = ({
                               label = 'Select',
                               items = [],
                               multiple = false,
@@ -22,6 +22,10 @@ const SearchableSelect = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedItem, setSelectedItem] = useState(defaultValue);
     const containerRef = useRef();
+
+    useEffect(() => {
+        setSelectedItem(defaultValue);
+    }, [defaultValue]);
 
     const filteredItems = useMemo(
         () =>
@@ -35,15 +39,15 @@ const SearchableSelect = ({
 
     const onItemToggle = (item) => {
         if (multiple) {
-            const exists = selectedItem.includes(item.value);
+            const exists = selectedItem.includes(item.id);
             const next = exists
-                ? selectedItem.filter((v) => v !== item.value)
-                : [...selectedItem, item.value];
+                ? selectedItem.filter((v) => v !== item.id)
+                : [...selectedItem, item.id];
             setSelectedItem(next);
             onChange && onChange(next);
         } else {
-            setSelectedItem(item.value);
-            onChange && onChange(item.value);
+            setSelectedItem(item.id);
+            onChange && onChange(item.id);
             setIsOpen(false);
         }
     }
@@ -54,7 +58,7 @@ const SearchableSelect = ({
             return count > 0 ? `${count} selected` : label;
         }
         if (!selectedItem) return label;
-        const found = items.find((it) => it.value === selectedItem);
+        const found = items.find((it) => it.id === selectedItem);
         return found ? found.label : label;
     }
 
@@ -84,7 +88,7 @@ const SearchableSelect = ({
                         {filteredItems.length > 0 ? (
                             filteredItems.map((item) => (
                                 <li
-                                    key={item.value}
+                                    key={item.id}
                                     className={`list-group-item d-flex align-items-center list-group-item-action border-0 ${!multiple && item.value === selectedItem ? 'active' : ''}`}
                                     style={{
                                         cursor: "pointer",
@@ -96,16 +100,16 @@ const SearchableSelect = ({
                                             <input
                                                 className="form-check-input"
                                                 type="checkbox"
-                                                checked={selectedItem.includes(item.value)}
+                                                checked={selectedItem.includes(item.id)}
                                                 style={{
-                                                    backgroundColor: selectedItem.includes(item.value)
+                                                    backgroundColor: selectedItem.includes(item.id)
                                                         ? item.color || '#0d6efd'
                                                         : 'transparent',
-                                                    borderColor: selectedItem.includes(item.value)
+                                                    borderColor: selectedItem.includes(item.id)
                                                         ? 'transparent'
                                                         : '#ccc',
                                                 }}
-                                                id={`select-${item.value}`}
+                                                id={`select-${item.id}`}
                                             />
                                             <label
                                                 className="form-check-label ms-2 mb-0"
@@ -130,4 +134,4 @@ const SearchableSelect = ({
     );
 }
 
-export default SearchableSelect;
+export default SearchableDropdown;

@@ -145,7 +145,7 @@ const Post = () => {
                                                 className="badge rounded-pill me-1"
                                                 style={{backgroundColor: tag.color}}
                                             >
-                                                {tag.name}
+                                                {tag.label}
                                             </span>
                                         ))}
                                     </div>

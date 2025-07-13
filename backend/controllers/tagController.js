@@ -1,5 +1,5 @@
 const db = require("../db/dbConn");
-
+// fixme: return ids instead
 async function getAllTags(req, res, next) {
     try {
         const tags = await db.getTags();

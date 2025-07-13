@@ -9,8 +9,7 @@ async function login(req, res, next) {
     }
 
     try {
-        const rows = await db.getUserByEmail(email);
-        const user = rows[0];
+        const user = await db.getUserByEmail(email);
 
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials." });
