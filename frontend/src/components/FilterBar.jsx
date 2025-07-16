@@ -8,10 +8,14 @@ import axios from "axios";
 
 const FilterBar = () => {
     const [tags, setTags] = React.useState([]);
+    const [locations, setLocations] = React.useState([]);
 
     useEffect(() => {
         axios.get(`${API_BASE_URL}/tags`).then(res => {
             setTags(res.data);
+        });
+        axios.get(`${API_BASE_URL}/locations`).then(res => {
+            setLocations(res.data);
         });
     }, []);
 

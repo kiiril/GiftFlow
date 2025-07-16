@@ -106,10 +106,13 @@ const PostCard = ({post}) => {
                                 type="checkbox"
                                 id={`like-${postData.id}`}
                                 className="d-none"
-                                onChange={savePostToFavourites}
+                                readOnly
                                 checked={postData.isSaved}
                             />
-                            <label htmlFor={`like-${postData.id}`} className="me-1">
+                            <label className="me-1" style={{cursor: 'pointer'}} onClick={(e) => {
+                                e.stopPropagation();
+                                savePostToFavourites();
+                            }}>
                                 <FontAwesomeIcon
                                     icon={postData.isSaved ? fullHeart : emptyHeart}
                                     style={{color: postData.isSaved ? "red" : "black"}}

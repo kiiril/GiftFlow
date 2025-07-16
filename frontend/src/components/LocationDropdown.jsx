@@ -68,7 +68,7 @@ const LocationDropdown = () => {
     const [items, setItems] = React.useState([]);
 
     const fetchLocations = async () => {
-        const response = await axios.get(`${API_BASE_URL}/locations`);
+        const response = await axios.get(`${API_BASE_URL}/locations/tree`);
         setItems(response.data);
     }
 

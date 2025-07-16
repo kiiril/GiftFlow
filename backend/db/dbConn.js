@@ -252,8 +252,9 @@ dataPool.deletePost = async (id) => {
 
 dataPool.savePostToFavourites = async (post_id, user_id) => {
     try {
-        await pool.query("INSERT INTO PostLikes (post_id, user_id) VALUES (?, ?)", [post_id, user_id]);
-        // fixme: return smth?
+        const [res] = await pool.query("INSERT INTO PostLikes (post_id, user_id) VALUES (?, ?)", [post_id, user_id]);
+        console.log(res)
+        return res;
     } catch (err) {
         console.error(err);
         throw err;
@@ -262,7 +263,9 @@ dataPool.savePostToFavourites = async (post_id, user_id) => {
 
 dataPool.removePostFromFavourites = async (post_id, user_id) => {
     try {
-        await pool.query("DELETE FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id]);
+        const [res] = await pool.query("DELETE FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id]);
+        console.log("Removed from favourites:", res);
+        return res;
         // fixme: return smth?
     } catch (err) {
         console.error(err);
@@ -527,17 +530,43 @@ dataPool.getTags = async () => {
 }
 
 dataPool.getLocations = async () => {
-    // todo: optimize for performance (pagination)
     const query = `
-        SELECT
-            r.id AS id,
-            r.name AS label,
-            r.countries_json AS children
-        FROM RegionSorted r
+        SELECT CONCAT(co.name, ', ', ci.name) as locations from Countries as co
+        JOIN Cities ci on ci.country_id = co.id 
+        ORDER BY co.name, ci.name
     `;
     try {
         const [rows] = await pool.query(query);
-        return rows;
+        return rows.map(row => row.locations);
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+dataPool.getLocationsTree = async () => {
+    try {
+        const [rows] = await pool.query(`
+          SELECT co.name AS country,
+                 ci.name AS city
+          FROM   Countries co
+          JOIN   Cities    ci ON ci.country_id = co.id
+          ORDER  BY co.name, ci.name
+        `);
+
+        const countryTree = [];
+        let current = null;
+
+        for (const { country, city } of rows) {
+            // new country?
+            if (!current || current.id !== country) {
+                current = { id: country, label: country, children: [] };
+                countryTree.push(current);
+            }
+            // add city
+            current.children.push({ id: city, label: city });
+        }
+        return countryTree;
     } catch (err) {
         console.error(err);
         throw err;
