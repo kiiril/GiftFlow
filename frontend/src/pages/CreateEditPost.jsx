@@ -12,6 +12,7 @@ import {deepEqual} from "../utils/utils";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, arrayMove, useSortable, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import {useTags} from "../contexts/TagsProvider";
 
 function SortableImageThumb({ item, index, onDelete, onReplace }) {
     const { setNodeRef, attributes, listeners, transform, transition } =
@@ -62,6 +63,7 @@ function SortableImageThumb({ item, index, onDelete, onReplace }) {
 
 
 export default function CreateEditPostPage() {
+    const [tags, setTags] = useState([]);
     const { postId } = useParams();
     const navigate = useNavigate();
     const isEdit = !!postId;
@@ -91,6 +93,12 @@ export default function CreateEditPostPage() {
     const [isChanged, setIsChanged] = useState(false);
 
     const [loading, setLoading] = useState(isEdit);
+
+    useEffect(() => {
+         axios.get(`${API_BASE_URL}/tags`).then(res => {
+            setTags(res.data);
+        });
+    }, []);
 
     useEffect(() => {
         if (isEdit) {
@@ -339,11 +347,7 @@ export default function CreateEditPostPage() {
                                     Tags
                                 </label>
                                 <SearchableDropdown
-                                    items={[
-                                        { id: 1, label: "ECO", color: "#4CAF50" },
-                                        { id: 2, label: "Him", color: "#3E5879" },
-                                        { id: 3, label: "Her", color: "#FFCFCF" }
-                                    ]}
+                                    items={tags}
                                     multiple={true}
                                     defaultValue={formData.tagIds}
                                     onChange={ids => {

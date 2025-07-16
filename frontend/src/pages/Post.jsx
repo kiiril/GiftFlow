@@ -7,24 +7,25 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCoins, faHeart as fullHeart, faLocationDot, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 import {API_BASE_URL} from "../constants";
+import {useTagMap, useTags} from "../contexts/TagsProvider";
 
 const Post = () => {
+    const tagMap = useTagMap();
+
     const [postData, setPostData] = React.useState({
             id: "",
             user_id: null,
             title: "",
             description: "",
-            image_urls: [],
+            images: [],
             price: 0,
+            currency: "",
             posted_at: null,
             rating: 0,
             like_count: 0,
             share_count: 0,
             location: "",
-            tags: [{
-                name: "",
-                color: ""
-            }],
+            tagIds: [],
             publisher_info: {
                 username: "",
                 avatar_url: ""
@@ -38,7 +39,13 @@ const Post = () => {
 
     const fetchPosts = async () => {
         const response = await axios.get(`http://localhost:8080/posts/${params.id}`);
-        setPostData(response.data);
+        const post = response.data;
+        const images = post.images.map(img => ({
+            id: img.id,
+            src: API_BASE_URL + img.path,
+        }));
+        const cleaned = { ...post, images };
+        setPostData(cleaned);
     }
 
     const fetchComments = async () => {
@@ -87,7 +94,7 @@ const Post = () => {
                 <div className="col-12 col-md-6 col-lg-6">
                     <div className="carousel slide" id={postData.id}>
                         <div className="carousel-indicators">
-                            {postData.image_urls.map((_, index) => (
+                            {postData.images.map((_, index) => (
                                 <button
                                     type="button"
                                     data-bs-target={`#${postData.id}`}
@@ -101,15 +108,13 @@ const Post = () => {
                         </div>
 
                         <div className="carousel-inner">
-                            {postData.image_urls.map((url, index) =>
-                                <div className={`carousel-item ${index === 0 ? "active" : ""}`}>
-                                    <img
-                                        src={API_BASE_URL + url}
-                                        alt="post"
-                                        className="img-fluid"
-                                    />
+                            {postData.images.map((img, i) => (
+                                <div key={i} className={`carousel-item ${i === 0 ? "active" : ""}`}>
+                                    <img src={img.src}
+                                         alt=""
+                                         className="img-fluid" />
                                 </div>
-                            )}
+                            ))}
                         </div>
 
                         <button className="carousel-control-prev" type="button" data-bs-target={`#${postData.id}`}
@@ -131,7 +136,7 @@ const Post = () => {
                                     {postData.title}
                                 </h3>
 
-                                <div className="d-flex flex-wrap align-items-center meta mb-3">
+                                <div className="d-flex meta mb-3">
                                     {/* 1) Location block */}
                                     <div className="d-flex fw-light align-items-center meta__loc me-2">
                                         <i className="bi bi-geo-alt me-1"></i>
@@ -139,16 +144,24 @@ const Post = () => {
                                     </div>
 
                                     {/* 2) Badges block */}
-                                    <div className="d-flex align-items-center meta__tags">
-                                        {postData.tags.map((tag) => (
-                                            <span
-                                                className="badge rounded-pill me-1"
-                                                style={{backgroundColor: tag.color}}
-                                            >
-                                                {tag.label}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    {
+                                        postData.tagIds && (
+                                            <div className="d-flex align-items-center meta__tags">
+                                                {postData.tagIds.map((id) => {
+                                                    const tag = tagMap.get(id);
+                                                    if (!tag) return null;
+                                                    return (
+                                                        <span
+                                                            className="badge rounded-pill me-1"
+                                                            style={{backgroundColor: tag.color}}
+                                                        >
+                                                            {tag.label}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
 

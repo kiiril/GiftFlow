@@ -23,11 +23,11 @@ app.use(cors({
     origin: "http://localhost:3000",
     credentials: true,
 }))
-app.use(cookieParser());
+app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         httpOnly: true,
         secure: false, // set to true in production with HTTPS

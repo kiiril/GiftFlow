@@ -10,19 +10,23 @@ import {
 import {faCalendarDays} from "@fortawesome/free-regular-svg-icons"
 import {AuthContext} from "../contexts/AuthProvider";
 import {API_BASE_URL} from "../constants";
+import {Link, useNavigate} from "react-router-dom";
 
 const Header = () => {
     const {user} = useContext(AuthContext);
+    const navigate = useNavigate();
 
     return (
         <header
             className="d-flex align-items-center justify-content-between border border-1 w-100 px-4"
             style={{height: "70px"}}
         >
-            <div className="fs-1 fw-bold ms-3"
-                 style={{fontFamily: `"Rock 3D", serif`, color: "#2C3E50"}}>
-                GiftFlow
-            </div>
+            <Link to="/" style={{textDecoration: 'none'}}>
+                <div className="fs-1 fw-bold ms-3"
+                     style={{fontFamily: `"Rock 3D", serif`, color: "#2C3E50"}}>
+                    GiftFlow
+                </div>
+            </Link>
 
             <nav className="navbar position-absolute start-50 translate-middle-x">
                 <ul className="nav">
@@ -41,7 +45,7 @@ const Header = () => {
             {
                 user ? (
                     <div className="d-flex align-items-center gap-4">
-                        <PrimaryButton text={"Create"} className="fs-5 fw-bold px-4 py-1" backgroundColor={"#2C3E50"}/>
+                        <PrimaryButton text={"Create"} className="fs-5 fw-bold px-4 py-1" backgroundColor={"#2C3E50"} onClick={() => navigate("/posts/new")}/>
 
                         <div className="dropdown">
                             <button
@@ -61,40 +65,40 @@ const Header = () => {
                                 className="dropdown-menu dropdown-menu-end dropdown-menu-custom mt-2"
                             >
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="/profile">
+                                    <Link className="dropdown-item dropdown-item-custom" to={"/profile"}>
                                         <FontAwesomeIcon icon={faUser} className="fa-fw me-1"/> Profile
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="#">
+                                    <Link className="dropdown-item dropdown-item-custom" to={"/myposts"}>
                                         <FontAwesomeIcon icon={faRectangleList} className="fa-fw me-1"/> Posts
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="#">
+                                    <Link className="dropdown-item dropdown-item-custom" to={"#"}>
                                         <FontAwesomeIcon icon={faHeart} className="fa-fw me-1"/> Favorites
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="#">
+                                    <Link className="dropdown-item dropdown-item-custom" to={"/calendar"}>
                                         <FontAwesomeIcon icon={faCalendarDays} className="fa-fw me-1"/> Calendar
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="#">
+                                    <Link className="dropdown-item dropdown-item-custom" to={"#"}>
                                         <FontAwesomeIcon icon={faGear} className="fa-fw me-1"/> Settings
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a className="dropdown-item dropdown-item-custom" href="#">
+                                    <Link className="dropdown-item dropdown-item-custom" to={"#"}>
                                         <FontAwesomeIcon icon={faArrowRightFromBracket} className="fa-fw me-1"/> Log out
-                                    </a>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 ) : (
-                    <PrimaryButton text={"Login"} />
+                    <PrimaryButton text={"Login"} onClick={() => navigate("/login")}/>
                 )
             }
         </header>

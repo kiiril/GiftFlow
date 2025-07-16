@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
@@ -6,32 +6,21 @@ import {faComment, faPaperPlane, faHeart as emptyHeart, faStar as emptyStar} fro
 import {useNavigate} from "react-router-dom";
 import {API_BASE_URL} from "../constants";
 import axios from "axios";
+import {useTagMap} from "../contexts/TagsProvider";
 
 const PostCard = ({post}) => {
+    const tagMap = useTagMap();
+
     const navigate = useNavigate();
-    const [postData, setPostData] = React.useState({
-            id: "",
-            user_id: null,
-            title: "",
-            description: "",
-            image_urls: [],
-            price: 0,
-            posted_at: null,
-            views: 0,
-            rating: 0,
-            like_count: 0,
-            comment_count: 0,
-            share_count: 0,
-            location: "",
-            tags: [],
-            currency: "USD",
-            isSaved: false
+
+    const [postData, setPostData] = React.useState(() => {
+            const images = post.images.map(img => ({
+                id: img.id,
+                src: API_BASE_URL + img.path,
+            }));
+            return { ...post, images };
         }
     );
-
-    useEffect(() => {
-        setPostData(post);
-    }, []);
 
     const savePostToFavourites = async () => {
         try {
@@ -57,7 +46,7 @@ const PostCard = ({post}) => {
             className="btn p-0 text-start border-0 card shadow-sm h-100"
             onClick={(e) => navigate(`/posts/${postData.id}`)}
         >
-            <img src={API_BASE_URL + postData.image_urls[0]} className="card-img-top" alt="Something"/>
+            <img src={postData.images[0]?.src} className="card-img-top" alt="Something"/>
             <div className="card-body w-100 d-flex flex-column">
                 <div style={{height: '3.6rem'}} className="mb-3">
                     <h3 className="card-title fw-bold title-clamp m-0">
@@ -65,23 +54,29 @@ const PostCard = ({post}) => {
                     </h3>
                 </div>
 
-
-                <div className="d-flex align-items-center fw-light mb-3">
-                    <i className="bi bi-geo-alt"></i>
-                    <span>{postData.location}</span>
-
-                    {postData.tags.map(tag => (
-                        tag.label
-                            ?
-                            <div>
-                                <i className="bi bi-dot"></i>
-                                <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
-                                    {tag.label}
-                                </span>
+                <div className="d-flex align-items-center meta mb-3">
+                    <div className="d-flex fw-light align-items-center meta__loc me-2">
+                        <i className="bi bi-geo-alt me-1"></i>
+                        <span>{postData.location}</span>
+                    </div>
+                    {
+                        postData.tagIds && (
+                            <div className="d-flex align-items-center meta__tags">
+                                {postData.tagIds.map((id) => {
+                                    const tag = tagMap.get(id);
+                                    if (!tag) return null;
+                                    return (
+                                        <span
+                                            className="badge rounded-pill me-1"
+                                            style={{backgroundColor: tag.color}}
+                                        >
+                                            {tag.label}
+                                        </span>
+                                    );
+                                })}
                             </div>
-                            :
-                            null
-                    ))}
+                        )
+                    }
                 </div>
 
                 <div style={{height: '4.5rem'}} className="mb-3">
@@ -102,7 +97,7 @@ const PostCard = ({post}) => {
                     <span className="ms-2">({postData.rating.toFixed(1)})</span>
                 </div>
 
-                <p className="fw-bold fs-4 mb-4">${postData.price}</p>
+                <p className="fw-bold fs-4 mb-4">{postData.currency}{postData.price}</p>
 
                 <div className="mt-auto">
                     <div className="d-flex justify-content-between align-items-center px-3">
