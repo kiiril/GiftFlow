@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import axios from "axios";
+import {API_BASE_URL} from "../constants";
 
 const LocationDropdown = () => {
     // const MUI_X_PRODUCTS = [
@@ -67,7 +68,7 @@ const LocationDropdown = () => {
     const [items, setItems] = React.useState([]);
 
     const fetchLocations = async () => {
-        const response = await axios.get("http://localhost:8080/locations/");
+        const response = await axios.get(`${API_BASE_URL}/locations/tree`);
         setItems(response.data);
     }
 

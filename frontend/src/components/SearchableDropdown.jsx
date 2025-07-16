@@ -23,16 +23,26 @@ const SearchableDropdown = ({
     const [selectedItem, setSelectedItem] = useState(defaultValue);
     const containerRef = useRef();
 
+    const processedItems = useMemo(() => {
+        if (items.length > 0 && typeof items[0] === 'string') {
+            return items.map((item, index) => ({
+                id: index,
+                label: item,
+            }));
+        }
+        return items;
+    }, [items]);
+
     useEffect(() => {
         setSelectedItem(defaultValue);
     }, [defaultValue]);
 
     const filteredItems = useMemo(
         () =>
-            items.filter((it) =>
+            processedItems.filter((it) =>
                 it.label.toLowerCase().includes(searchTerm.toLowerCase())
             ),
-        [items, searchTerm]
+        [processedItems, searchTerm]
     );
 
     useClickOutside(containerRef, () => {setIsOpen(false)})
@@ -58,7 +68,7 @@ const SearchableDropdown = ({
             return count > 0 ? `${count} selected` : label;
         }
         if (!selectedItem) return label;
-        const found = items.find((it) => it.id === selectedItem);
+        const found = processedItems.find((it) => it.id === selectedItem);
         return found ? found.label : label;
     }
 
@@ -101,6 +111,7 @@ const SearchableDropdown = ({
                                                 className="form-check-input"
                                                 type="checkbox"
                                                 checked={selectedItem.includes(item.id)}
+                                                readOnly
                                                 style={{
                                                     backgroundColor: selectedItem.includes(item.id)
                                                         ? item.color || '#0d6efd'

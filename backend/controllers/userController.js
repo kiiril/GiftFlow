@@ -35,15 +35,15 @@ const upload = multer({
 async function handleUserUpdate(req, res, next) {
     try {
         const userId = req.session.user_id;
-        const { username, dateOfBirthday, location, gender, bio } = req.body;
+        const { username, date_of_birthday, location, gender, bio } = req.body;
         const avatarFile = req.file; // set by multer if an “avatar” file was uploaded
 
         let avatarUrl;
         if (avatarFile) {
             avatarUrl = `/uploads/avatars/${avatarFile.filename}`;
 
-            const rows = await db.getUserById(userId);
-            const oldAvatar = rows[0]?.avatar_url;
+            const oldUser = await db.getUserById(userId);
+            const oldAvatar = oldUser?.avatar_url;
             if (oldAvatar) {
                 const oldPath = path.join(__dirname, "..", oldAvatar);
                 fs.unlink(oldPath, err => {
@@ -54,21 +54,19 @@ async function handleUserUpdate(req, res, next) {
             }
         }
 
-        const rows = await db.getUserById(userId);
-        const oldUser = rows[0];
+        const oldUser = await db.getUserById(userId);
 
         await db.updateUser(
             userId,
             username ?? oldUser.username,
-            dateOfBirthday ?? oldUser.date_of_birthday,
+            date_of_birthday ?? oldUser.date_of_birthday,
             location ?? oldUser.location,
             gender ?? oldUser.gender,
             bio ?? oldUser.bio,
             avatarFile ? avatarUrl : oldUser.avatar_url
         );
 
-        const updatedRows = await db.getUserById(userId);
-        const updatedUser = updatedRows[0];
+        const updatedUser = await db.getUserById(userId);
         delete updatedUser.password;
         return res.status(200).json(updatedUser);
     } catch (err) {
@@ -84,15 +82,14 @@ const updateUser = [upload.single("avatar"), handleUserUpdate];
 async function getUser(req, res, next){
     try {
         const userId = req.session.user_id;
-        const rows = await db.getUserById(userId);
-        const user = rows[0];
+        const user = await db.getUserById(userId);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         delete user.password;
-        res.status(200).json(user);
+        return res.status(200).json(user);
     } catch (err) {
         console.error("Error fetching user profile:", err);
         res.status(500).json({ message: 'Server error' });

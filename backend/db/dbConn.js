@@ -18,17 +18,15 @@ dataPool.getPosts = async (limit, offset) => {
             SELECT
                 p.*,
                 (
-                    SELECT JSON_ARRAYAGG(
-                        JSON_OBJECT('label', t.label, 'color', t.color, 'value', t.value)
-                    )
+                    SELECT JSON_ARRAYAGG(t.id)
                     FROM Post_x_Tag AS pt
                     JOIN Tag AS t ON pt.tag_id = t.id
                     WHERE pt.post_id = p.id
-                ) AS tags,
+                ) AS tagIds,
                 (
-                    SELECT JSON_ARRAYAGG(sub.path)
+                    SELECT JSON_ARRAYAGG(JSON_OBJECT('id', sub.id, 'path', sub.path))
                     FROM (
-                        SELECT pi.path
+                        SELECT pi.id, pi.path
                         FROM PostImages AS pi
                         WHERE pi.post_id = p.id
                         ORDER BY pi.display_order
@@ -254,8 +252,9 @@ dataPool.deletePost = async (id) => {
 
 dataPool.savePostToFavourites = async (post_id, user_id) => {
     try {
-        await pool.query("INSERT INTO PostLikes (post_id, user_id) VALUES (?, ?)", [post_id, user_id]);
-        // fixme: return smth?
+        const [res] = await pool.query("INSERT INTO PostLikes (post_id, user_id) VALUES (?, ?)", [post_id, user_id]);
+        console.log(res)
+        return res;
     } catch (err) {
         console.error(err);
         throw err;
@@ -264,7 +263,9 @@ dataPool.savePostToFavourites = async (post_id, user_id) => {
 
 dataPool.removePostFromFavourites = async (post_id, user_id) => {
     try {
-        await pool.query("DELETE FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id]);
+        const [res] = await pool.query("DELETE FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id]);
+        console.log("Removed from favourites:", res);
+        return res;
         // fixme: return smth?
     } catch (err) {
         console.error(err);
@@ -326,13 +327,14 @@ dataPool.createPostComment = async (id, user_id, content) => {
     }
 }
 
-dataPool.isPostSavedByUser = (post_id, user_id) => {
-    return new Promise((resolve, reject) => {
-        pool.query("SELECT * FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id], (err, res) => {
-            if (err) return reject(err);
-            resolve(res.length > 0); // Returns true if the post is saved by the user
-        });
-    });
+dataPool.isPostSavedByUser = async (post_id, user_id) => {
+    try {
+        const [rows] = await pool.query("SELECT * FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id]);
+        return rows.length > 0;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
 }
 
 dataPool.getPostsByUser = async (userId, limit, offset) => {
@@ -340,17 +342,15 @@ dataPool.getPostsByUser = async (userId, limit, offset) => {
             SELECT
                 p.*,
                 (
-                    SELECT JSON_ARRAYAGG(
-                        JSON_OBJECT('label', t.label, 'color', t.color, 'value', t.value)
-                    )
+                    SELECT JSON_ARRAYAGG(t.id)
                     FROM Post_x_Tag AS pt
                     JOIN Tag AS t ON pt.tag_id = t.id
                     WHERE pt.post_id = p.id
-                ) AS tags,
+                ) AS tagIds,
                 (
-                    SELECT JSON_ARRAYAGG(sub.path)
+                    SELECT JSON_ARRAYAGG(JSON_OBJECT('id', sub.id, 'path', sub.path))
                     FROM (
-                        SELECT pi.path
+                        SELECT pi.id, pi.path
                         FROM PostImages AS pi
                         WHERE pi.post_id = p.id
                         ORDER BY pi.display_order
@@ -464,7 +464,13 @@ dataPool.getUserById = async (id) => {
     try {
         const [rows] = await pool.query("SELECT * FROM User WHERE id = ?", id);
         // fixme: check for empty
-        return rows[0];
+        const user = rows[0];
+        const dateOfBirthday = user.date_of_birthday;
+        const date = dateOfBirthday.getDate();
+        const month = dateOfBirthday.getMonth() + 1; // months are zero-based
+        const year = dateOfBirthday.getFullYear();
+        user.date_of_birthday = `${year}-${month < 10 ? '0' + month : month}-${date < 10 ? '0' + date : date}`;
+        return user
     } catch (err) {
         console.error(err);
         throw err;
@@ -493,7 +499,7 @@ dataPool.createUser = async (username, email, password, avatarUrl) => {
 
 dataPool.updateUser = async (id, username, dateOfBirthday, location, gender, bio, avatarUrl) => {
     try {
-        const [rows] = pool.query(
+        const [rows] = await pool.query(
             "UPDATE User SET username = ?, date_of_birthday = ?, location = ?, gender = ?, bio = ?, avatar_url = ? WHERE id = ?",
             [username, dateOfBirthday, location, gender, bio, avatarUrl, id]
         );
@@ -513,31 +519,58 @@ dataPool.deleteUser = async (id) => {
     }
 }
 
-// fixme: get ids instead?
-dataPool.getTags = () => {
-    return new Promise((resolve, reject) => {
-        pool.query("SELECT * FROM Tag", (err, res) => {
-            if (err) return reject(err)
-            return resolve(res);
-        });
-    });
+dataPool.getTags = async () => {
+    try {
+        const [rows] = await pool.query("SELECT * FROM Tag");
+        return rows;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
 }
 
-dataPool.getLocations = () => {
-    // todo: optimize for performance (pagination)
+dataPool.getLocations = async () => {
     const query = `
-        SELECT
-            r.id AS id,
-            r.name AS label,
-            r.countries_json AS children
-        FROM RegionSorted r
+        SELECT CONCAT(co.name, ', ', ci.name) as locations from Countries as co
+        JOIN Cities ci on ci.country_id = co.id 
+        ORDER BY co.name, ci.name
     `;
-    return new Promise((resolve, reject) => {
-        pool.query(query, (err, res) => {
-            if (err) return reject(err)
-            return resolve(res);
-        });
-    });
+    try {
+        const [rows] = await pool.query(query);
+        return rows.map(row => row.locations);
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+dataPool.getLocationsTree = async () => {
+    try {
+        const [rows] = await pool.query(`
+          SELECT co.name AS country,
+                 ci.name AS city
+          FROM   Countries co
+          JOIN   Cities    ci ON ci.country_id = co.id
+          ORDER  BY co.name, ci.name
+        `);
+
+        const countryTree = [];
+        let current = null;
+
+        for (const { country, city } of rows) {
+            // new country?
+            if (!current || current.id !== country) {
+                current = { id: country, label: country, children: [] };
+                countryTree.push(current);
+            }
+            // add city
+            current.children.push({ id: city, label: city });
+        }
+        return countryTree;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
 }
 
 module.exports = dataPool;

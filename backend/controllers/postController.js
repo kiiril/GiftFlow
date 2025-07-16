@@ -41,7 +41,6 @@ async function getAllPosts(req, res, next){
         const offset = (page - 1) * limit;
 
         const posts = await db.getPosts(parseInt(limit), offset);
-        console.log(posts);
 
         const userId = req.session.user_id;
         // Add isSaved field for each post

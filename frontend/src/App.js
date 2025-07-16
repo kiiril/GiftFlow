@@ -13,59 +13,68 @@ import UserCalendar from "./pages/UserCalendar";
 import MyPosts from "./pages/MyPosts";
 import CreateEditPost from "./pages/CreateEditPost";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
+import {TagsProvider} from "./contexts/TagsProvider";
+import RootLayout from "./components/RootLayout";
 
 function App() {
     const router = createBrowserRouter([
         {
-            element: <ProtectedRoutes/>,
+            path: "/",
+            element: <RootLayout/>,
             children: [
                 {
-                    path: "/profile",
-                    element: <Profile/>
+                    element: <ProtectedRoutes/>,
+                    children: [
+                        {
+                            path: "/profile",
+                            element: <Profile/>
+                        },
+                        {
+                            path: "/myposts",
+                            element: <MyPosts/>
+                        },
+                    ]
                 },
                 {
-                    path: "/myposts",
-                    element: <MyPosts/>
+                    path: "/",
+                    element: <Main/>,
+                    errorElement: <Error/>
                 },
+                {
+                    path: "/login",
+                    element: <Login/>
+                },
+                {
+                    path: "/signup",
+                    element: <Signup/>
+                },
+                {
+                    path: "/posts/:id",
+                    element: <Post/>
+                },
+                {
+                    path: "/calendar",
+                    element: <UserCalendar/>
+                },
+                {
+                    path: "/posts/new",
+                    element: <CreateEditPost/>
+                },
+                {
+                    path: "/posts/:postId/edit",
+                    element: <CreateEditPost/>
+                }
             ]
         },
-        {
-            path: "/",
-            element: <Main/>,
-            errorElement: <Error/>
-        },
-        {
-            path: "/login",
-            element: <Login/>
-        },
-        {
-            path: "/signup",
-            element: <Signup/>
-        },
-        {
-            path: "/posts/:id",
-            element: <Post/>
-        },
-        {
-            path: "/calendar",
-            element: <UserCalendar/>
-        },
-        {
-            path: "/posts/new",
-            element: <CreateEditPost/>
-        },
-        {
-            path: "/posts/:postId/edit",
-            element: <CreateEditPost/>
-        }
     ]);
 
     return (
         <AuthProvider>
-            <div style={{backgroundColor: "var(--background-light)"}}>
-                <Header/>
-                <RouterProvider router={router}/>
-            </div>
+            <TagsProvider>
+                <div style={{backgroundColor: "var(--background-light)"}}>
+                    <RouterProvider router={router}/>
+                </div>
+            </TagsProvider>
         </AuthProvider>
     );
 }

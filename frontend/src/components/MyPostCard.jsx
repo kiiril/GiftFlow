@@ -6,30 +6,17 @@ import {Rating} from "@mui/material";
 import PrimaryButton from "./PrimaryButton";
 import {API_BASE_URL} from "../constants";
 import axios from "axios";
+import {useTagMap} from "../contexts/TagsProvider";
 
 const MyPostCard = ({post, onPostDeleted}) => {
-    const [postData, setPostData] = React.useState({
-            id: "",
-            user_id: null,
-            title: "",
-            description: "",
-            image_urls: [],
-            price: 0,
-            posted_at: null,
-            views: 0,
-            rating: 0,
-            like_count: 0,
-            comment_count: 0,
-            share_count: 0,
-            location: "",
-            tags: [],
-            isSaved: false
-        }
-    );
-
-    useEffect(() => {
-        setPostData(post);
-    }, []);
+    const tagMap = useTagMap();
+    const [postData, setPostData] = React.useState(() => {
+        const images = post.images.map(img => ({
+            id: img.id,
+            src: API_BASE_URL + img.path,
+        }));
+        return { ...post, images };
+    });
 
     const handleDeletePost = async () => {
         try {
@@ -71,7 +58,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
                 <div className="col-5">
                     <div className="carousel slide" id={postData.id}>
                         <div className="carousel-indicators">
-                            {postData.image_urls.map((_, index) => (
+                            {postData.images.map((_, index) => (
                                 <button
                                     type="button"
                                     data-bs-target={`#${postData.id}`}
@@ -85,10 +72,10 @@ const MyPostCard = ({post, onPostDeleted}) => {
                         </div>
 
                         <div className="carousel-inner">
-                            {postData.image_urls.map((url, index) =>
+                            {postData.images.map((img, index) =>
                                 <div className={`carousel-item ${index === 0 ? "active" : ""}`}>
                                     <img
-                                        src={API_BASE_URL + url}
+                                        src={img.src}
                                         alt="post"
                                         className="img-fluid"
                                     />
@@ -122,14 +109,22 @@ const MyPostCard = ({post, onPostDeleted}) => {
 
                                     {/* 2) Badges block */}
                                     <div className="d-flex align-items-center meta__tags">
-                                        {postData.tags.map((tag) => (
-                                            <span
-                                                className="badge rounded-pill me-1"
-                                                style={{backgroundColor: tag.color}}
-                                            >
-                                                    {tag.label}
-                                                </span>
-                                        ))}
+                                        {
+                                            postData.tagIds && (
+                                                postData.tagIds.map(id => {
+                                                    const tag = tagMap.get(id);
+                                                    if (!tag) return null;
+                                                    return (
+                                                        <div key={postData.id + "-" + id}>
+                                                            <i className="bi bi-dot"></i>
+                                                            <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
+                                                                {tag.label}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })
+                                            )
+                                        }
                                     </div>
                                 </div>
                             </div>

@@ -12,9 +12,13 @@ const Profile = () => {
     const [isChanged, setIsChanged] = useState(false);
 
     useEffect(() => {
-        const response =  axios.get(`http://localhost:8080/users/me`, {}).then(response => {
-            setUserData(response.data);
-            setOriginalUserData(response.data);
+        axios.get(`http://localhost:8080/users/me`, {}).then(response => {
+            const user = response.data;
+            if (user.date_of_birthday) {
+                user.date_of_birthday = dayjs(user.date_of_birthday).format("YYYY-MM-DD");
+            }
+            setUserData(user);
+            setOriginalUserData(user);
         });
     }, []);
 
@@ -39,7 +43,6 @@ const Profile = () => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log("Profile updated successfully:", response.data);
             setOriginalUserData(response.data); // Update original data
             setUserData(response.data); // Update current data
             setIsChanged(false);
@@ -49,6 +52,9 @@ const Profile = () => {
     }
 
     const handleChange = (e) => {
+        console.log("hit")
+        console.log(e.target.name, e.target.value);
+        console.log("userData", userData);
         const updatedData = {
             ...userData,
             [e.target.name]: e.target.value

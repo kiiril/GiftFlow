@@ -69,14 +69,9 @@ async function signup(req, res, next) {
 
             req.session.user_id = newUser.id;
 
-            return res.status(201).json({
-                message: "Signup successful",
-                user: {
-                    id: newUser.id,
-                    email,
-                    username,
-                },
-            });
+            delete newUser.password;
+
+            return res.status(201).json(newUser);
         });
     } catch (error) {
         console.error("Error during signup:", error);
@@ -88,4 +83,3 @@ module.exports = {
     login,
     signup,
 }
-

@@ -8,20 +8,14 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true); // Important to avoid flashing redirects
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get("http://localhost:8080/users/me", {
-                    withCredentials: true,
-                });
-                setUser(response.data);
-            } catch (err) {
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUser();
+        axios
+            .get('http://localhost:8080/users/me', { withCredentials: true })
+            .then(res => setUser(res.data))
+            .catch((e) => {
+                console.error("Failed to fetch user data", e);
+                setUser(null)
+            })
+            .finally(() => setLoading(false));
     }, []);
 
     // Signup function
@@ -44,7 +38,6 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post("http://localhost:8080/auth/login", { email, password }, {withCredentials: true});
             if (response.status === 200) {
                 setUser(response.data);
-                localStorage.setItem('user', JSON.stringify(response.data));
                 return response.data;
             }
         } catch (error) {
