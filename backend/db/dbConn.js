@@ -13,8 +13,8 @@ const pool = mysql.createPool({
 
 // fixme: adjust all functions to async/await
 const dataPool = {}
-dataPool.getPosts = async (limit, offset) => {
-    const query = `
+dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => {
+    let query = `
             SELECT
                 p.*,
                 (
@@ -53,10 +53,38 @@ dataPool.getPosts = async (limit, offset) => {
                 ) AS shares_count
             FROM Post AS p
             LEFT JOIN User AS u ON p.user_id = u.id
-            LIMIT ? OFFSET ?
         `;
+
+    const whereClauses = [];
+    const queryParams = [];
+
+    if (tagIds && tagIds.length > 0) {
+        whereClauses.push(`
+            p.id IN (
+                SELECT post_id
+                FROM Post_x_Tag
+                WHERE tag_id IN (?)
+                GROUP BY post_id
+                HAVING COUNT(DISTINCT tag_id) = ?
+            )
+        `);
+        queryParams.push(tagIds, tagIds.length);
+    }
+
+    if (locationStrings && locationStrings.length > 0) {
+        whereClauses.push(`p.location IN (?)`);
+        queryParams.push(locationStrings);
+    }
+
+    if (whereClauses.length > 0) {
+        query += ` WHERE ${whereClauses.join(" AND ")}`;
+    }
+
+    query += ` LIMIT ? OFFSET ?`;
+    queryParams.push(limit, offset);
+
     try {
-        const [rows] = await pool.query(query, [limit, offset]);
+        const [rows] = await pool.query(query, queryParams);
         return rows;
     } catch (err) {
         console.error("Error fetching posts:", err);
@@ -574,4 +602,3 @@ dataPool.getLocationsTree = async () => {
 }
 
 module.exports = dataPool;
-

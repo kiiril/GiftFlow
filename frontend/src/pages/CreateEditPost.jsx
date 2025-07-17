@@ -64,6 +64,7 @@ function SortableImageThumb({ item, index, onDelete, onReplace }) {
 
 export default function CreateEditPostPage() {
     const [tags, setTags] = useState([]);
+    const [locations, setLocations] = useState([]);
     const { postId } = useParams();
     const navigate = useNavigate();
     const isEdit = !!postId;
@@ -97,7 +98,10 @@ export default function CreateEditPostPage() {
     useEffect(() => {
          axios.get(`${API_BASE_URL}/tags`).then(res => {
             setTags(res.data);
-        });
+         });
+         axios.get(`${API_BASE_URL}/locations`).then(res => {
+             setLocations(res.data);
+         });
     }, []);
 
     useEffect(() => {
@@ -332,7 +336,7 @@ export default function CreateEditPostPage() {
                                     Location
                                 </label>
                                 <AutocompleteDropdown
-                                    items={["Koper, Slovenia", "Warsaw, Poland", "Krakow, Poland", "Tokyo, Japan"]}
+                                    items={locations}
                                     id={"location"}
                                     defaultValue={formData.location}
                                     onChange={value => {

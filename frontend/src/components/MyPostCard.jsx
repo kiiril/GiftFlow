@@ -7,9 +7,11 @@ import PrimaryButton from "./PrimaryButton";
 import {API_BASE_URL} from "../constants";
 import axios from "axios";
 import {useTagMap} from "../contexts/TagsProvider";
+import {useNavigate} from "react-router-dom";
 
 const MyPostCard = ({post, onPostDeleted}) => {
     const tagMap = useTagMap();
+    const navigate = useNavigate();
     const [postData, setPostData] = React.useState(() => {
         const images = post.images.map(img => ({
             id: img.id,
@@ -18,7 +20,12 @@ const MyPostCard = ({post, onPostDeleted}) => {
         return { ...post, images };
     });
 
-    const handleDeletePost = async () => {
+    const handleCardClick = () => {
+        navigate(`/posts/${postData.id}/edit`);
+    }
+
+    const handleDeletePost = async (e) => {
+        e.stopPropagation();
         try {
             const response = await axios.delete(`${API_BASE_URL}/posts/${postData.id}`);
 
@@ -53,7 +60,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
     }
 
     return (
-        <div key={postData.id} className="card mb-3 shadow-sm">
+        <div key={postData.id} className="card mb-3 shadow-sm" onClick={handleCardClick} style={{cursor: "pointer"}}>
             <div className="row g-0 flex-row">
                 <div className="col-5">
                     <div className="carousel slide" id={postData.id}>
@@ -67,6 +74,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
                                     aria-label={`Slide ${index + 1}`}
                                     key={index}
                                     style={{borderRadius: "100%", width: "1rem", height: "1rem"}}
+                                    onClick={(e) => e.stopPropagation()}
                                 ></button>
                             ))}
                         </div>
@@ -84,12 +92,12 @@ const MyPostCard = ({post, onPostDeleted}) => {
                         </div>
                         <button className="carousel-control-prev" type="button"
                                 data-bs-target={`#${postData.id}`}
-                                data-bs-slide="prev">
+                                data-bs-slide="prev" onClick={(e) => e.stopPropagation()}>
                             <span className="visually-hidden">Previous</span>
                         </button>
                         <button className="carousel-control-next" type="button"
                                 data-bs-target={`#${postData.id}`}
-                                data-bs-slide="next">
+                                data-bs-slide="next" onClick={(e) => e.stopPropagation()}>
                             <span className="visually-hidden">Next</span>
                         </button>
                     </div>
@@ -100,7 +108,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
                         <div className="d-flex align-items-start">
                             <div className="flex-grow-1 me-3">
                                 <h3 className="card-title fw-bold mb-2 title-clamp">{postData.title}</h3>
-                                <div className="d-flex flex-wrap align-items-center meta mb-3">
+                                <div className="d-flex meta mb-3">
                                     {/* 1) Location block */}
                                     <div className="d-flex fw-light align-items-center meta__loc me-2">
                                         <i className="bi bi-geo-alt me-1"></i>
@@ -108,25 +116,26 @@ const MyPostCard = ({post, onPostDeleted}) => {
                                     </div>
 
                                     {/* 2) Badges block */}
-                                    <div className="d-flex align-items-center meta__tags">
-                                        {
-                                            postData.tagIds && (
-                                                postData.tagIds.map(id => {
+                                    {
+                                        postData.tagIds && (
+                                            <div className="d-flex align-items-center meta__tags">
+                                                {postData.tagIds.map((id) => {
                                                     const tag = tagMap.get(id);
                                                     if (!tag) return null;
                                                     return (
-                                                        <div key={postData.id + "-" + id}>
-                                                            <i className="bi bi-dot"></i>
-                                                            <span className="badge rounded-pill" style={{backgroundColor: tag.color}}>
-                                                                {tag.label}
-                                                            </span>
-                                                        </div>
+                                                        <span
+                                                            className="badge rounded-pill me-1"
+                                                            style={{backgroundColor: tag.color}}
+                                                        >
+                                                            {tag.label}
+                                                        </span>
                                                     );
-                                                })
-                                            )
-                                        }
-                                    </div>
+                                                })}
+                                            </div>
+                                        )
+                                    }
                                 </div>
+
                             </div>
                             <FontAwesomeIcon
                                 icon={faTrash}
@@ -148,28 +157,31 @@ const MyPostCard = ({post, onPostDeleted}) => {
                                     icon={postData.saved ? fullHeart : emptyHeart}
                                     style={{color: postData.saved ? "red" : "#2C3E50"}}
                                     className="fs-4 me-1"
+                                    onClick={(e) => e.stopPropagation()}
                                 />
                                 <span>{postData.like_count}</span>
                             </div>
 
                             <div className="d-flex align-items-center">
-                                <FontAwesomeIcon icon={faComment} className="me-1 fs-4"/>
+                                <FontAwesomeIcon icon={faComment} className="fs-4 me-1" onClick={(e) => e.stopPropagation()}/>
                                 <span>{postData.comment_count}</span>
                             </div>
 
                             <div className="d-flex align-items-center ">
-                                <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1"/>
+                                <FontAwesomeIcon icon={faPaperPlane} className="fs-4 me-1" onClick={(e) => e.stopPropagation()}/>
                                 <span>{postData.share_count}</span>
                             </div>
 
                             <div className="d-flex align-items-center gap-2 ms-auto">
                                 <Rating
+                                    name="read-only"
                                     value={postData.rating}
                                     icon={<FontAwesomeIcon icon={fullStar}/>}
                                     emptyIcon={<FontAwesomeIcon icon={emptyStar}/>}
                                     readOnly
                                     precision={0.1}
                                     size="small"
+                                    onClick={(e) => e.stopPropagation()}
                                 />
                                 <span>({postData.rating.toFixed(1)})</span>
                             </div>
@@ -182,7 +194,10 @@ const MyPostCard = ({post, onPostDeleted}) => {
                                 backgroundColor={"#91B58B"}
                                 text={"Publish"}
                                 className="fs-5 fw-bold px-5 py-2"
-                                onClick={handlePublishPost}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePublishPost();
+                                }}
                             />
                         </div>
                     </div>

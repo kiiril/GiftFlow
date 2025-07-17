@@ -37,10 +37,13 @@ const upload = multer({
 
 async function getAllPosts(req, res, next){
     try {
-        const {page = 1, limit = 10} = req.query;
+        const {page = 1, limit = 10, tags, locations} = req.query;
         const offset = (page - 1) * limit;
 
-        const posts = await db.getPosts(parseInt(limit), offset);
+        const tagIds = tags ? tags.split(',').map(id => parseInt(id, 10)) : [];
+        const locationStrings = locations ? locations.split(';') : [];
+
+        const posts = await db.getPosts(parseInt(limit), offset, tagIds, locationStrings);
 
         const userId = req.session.user_id;
         // Add isSaved field for each post
