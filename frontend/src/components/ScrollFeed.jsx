@@ -8,6 +8,7 @@ const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
     const [page, setPage] = React.useState(1);
     const [limit, setLimit] = React.useState(10);
     const [hasMore, setHasMore] = React.useState(true);
+    const [filters, setFilters] = React.useState({ tags: [] });
     const lastElement = React.useRef(); // last element in the feed
     const observer = React.useRef(); // observer for infinite scrolling
 
@@ -27,12 +28,20 @@ const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
     const fetchPosts = async () => {
         if (!hasMore) return;
 
-        const response = await axios.get(fetchPostsUrl, {
-            params: {
-                limit: limit,
-                page: page
-            }
-        });
+        const params = {
+            limit: limit,
+            page: page,
+        };
+
+        if (filters.tags && filters.tags.length > 0) {
+            params.tags = filters.tags.join(',');
+        }
+
+        if (filters.locations && filters.locations.length > 0) {
+            params.locations = filters.locations.join(';');
+        }
+
+        const response = await axios.get(fetchPostsUrl, { params });
         const newPosts = response.data;
 
         // If fewer posts than the limit are returned, we've reached the end
@@ -47,6 +56,13 @@ const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
         setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
     };
 
+    const handleFilterChange = (newFilterValues) => {
+        setPosts([]);
+        setPage(1);
+        setHasMore(true);
+        setFilters(prevFilters => ({...prevFilters, ...newFilterValues}));
+    };
+
     useEffect( ()=> {
         fetchPosts();
     }, [page]);
@@ -54,7 +70,7 @@ const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
 
     return (
         <div className="container">
-            <FilterBar/>
+            <FilterBar onFilterChange={handleFilterChange} filters={filters}/>
             <div
                 className={isSingleColumn ? "d-flex flex-column gap-3" : "row g-3"}
                 style={isSingleColumn ? { maxHeight: "80vh", overflowY: "auto" } : {}}

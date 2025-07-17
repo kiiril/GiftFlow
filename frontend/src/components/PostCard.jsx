@@ -28,7 +28,13 @@ const PostCard = ({post}) => {
                 ? `http://localhost:8080/posts/${postData.id}/unsave`
                 : `http://localhost:8080/posts/${postData.id}/save`;
 
-            const response = await axios.post(endpoint);
+
+            const response = await axios.post(endpoint).catch((err => {
+                if (err.response && err.response.status === 401) {
+                    navigate("/login");
+                }
+            }));
+
             if (response.data.success) {
                 setPostData((prevData) => ({
                     ...prevData,

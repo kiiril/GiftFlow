@@ -4,67 +4,7 @@ import { useTreeViewApiRef } from '@mui/x-tree-view/hooks';
 import axios from "axios";
 import {API_BASE_URL} from "../constants";
 
-const LocationDropdown = () => {
-    // const MUI_X_PRODUCTS = [
-    //     {
-    //         id: 'Europe',
-    //         label: 'Europe',
-    //         children: [
-    //             {
-    //                 id: 'Poland',
-    //                 label: 'Poland',
-    //                 children: [
-    //                     { id: 'Warsaw', label: 'Warsaw' },
-    //                     { id: 'Krakow', label: 'Krakow' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 'Germany',
-    //                 label: 'Germany',
-    //                 children: [
-    //                     { id: 'Berlin', label: 'Berlin' },
-    //                     { id: 'Munich', label: 'Munich' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 'Slovenia',
-    //                 label: 'Slovenia',
-    //                 children: [
-    //                     { id: 'Koper', label: 'Koper' },
-    //                     { id: 'Ljubljana', label: 'Ljubljana' },
-    //                 ]
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         id: 'Asia',
-    //         label: 'Asia',
-    //         children: [
-    //             {
-    //                 id: 'Japan',
-    //                 label: 'Japan',
-    //                 children: [
-    //                     { id: 'Tokyo', label: 'Tokyo' },
-    //                     { id: 'Osaka', label: 'Osaka' },
-    //                 ]
-    //             },
-    //             {
-    //                 id: 'China',
-    //                 label: 'China',
-    //                 children: [
-    //                     { id: 'Shanghai', label: 'Shanghai' },
-    //                     { id: 'Beijing', label: 'Beijing' },
-    //                 ]
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         id: 'Africa',
-    //         label: 'Africa',
-    //         children: [{ id: 'UAE', label: 'UAE' }],
-    //     },
-    // ];
-
+const LocationDropdown = ({ onChange, defaultValue = [] }) => {
     const [items, setItems] = React.useState([]);
 
     const fetchLocations = async () => {
@@ -76,6 +16,20 @@ const LocationDropdown = () => {
         fetchLocations();
     }, []);
 
+    const parentMap = React.useMemo(() => {
+        const map = new Map();
+        function traverse(items, parent = null) {
+            for (const item of items) {
+                map.set(item.id, parent);
+                if (item.children) {
+                    traverse(item.children, item);
+                }
+            }
+        }
+        traverse(items);
+        return map;
+    }, [items]);
+
     function getItemDescendantsIds(item) {
         const ids = [];
         item.children?.forEach((child) => {
@@ -86,7 +40,7 @@ const LocationDropdown = () => {
         return ids;
     }
 
-    const [selectedItems, setSelectedItems] = React.useState([]);
+    const [selectedItems, setSelectedItems] = React.useState(defaultValue);
     const toggledItemRef = React.useRef({});
     const apiRef = useTreeViewApiRef();
 
@@ -119,7 +73,23 @@ const LocationDropdown = () => {
             ),
         );
 
+        const leafItems = newSelectedItemsWithChildren.filter(itemId => {
+            const item = apiRef.current.getItem(itemId);
+            return !item.children || item.children.length === 0;
+        });
+
+        const locationsWithCountry = leafItems.map(cityId => {
+            const cityItem = apiRef.current.getItem(cityId);
+            const parentItem = parentMap.get(cityId);
+            if (parentItem) {
+                return `${parentItem.label}, ${cityItem.label}`;
+            }
+            return cityItem.label;
+        });
+
         setSelectedItems(newSelectedItemsWithChildren);
+        console.log("Selected locations:", locationsWithCountry);
+        onChange?.(locationsWithCountry);
 
         toggledItemRef.current = {};
     };

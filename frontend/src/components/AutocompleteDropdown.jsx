@@ -58,6 +58,7 @@ const AutocompleteDropdown = ({
             {isOpen && (
                 <ul
                     className="list-group position-absolute w-100 mt-1"
+                    style={{ maxHeight: '200px', overflowY: 'auto' }}
                 >
                     {filteredItems.length > 0 ? (
                         filteredItems.map((item, i) => (

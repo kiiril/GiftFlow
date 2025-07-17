@@ -1,23 +1,26 @@
 import React, {useEffect} from 'react';
-import PriceDropdown from "./PriceDropdown";
 import SortButton from "./SortButton";
 import LocationDropdown from "./LocationDropdown";
 import SearchableDropdown from "./SearchableDropdown";
 import {API_BASE_URL} from "../constants";
 import axios from "axios";
 
-const FilterBar = () => {
+const FilterBar = ({ onFilterChange, filters }) => {
     const [tags, setTags] = React.useState([]);
-    const [locations, setLocations] = React.useState([]);
 
     useEffect(() => {
         axios.get(`${API_BASE_URL}/tags`).then(res => {
             setTags(res.data);
         });
-        axios.get(`${API_BASE_URL}/locations`).then(res => {
-            setLocations(res.data);
-        });
     }, []);
+
+    const handleTagChange = (ids) => {
+        onFilterChange({ tags: ids });
+    };
+
+    const handleLocationChange = (ids) => {
+        onFilterChange({ locations: ids });
+    };
 
     return (
         <div className="container mb-5">
@@ -27,17 +30,18 @@ const FilterBar = () => {
                         label={"Tags"}
                         multiple={true}
                         items={tags}
-                        defaultValue={[]}
+                        defaultValue={filters.tags || []}
+                        onChange={handleTagChange}
                     />
-                </div>
-                <div className="col-12 col-md-3">
-                    <PriceDropdown title={"Price"}/>
                 </div>
                 <div className="col-12 col-md-2">
                     <SortButton/>
                 </div>
                 <div className="col-12 col-md-3">
-                    <LocationDropdown/>
+                    <LocationDropdown
+                        defaultValue={filters.locations || []}
+                        onChange={handleLocationChange}
+                    />
                 </div>
             </div>
         </div>
