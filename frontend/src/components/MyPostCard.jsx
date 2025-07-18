@@ -85,7 +85,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
                                     <img
                                         src={img.src}
                                         alt="post"
-                                        className="img-fluid"
+                                        className="card-img-left"
                                     />
                                 </div>
                             )}

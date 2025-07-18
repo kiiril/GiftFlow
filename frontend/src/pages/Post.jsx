@@ -112,7 +112,7 @@ const Post = () => {
                                 <div key={i} className={`carousel-item ${i === 0 ? "active" : ""}`}>
                                     <img src={img.src}
                                          alt=""
-                                         className="img-fluid" />
+                                         className="card-img-left" />
                                 </div>
                             ))}
                         </div>

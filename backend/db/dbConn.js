@@ -174,6 +174,7 @@ dataPool.createPost = async (
     tagIds,
     description,
     price,
+    currency,
     imageUrls
 ) => {
     const conn = await pool.getConnection();
@@ -182,9 +183,9 @@ dataPool.createPost = async (
 
         const [postRes] = await conn.execute(
             `INSERT INTO Post
-         (user_id, title, location, description, price, posted_at)
-       VALUES (?, ?, ?, ?, ?, NOW())`,
-            [userId, title, location, description, price]
+         (user_id, title, location, description, price, currency, posted_at)
+       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+            [userId, title, location, description, price, currency]
         );
         const postId = postRes.insertId;
 
