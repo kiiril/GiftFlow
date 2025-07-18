@@ -63,7 +63,7 @@ async function getAllPosts(req, res, next){
 
 async function handlePostCreate(req, res, next) {
     try {
-        const { title, location, tagIds, description, price } = req.body;
+        const { title, location, tagIds, description, price, currency } = req.body;
         const imageFiles = req.files;
 
         let imageUrls = [];
@@ -85,6 +85,7 @@ async function handlePostCreate(req, res, next) {
             JSON.parse(tagIds),
             description,
             parseFloat(price),
+            currency,
             imageUrls
         )
 

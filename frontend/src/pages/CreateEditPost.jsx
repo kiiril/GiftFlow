@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUpload, faCloudArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { faUpload, faCloudArrowUp, faTrash } from "@fortawesome/free-solid-svg-icons";
 import AutocompleteDropdown from "../components/AutocompleteDropdown";
 import PrimaryButton from "../components/PrimaryButton";
 import SecondaryButton from "../components/SecondaryButton";
@@ -198,9 +198,19 @@ export default function CreateEditPostPage() {
         setOriginalFormData(formData);
     };
 
-    const handleDelete = () => {
-        // TODO: DELETE /api/me/posts/:postId
-        navigate("/me/posts");
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        try {
+            const response = await axios.delete(`${API_BASE_URL}/posts/${formData.id}`);
+
+            if (response.status === 204) {
+                navigate("/myposts");
+            } else {
+                console.error("Failed to delete post");
+            }
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
     };
 
     const handleCancel = () => {
@@ -241,7 +251,7 @@ export default function CreateEditPostPage() {
                                                     <div key={i} className={`carousel-item ${i === 0 ? "active" : ""}`}>
                                                         <img src={img.src}
                                                              alt=""
-                                                             className="d-block w-100 rounded" />
+                                                             className="card-img-left" />
                                                     </div>
                                                 ))}
                                             </div>
@@ -314,7 +324,15 @@ export default function CreateEditPostPage() {
                         />
                     </div>
 
-                    <div className="col-6 d-flex flex-column h-100 py-4 px-6">
+                    <div className="col-6 d-flex flex-column h-100 py-4 ps-4 pe-8 position-relative">
+                        {isEdit && (
+                            <FontAwesomeIcon
+                                icon={faTrash}
+                                size={"2xl"}
+                                style={{cursor: "pointer", position: "absolute", top: "1.5rem", right: "1.5rem"}}
+                                onClick={handleDelete}
+                            />
+                        )}
                         <div className="mb-3">
                             <label htmlFor="title" className="fw-bold form-label">
                                 Title

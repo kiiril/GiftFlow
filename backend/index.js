@@ -5,7 +5,7 @@ const cors = require("cors");
 const path = require("path");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-const port = 8080; // 8108
+const port = 8108;
 
 const posts = require("./routes/posts");
 const users = require("./routes/users");
@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     methods:["GET", "POST", "PUT", "DELETE"],
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3108",
     credentials: true,
 }))
 app.use(cookieParser(process.env.SESSION_SECRET));
