@@ -8,6 +8,7 @@ import {API_BASE_URL} from "../constants";
 import axios from "axios";
 import {useTagMap} from "../contexts/TagsProvider";
 import {useNavigate} from "react-router-dom";
+import {getCurrencySymbol} from "../utils/currency";
 
 const MyPostCard = ({post, onPostDeleted}) => {
     const tagMap = useTagMap();
@@ -43,19 +44,23 @@ const MyPostCard = ({post, onPostDeleted}) => {
         }
     }
 
-    const handlePublishPost = async () => {
+    const handlePublishPost = async (e) => {
+        e.stopPropagation();
         try {
-            // fixme: implement endpoint
             const response = await axios.post(`${API_BASE_URL}/posts/${postData.id}/publish`);
 
             if (response.data.success) {
-                // Optionally, you can handle the UI update after publishing
-                console.log("Post published successfully");
+                // Update the local state with the new publication status
+                setPostData(prev => ({
+                    ...prev,
+                    is_published: response.data.is_published
+                }));
+                console.log(`Post ${response.data.is_published ? 'published' : 'unpublished'} successfully`);
             } else {
-                console.error("Failed to publish post");
+                console.error("Failed to toggle post publication");
             }
         } catch (error) {
-            console.error("Error publishing post:", error);
+            console.error("Error toggling post publication:", error);
         }
     }
 
@@ -187,17 +192,14 @@ const MyPostCard = ({post, onPostDeleted}) => {
                             </div>
                         </div>
 
-                        <div className="fw-bold fs-3 text-end">${postData.price}</div>
+                        <div className="fw-bold fs-3 text-end">{getCurrencySymbol(postData.currency)}{postData.price}</div>
 
                         <div className="d-flex mt-auto justify-content-end">
                             <PrimaryButton
-                                backgroundColor={"#91B58B"}
-                                text={"Publish"}
+                                backgroundColor={postData.is_published ? "#CB785C" : "#91B58B"}
+                                text={postData.is_published ? "Unpublish" : "Publish"}
                                 className="fs-5 fw-bold px-5 py-2"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePublishPost();
-                                }}
+                                onClick={handlePublishPost}
                             />
                         </div>
                     </div>

@@ -13,7 +13,7 @@ const pool = mysql.createPool({
 
 // fixme: adjust all functions to async/await
 const dataPool = {}
-dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => {
+dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], minPrice, maxPrice) => {
     let query = `
             SELECT
                 p.*,
@@ -58,6 +58,9 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => 
     const whereClauses = [];
     const queryParams = [];
 
+    // Only show published posts in the main feed
+    whereClauses.push(`p.is_published = 1`);
+
     if (tagIds && tagIds.length > 0) {
         whereClauses.push(`
             p.id IN (
@@ -76,11 +79,21 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => 
         queryParams.push(locationStrings);
     }
 
+    if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
+        whereClauses.push(`p.price >= ?`);
+        queryParams.push(parseFloat(minPrice));
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
+        whereClauses.push(`p.price <= ?`);
+        queryParams.push(parseFloat(maxPrice));
+    }
+
     if (whereClauses.length > 0) {
         query += ` WHERE ${whereClauses.join(" AND ")}`;
     }
 
-    query += ` LIMIT ? OFFSET ?`;
+    query += ` ORDER BY p.posted_at DESC LIMIT ? OFFSET ?`;
     queryParams.push(limit, offset);
 
     try {
@@ -438,7 +451,7 @@ dataPool.getPostByUser = async (postId, userId) => {
                         WHERE pi.post_id = p.id
                         ORDER BY pi.display_order
                     ) AS sub
-                ) AS images,
+                ) AS images
             FROM Post AS p
             LEFT JOIN User AS u ON p.user_id = u.id
             WHERE p.id = ? AND p.user_id = ?
@@ -598,6 +611,34 @@ dataPool.getLocationsTree = async () => {
         return countryTree;
     } catch (err) {
         console.error(err);
+        throw err;
+    }
+}
+
+dataPool.togglePostPublication = async (postId) => {
+    try {
+        // First get the current publication status
+        const [rows] = await pool.query(
+            "SELECT is_published FROM Post WHERE id = ?",
+            [postId]
+        );
+
+        if (rows.length === 0) {
+            throw new Error("Post not found");
+        }
+
+        const currentStatus = rows[0].is_published;
+        const newStatus = !currentStatus;
+
+        // Update the publication status
+        await pool.query(
+            "UPDATE Post SET is_published = ? WHERE id = ?",
+            [newStatus, postId]
+        );
+
+        return { is_published: newStatus };
+    } catch (err) {
+        console.error("Error toggling post publication:", err);
         throw err;
     }
 }

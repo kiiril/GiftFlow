@@ -10,11 +10,39 @@ import {
 import {faCalendarDays} from "@fortawesome/free-regular-svg-icons"
 import {AuthContext} from "../contexts/AuthProvider";
 import {API_BASE_URL} from "../constants";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 
 const Header = () => {
     const {user} = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleDiscoverClick = () => {
+        // Check if we're already on the main page
+        if (location.pathname === '/') {
+            // We're on the main page, just scroll to the feed
+            const scrollFeedElement = document.getElementById('scroll-feed-section');
+            if (scrollFeedElement) {
+                scrollFeedElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        } else {
+            // Navigate to main page first, then scroll after navigation
+            navigate('/');
+            // Use setTimeout to ensure the page has loaded before scrolling
+            setTimeout(() => {
+                const scrollFeedElement = document.getElementById('scroll-feed-section');
+                if (scrollFeedElement) {
+                    scrollFeedElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }, 100);
+        }
+    };
 
     return (
         <header
@@ -34,7 +62,13 @@ const Header = () => {
                         <a className="nav-link nav-link-custom px-4 py-2 mx-3">About</a>
                     </li>
                     <li className="nav-item">
-                        <a className="nav-link nav-link-custom px-4 py-2 mx-3">Discover</a>
+                        <a
+                            className="nav-link nav-link-custom px-4 py-2 mx-3"
+                            style={{cursor: 'pointer'}}
+                            onClick={handleDiscoverClick}
+                        >
+                            Discover
+                        </a>
                     </li>
                     <li className="nav-item">
                         <a className="nav-link nav-link-custom px-4 py-2 mx-3">Support</a>

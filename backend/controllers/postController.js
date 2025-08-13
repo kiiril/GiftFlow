@@ -37,13 +37,13 @@ const upload = multer({
 
 async function getAllPosts(req, res, next){
     try {
-        const {page = 1, limit = 10, tags, locations} = req.query;
+        const {page = 1, limit = 10, tags, locations, minPrice, maxPrice} = req.query;
         const offset = (page - 1) * limit;
 
         const tagIds = tags ? tags.split(',').map(id => parseInt(id, 10)) : [];
         const locationStrings = locations ? locations.split(';') : [];
 
-        const posts = await db.getPosts(parseInt(limit), offset, tagIds, locationStrings);
+        const posts = await db.getPosts(parseInt(limit), offset, tagIds, locationStrings, minPrice, maxPrice);
 
         const userId = req.session.user_id;
         // Add isSaved field for each post
@@ -307,6 +307,34 @@ async function getMyPost(req, res, next) {
     }
 }
 
+async function togglePostPublication(req, res, next) {
+    try {
+        const postId = parseInt(req.params.id);
+        const userId = req.session.user_id;
+
+        if (!userId) {
+            return res.status(401).send({ message: "Unauthorized" });
+        }
+
+        // Check if the post belongs to the user
+        const post = await db.getPostByUser(postId, userId);
+        if (!post) {
+            return res.status(404).send({ message: "Post not found or unauthorized" });
+        }
+
+        const result = await db.togglePostPublication(postId);
+        const newPublishedStatus = result.is_published;
+
+        return res.status(200).json({
+            success: true,
+            is_published: newPublishedStatus
+        });
+    } catch (err) {
+        console.log("Error toggling post publication:", err);
+        return res.status(500).send({ message: "Internal Server Error" });
+    }
+}
+
 module.exports = {
     getAllPosts,
     getAllMyPosts,
@@ -318,5 +346,6 @@ module.exports = {
     getComments,
     createComment,
     savePostToFavourites,
-    removePostFromFavourites
+    removePostFromFavourites,
+    togglePostPublication
 }

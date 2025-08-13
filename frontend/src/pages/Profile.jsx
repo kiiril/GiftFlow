@@ -12,7 +12,7 @@ const Profile = () => {
     const [isChanged, setIsChanged] = useState(false);
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/users/me`, {}).then(response => {
+        axios.get(`${API_BASE_URL}/users/me`, {}).then(response => {
             const user = response.data;
             if (user.date_of_birthday) {
                 user.date_of_birthday = dayjs(user.date_of_birthday).format("YYYY-MM-DD");
@@ -38,7 +38,7 @@ const Profile = () => {
         formData.append("bio", userData.bio);
 
         try {
-            const response = await axios.put(`http://localhost:8080/users/me`, formData, {
+            const response = await axios.put(`${API_BASE_URL}/users/me`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

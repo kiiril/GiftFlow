@@ -41,6 +41,15 @@ const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
             params.locations = filters.locations.join(';');
         }
 
+        if (filters.price) {
+            if (filters.price.min !== undefined) {
+                params.minPrice = filters.price.min;
+            }
+            if (filters.price.max !== undefined) {
+                params.maxPrice = filters.price.max;
+            }
+        }
+
         const response = await axios.get(fetchPostsUrl, { params });
         const newPosts = response.data;
 

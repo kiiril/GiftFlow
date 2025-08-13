@@ -6,6 +6,8 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import SubmitButton from "./SubmitButton";
 import dayjs from "dayjs";
 import axios from "axios";
+import * as constants from "node:constants";
+import {API_BASE_URL} from "../constants";
 
 const Account = () => {
 
@@ -18,7 +20,7 @@ const Account = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await axios.put(`http://localhost:8080/users/${inputs.id}`, inputs);
+        const response = await axios.put(`${API_BASE_URL}/users/${inputs.id}`, inputs);
         console.log(response);
     }
 
