@@ -1,15 +1,54 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import SecondaryButton from "./SecondaryButton";
 
-const PriceDropdown = ({title}) => {
-    const [fromInput, setFromInput] = useState("");
-    const [toInput, setToInput] = useState("");
+const PriceDropdown = ({ defaultValue = {}, onChange }) => {
+    const [fromInput, setFromInput] = useState(defaultValue.min || "");
+    const [toInput, setToInput] = useState(defaultValue.max || "");
+
+    useEffect(() => {
+        setFromInput(defaultValue.min || "");
+        setToInput(defaultValue.max || "");
+    }, [defaultValue]);
 
     const handleNumberInputChange = (e, setValue) => {
         const newValue = e.target.value;
         if (/^\d*$/.test(newValue)) {
             setValue(newValue);
         }
+    }
+
+    const handleApplyFilter = () => {
+        const priceFilter = {};
+        if (fromInput !== "") {
+            priceFilter.min = parseInt(fromInput);
+        }
+        if (toInput !== "") {
+            priceFilter.max = parseInt(toInput);
+        }
+
+        // Only call onChange if we have at least one price value
+        if (onChange && (priceFilter.min !== undefined || priceFilter.max !== undefined)) {
+            onChange(priceFilter);
+        } else if (onChange && fromInput === "" && toInput === "") {
+            // Clear the filter if both inputs are empty
+            onChange({});
+        }
+    }
+
+    const getButtonText = () => {
+        if (fromInput === "" && toInput === "") {
+            return "Price";
+        }
+        if (fromInput !== "" && toInput !== "") {
+            return `$${fromInput} - $${toInput}`;
+        }
+        if (fromInput !== "") {
+            return `From $${fromInput}`;
+        }
+        if (toInput !== "") {
+            return `Up to $${toInput}`;
+        }
+        return "Price";
     }
 
     return (
@@ -22,7 +61,7 @@ const PriceDropdown = ({title}) => {
                 data-bs-auto-close="outside"
                 aria-expanded="false"
             >
-                {title}
+                {getButtonText()}
             </button>
 
             <ul className="dropdown-menu mt-2">
@@ -55,10 +94,11 @@ const PriceDropdown = ({title}) => {
                     </div>
 
                     <SecondaryButton
-                        text={"Change"}
+                        text={"Apply"}
                         onHoverTextColor={"#FFFFFF"}
                         onHoverBackgroundColor={"#2C3E50"}
                         className={"py-1 w-100"}
+                        onClick={handleApplyFilter}
                     />
                 </div>
 

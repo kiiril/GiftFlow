@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/dbConn");
 const {getAllPosts, createPost, getPost, updatePost, deletePost, getComments, createComment, savePostToFavourites,
-    removePostFromFavourites, getAllMyPosts, getMyPost
+    removePostFromFavourites, getAllMyPosts, getMyPost, togglePostPublication
 } = require("../controllers/postController");
 
 router.get("/", getAllPosts);
@@ -14,6 +14,8 @@ router.post("/", createPost);
 router.post("/:id/save", savePostToFavourites);
 
 router.post("/:id/unsave", removePostFromFavourites);
+
+router.post("/:id/publish", togglePostPublication);
 
 router.get("/:id", getPost);
 

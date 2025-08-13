@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useParams} from "react-router-dom";
+import {useParams, useSearchParams} from "react-router-dom";
 import axios from "axios";
 import TopicTag from "../components/TopicTag";
 import {Checkbox, Rating} from "@mui/material";
@@ -11,6 +11,7 @@ import {useTagMap, useTags} from "../contexts/TagsProvider";
 
 const Post = () => {
     const tagMap = useTagMap();
+    const [searchParams] = useSearchParams();
 
     const [postData, setPostData] = React.useState({
             id: "",
@@ -38,7 +39,7 @@ const Post = () => {
     const params = useParams();
 
     const fetchPosts = async () => {
-        const response = await axios.get(`http://localhost:8080/posts/${params.id}`);
+        const response = await axios.get(`${API_BASE_URL}/posts/${params.id}`);
         const post = response.data;
         const images = post.images.map(img => ({
             id: img.id,
@@ -49,7 +50,7 @@ const Post = () => {
     }
 
     const fetchComments = async () => {
-        const response = await axios.get(`http://localhost:8080/posts/${params.id}/comments/`);
+        const response = await axios.get(`${API_BASE_URL}/posts/${params.id}/comments/`);
         setComments(response.data);
     }
 
@@ -58,10 +59,27 @@ const Post = () => {
         fetchComments();
     }, []);
 
+    // Add scroll to comments functionality
+    useEffect(() => {
+        const scrollToComments = searchParams.get('scrollTo');
+        if (scrollToComments === 'comments') {
+            // Use setTimeout to ensure the page has loaded before scrolling
+            setTimeout(() => {
+                const commentsElement = document.getElementById('comments-section');
+                if (commentsElement) {
+                    commentsElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }, 100);
+        }
+    }, [searchParams, comments]); // Include comments in dependency to ensure they're loaded
+
     const [commentValue, setCommentValue] = useState("")
 
     const createComment = () => {
-        axios.post(`http://localhost:8080/posts/${params.id}/comments/`, {
+        axios.post(`${API_BASE_URL}/posts/${params.id}/comments/`, {
             content: commentValue
         }).then(() => {
             fetchComments();
@@ -72,8 +90,8 @@ const Post = () => {
     const savePostToFavourites = async () => {
         try {
             const endpoint = postData.isSaved
-                ? `http://localhost:8080/posts/${postData.id}/unsave`
-                : `http://localhost:8080/posts/${postData.id}/save`;
+                ? `${API_BASE_URL}/posts/${postData.id}/unsave`
+                : `${API_BASE_URL}/posts/${postData.id}/save`;
 
             const response = await axios.post(endpoint);
             if (response.data.success) {
@@ -252,7 +270,7 @@ const Post = () => {
             </div>
 
             <div className="row">
-                <div className="col-12 col-md-6 col-lg-6 offset-md-6">
+                <div className="col-12 col-md-6 col-lg-6 offset-md-6" id="comments-section">
                     <h5 className="fw-bold mb-3">{comments.length} comments</h5>
 
                     {comments.map(comment => (

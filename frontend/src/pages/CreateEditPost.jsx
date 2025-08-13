@@ -401,9 +401,7 @@ export default function CreateEditPostPage() {
                                 <div className="w-25">
                                     <SearchableDropdown
                                         items={[
-                                            { id: "USD", label: "USD" },
-                                            { id: "EUR", label: "EUR" },
-                                            { id: "RUB", label: "RUB" }
+                                            { id: "USD", label: "USD" }
                                         ]}
                                         buttonClassName={"rounded-start rounded-end-0"}
                                         defaultValue={formData.currency}

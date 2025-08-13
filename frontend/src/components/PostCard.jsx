@@ -7,6 +7,7 @@ import {useNavigate} from "react-router-dom";
 import {API_BASE_URL} from "../constants";
 import axios from "axios";
 import {useTagMap} from "../contexts/TagsProvider";
+import {getCurrencySymbol} from "../utils/currency";
 
 const PostCard = ({post}) => {
     const tagMap = useTagMap();
@@ -25,8 +26,8 @@ const PostCard = ({post}) => {
     const savePostToFavourites = async () => {
         try {
             const endpoint = postData.isSaved
-                ? `http://localhost:8080/posts/${postData.id}/unsave`
-                : `http://localhost:8080/posts/${postData.id}/save`;
+                ? `${API_BASE_URL}/posts/${postData.id}/unsave`
+                : `${API_BASE_URL}/posts/${postData.id}/save`;
 
 
             const response = await axios.post(endpoint).catch((err => {
@@ -103,7 +104,7 @@ const PostCard = ({post}) => {
                     <span className="ms-2">({postData.rating.toFixed(1)})</span>
                 </div>
 
-                <p className="fw-bold fs-4 mb-4">{postData.currency}{postData.price}</p>
+                <p className="fw-bold fs-4 mb-4">{getCurrencySymbol(postData.currency)}{postData.price}</p>
 
                 <div className="mt-auto">
                     <div className="d-flex justify-content-between align-items-center px-3">
@@ -128,7 +129,10 @@ const PostCard = ({post}) => {
                             <span>{postData.like_count}</span>
                         </div>
 
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center" style={{cursor: 'pointer'}} onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/posts/${postData.id}?scrollTo=comments`);
+                        }}>
                             <FontAwesomeIcon icon={faComment} className="me-1 fs-4"/>
                             <span>{postData.comment_count}</span>
                         </div>
