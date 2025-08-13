@@ -13,53 +13,92 @@ const pool = mysql.createPool({
 
 // fixme: adjust all functions to async/await
 const dataPool = {}
-dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], minPrice, maxPrice) => {
+
+// Helper function to fetch and group tags by post ID
+const _fetchTagsForPosts = async (postIds) => {
+    if (postIds.length === 0) return {};
+
+    const [tagRows] = await pool.query(`
+        SELECT pt.post_id, t.id as tag_id
+        FROM Post_x_Tag AS pt
+        JOIN Tag AS t ON pt.tag_id = t.id
+        WHERE pt.post_id IN (?)
+    `, [postIds]);
+
+    const tagsByPost = {};
+    tagRows.forEach(row => {
+        if (!tagsByPost[row.post_id]) {
+            tagsByPost[row.post_id] = [];
+        }
+        tagsByPost[row.post_id].push(row.tag_id);
+    });
+
+    return tagsByPost;
+};
+
+// Helper function to fetch and group images by post ID
+const _fetchImagesForPosts = async (postIds) => {
+    if (postIds.length === 0) return {};
+
+    const [imageRows] = await pool.query(`
+        SELECT pi.post_id, pi.id, pi.path
+        FROM PostImages AS pi
+        WHERE pi.post_id IN (?)
+        ORDER BY pi.post_id, pi.display_order
+    `, [postIds]);
+
+    const imagesByPost = {};
+    imageRows.forEach(row => {
+        if (!imagesByPost[row.post_id]) {
+            imagesByPost[row.post_id] = [];
+        }
+        imagesByPost[row.post_id].push({
+            id: row.id,
+            path: row.path
+        });
+    });
+
+    return imagesByPost;
+};
+
+// Helper function to attach tags and images to posts
+const _attachTagsAndImagesToPosts = (posts, tagsByPost, imagesByPost) => {
+    posts.forEach(post => {
+        post.tagIds = tagsByPost[post.id] || [];
+        post.images = imagesByPost[post.id] || [];
+    });
+};
+
+dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => {
+    // First, get the basic post data
     let query = `
-            SELECT
-                p.*,
-                (
-                    SELECT JSON_ARRAYAGG(t.id)
-                    FROM Post_x_Tag AS pt
-                    JOIN Tag AS t ON pt.tag_id = t.id
-                    WHERE pt.post_id = p.id
-                ) AS tagIds,
-                (
-                    SELECT JSON_ARRAYAGG(JSON_OBJECT('id', sub.id, 'path', sub.path))
-                    FROM (
-                        SELECT pi.id, pi.path
-                        FROM PostImages AS pi
-                        WHERE pi.post_id = p.id
-                        ORDER BY pi.display_order
-                    ) AS sub
-                ) AS images,
-                JSON_OBJECT(
-                    'username', u.username,
-                    'avatar_url', u.avatar_url
-                ) AS publisher_info,
-                (
-                    SELECT COUNT(*)
-                    FROM PostLikes AS pl
-                    WHERE pl.post_id = p.id
-                ) AS like_count,
-                (
-                    SELECT COUNT(*)
-                    FROM Comment AS c
-                    WHERE c.post_id = p.id
-                ) AS comment_count,
-                (
-                    SELECT COUNT(*)
-                    FROM PostShares AS ps
-                    WHERE ps.post_id = p.id
-                ) AS shares_count
-            FROM Post AS p
-            LEFT JOIN User AS u ON p.user_id = u.id
-        `;
+        SELECT
+            p.*,
+            JSON_OBJECT(
+                'username', u.username,
+                'avatar_url', u.avatar_url
+            ) AS publisher_info,
+            (
+                SELECT COUNT(*)
+                FROM PostLikes AS pl
+                WHERE pl.post_id = p.id
+            ) AS like_count,
+            (
+                SELECT COUNT(*)
+                FROM Comment AS c
+                WHERE c.post_id = p.id
+            ) AS comment_count,
+            (
+                SELECT COUNT(*)
+                FROM PostShares AS ps
+                WHERE ps.post_id = p.id
+            ) AS shares_count
+        FROM Post AS p
+        LEFT JOIN User AS u ON p.user_id = u.id
+    `;
 
     const whereClauses = [];
     const queryParams = [];
-
-    // Only show published posts in the main feed
-    whereClauses.push(`p.is_published = 1`);
 
     if (tagIds && tagIds.length > 0) {
         whereClauses.push(`
@@ -79,26 +118,32 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], min
         queryParams.push(locationStrings);
     }
 
-    if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
-        whereClauses.push(`p.price >= ?`);
-        queryParams.push(parseFloat(minPrice));
-    }
-
-    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
-        whereClauses.push(`p.price <= ?`);
-        queryParams.push(parseFloat(maxPrice));
-    }
-
     if (whereClauses.length > 0) {
         query += ` WHERE ${whereClauses.join(" AND ")}`;
     }
 
-    query += ` ORDER BY p.posted_at DESC LIMIT ? OFFSET ?`;
+    query += ` LIMIT ? OFFSET ?`;
     queryParams.push(limit, offset);
 
     try {
-        const [rows] = await pool.query(query, queryParams);
-        return rows;
+        const [posts] = await pool.query(query, queryParams);
+
+        if (posts.length === 0) {
+            return posts;
+        }
+
+        const postIds = posts.map(post => post.id);
+
+        // Fetch tags and images using helper functions
+        const [tagsByPost, imagesByPost] = await Promise.all([
+            _fetchTagsForPosts(postIds),
+            _fetchImagesForPosts(postIds)
+        ]);
+
+        // Attach tags and images to posts
+        _attachTagsAndImagesToPosts(posts, tagsByPost, imagesByPost);
+
+        return posts;
     } catch (err) {
         console.error("Error fetching posts:", err);
         throw err;
@@ -106,46 +151,50 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], min
 }
 
 dataPool.getPost = async (id) => {
+    // First get the basic post data
     const query = `
-            SELECT
-                p.*,
-                (
-                    SELECT JSON_ARRAYAGG(t.id)
-                    FROM Post_x_Tag AS pt
-                    JOIN Tag AS t ON pt.tag_id = t.id
-                    WHERE pt.post_id = p.id
-                ) AS tagIds,
-                (
-                    SELECT JSON_ARRAYAGG(JSON_OBJECT('id', sub.id, 'path', sub.path))
-                    FROM (
-                        SELECT pi.id, pi.path
-                        FROM PostImages AS pi
-                        WHERE pi.post_id = p.id
-                        ORDER BY pi.display_order
-                    ) AS sub
-                ) AS images,
-                JSON_OBJECT(
-                    'username', u.username,
-                    'avatar_url', u.avatar_url
-                ) AS publisher_info,
-                (
-                    SELECT COUNT(*)
-                    FROM PostLikes AS pl
-                    WHERE pl.post_id = p.id
-                ) AS like_count,
-                (
-                    SELECT COUNT(*)
-                    FROM PostShares AS ps
-                    WHERE ps.post_id = p.id
-                ) AS shares_count
-            FROM Post AS p
-            LEFT JOIN User AS u ON p.user_id = u.id
-            WHERE p.id = ?
-        `;
+        SELECT
+            p.*,
+            JSON_OBJECT(
+                'username', u.username,
+                'avatar_url', u.avatar_url
+            ) AS publisher_info,
+            (
+                SELECT COUNT(*)
+                FROM PostLikes AS pl
+                WHERE pl.post_id = p.id
+            ) AS like_count,
+            (
+                SELECT COUNT(*)
+                FROM PostShares AS ps
+                WHERE ps.post_id = p.id
+            ) AS shares_count
+        FROM Post AS p
+        LEFT JOIN User AS u ON p.user_id = u.id
+        WHERE p.id = ?
+    `;
+
     try {
-        const [rows] = await pool.query(query, [id]);
-        // fixme: add check for empty?
-        return rows[0];
+        const [posts] = await pool.query(query, [id]);
+
+        if (posts.length === 0) {
+            return null;
+        }
+
+        const post = posts[0];
+        const postIds = [post.id];
+
+        // Fetch tags and images using helper functions
+        const [tagsByPost, imagesByPost] = await Promise.all([
+            _fetchTagsForPosts(postIds),
+            _fetchImagesForPosts(postIds)
+        ]);
+
+        // Attach tags and images to the post
+        post.tagIds = tagsByPost[post.id] || [];
+        post.images = imagesByPost[post.id] || [];
+
+        return post;
     } catch (err) {
         console.error("Error fetching post:", err);
         throw err;
@@ -316,7 +365,9 @@ dataPool.removePostFromFavourites = async (post_id, user_id) => {
 }
 
 dataPool.getPostComments = async (id) => {
-    const query = `
+    try {
+        // First get all parent comments
+        const [parentComments] = await pool.query(`
             SELECT
                 c.id,
                 c.content,
@@ -326,33 +377,51 @@ dataPool.getPostComments = async (id) => {
                     'username', u.username,
                     'avatar_url', u.avatar_url
                 ) AS user_info,
-                c.parent_comment_id,
-                (
-                    SELECT JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'id', cc.id,
-                            'content', cc.content,
-                            'created_at', cc.created_at,
-                            'user_info', JSON_OBJECT(
-                                'id', cu.id,
-                                'username', cu.username,
-                                'avatar_url', cu.avatar_url
-                            ),
-                            'parent_comment_id', cc.parent_comment_id
-                        )
-                    )
-                    FROM Comment cc
-                    LEFT JOIN User cu ON cc.user_id = cu.id
-                    WHERE cc.parent_comment_id = c.id
-                ) AS child_comments
+                c.parent_comment_id
             FROM Comment c
             LEFT JOIN User u ON c.user_id = u.id
             WHERE c.post_id = ?
-            AND c.parent_comment_id IS NULL;
-        `;
-    try {
-        const [rows] = await pool.query(query, [id]);
-        return rows;
+            AND c.parent_comment_id IS NULL
+        `, [id]);
+
+        if (parentComments.length === 0) {
+            return parentComments;
+        }
+
+        const parentCommentIds = parentComments.map(comment => comment.id);
+
+        // Get all child comments for these parent comments
+        const [childComments] = await pool.query(`
+            SELECT
+                c.id,
+                c.content,
+                c.created_at,
+                JSON_OBJECT(
+                    'id', u.id,
+                    'username', u.username,
+                    'avatar_url', u.avatar_url
+                ) AS user_info,
+                c.parent_comment_id
+            FROM Comment c
+            LEFT JOIN User u ON c.user_id = u.id
+            WHERE c.parent_comment_id IN (?)
+        `, [parentCommentIds]);
+
+        // Group child comments by parent_comment_id
+        const childCommentsByParent = {};
+        childComments.forEach(child => {
+            if (!childCommentsByParent[child.parent_comment_id]) {
+                childCommentsByParent[child.parent_comment_id] = [];
+            }
+            childCommentsByParent[child.parent_comment_id].push(child);
+        });
+
+        // Attach child comments to parent comments
+        parentComments.forEach(parent => {
+            parent.child_comments = childCommentsByParent[parent.id] || [];
+        });
+
+        return parentComments;
     } catch (err) {
         console.error(err);
         throw err;
@@ -380,51 +449,54 @@ dataPool.isPostSavedByUser = async (post_id, user_id) => {
 }
 
 dataPool.getPostsByUser = async (userId, limit, offset) => {
+    // First get the basic post data
     const query = `
-            SELECT
-                p.*,
-                (
-                    SELECT JSON_ARRAYAGG(t.id)
-                    FROM Post_x_Tag AS pt
-                    JOIN Tag AS t ON pt.tag_id = t.id
-                    WHERE pt.post_id = p.id
-                ) AS tagIds,
-                (
-                    SELECT JSON_ARRAYAGG(JSON_OBJECT('id', sub.id, 'path', sub.path))
-                    FROM (
-                        SELECT pi.id, pi.path
-                        FROM PostImages AS pi
-                        WHERE pi.post_id = p.id
-                        ORDER BY pi.display_order
-                    ) AS sub
-                ) AS images,
-                JSON_OBJECT(
-                    'username', u.username,
-                    'avatar_url', u.avatar_url
-                ) AS publisher_info,
-                (
-                    SELECT COUNT(*)
-                    FROM PostLikes AS pl
-                    WHERE pl.post_id = p.id
-                ) AS like_count,
-                (
-                    SELECT COUNT(*)
-                    FROM Comment AS c
-                    WHERE c.post_id = p.id
-                ) AS comment_count,
-                (
-                    SELECT COUNT(*)
-                    FROM PostShares AS ps
-                    WHERE ps.post_id = p.id
-                ) AS shares_count
-            FROM Post AS p
-            LEFT JOIN User AS u ON p.user_id = u.id
-            WHERE p.user_id = ?
-            LIMIT ? OFFSET ?
-        `;
+        SELECT
+            p.*,
+            JSON_OBJECT(
+                'username', u.username,
+                'avatar_url', u.avatar_url
+            ) AS publisher_info,
+            (
+                SELECT COUNT(*)
+                FROM PostLikes AS pl
+                WHERE pl.post_id = p.id
+            ) AS like_count,
+            (
+                SELECT COUNT(*)
+                FROM Comment AS c
+                WHERE c.post_id = p.id
+            ) AS comment_count,
+            (
+                SELECT COUNT(*)
+                FROM PostShares AS ps
+                WHERE ps.post_id = p.id
+            ) AS shares_count
+        FROM Post AS p
+        LEFT JOIN User AS u ON p.user_id = u.id
+        WHERE p.user_id = ?
+        LIMIT ? OFFSET ?
+    `;
+
     try {
-        const [rows] = await pool.query(query, [userId, limit, offset]);
-        return rows;
+        const [posts] = await pool.query(query, [userId, limit, offset]);
+
+        if (posts.length === 0) {
+            return posts;
+        }
+
+        const postIds = posts.map(post => post.id);
+
+        // Fetch tags and images using helper functions
+        const [tagsByPost, imagesByPost] = await Promise.all([
+            _fetchTagsForPosts(postIds),
+            _fetchImagesForPosts(postIds)
+        ]);
+
+        // Attach tags and images to posts
+        _attachTagsAndImagesToPosts(posts, tagsByPost, imagesByPost);
+
+        return posts;
     } catch(err) {
         console.error(err);
         throw err;
@@ -432,40 +504,52 @@ dataPool.getPostsByUser = async (userId, limit, offset) => {
 }
 
 dataPool.getPostByUser = async (postId, userId) => {
+    // First get the basic post data
     const query = `
-            SELECT
-                p.*,
-                (
-                    SELECT JSON_ARRAYAGG(
-                        JSON_OBJECT('label', t.label, 'color', t.color, 'value', t.value)
-                    )
-                    FROM Post_x_Tag AS pt
-                    JOIN Tag AS t ON pt.tag_id = t.id
-                    WHERE pt.post_id = p.id
-                ) AS tags,
-                (
-                    SELECT JSON_ARRAYAGG(sub.path)
-                    FROM (
-                        SELECT pi.path
-                        FROM PostImages AS pi
-                        WHERE pi.post_id = p.id
-                        ORDER BY pi.display_order
-                    ) AS sub
-                ) AS images
-            FROM Post AS p
-            LEFT JOIN User AS u ON p.user_id = u.id
-            WHERE p.id = ? AND p.user_id = ?
-        `;
+        SELECT p.*
+        FROM Post AS p
+        WHERE p.id = ? AND p.user_id = ?
+    `;
+
     try {
-        const [rows] = await pool.query(query, [postId, userId]);
-        // fixme: check for empty
-        return rows[0];
+        const [posts] = await pool.query(query, [postId, userId]);
+
+        if (posts.length === 0) {
+            return null;
+        }
+
+        const post = posts[0];
+
+        // Get tags for this post with full tag information
+        const [tagRows] = await pool.query(`
+            SELECT t.label, t.color, t.value
+            FROM Post_x_Tag AS pt
+            JOIN Tag AS t ON pt.tag_id = t.id
+            WHERE pt.post_id = ?
+        `, [postId]);
+
+        // Get image paths for this post
+        const [imageRows] = await pool.query(`
+            SELECT pi.path
+            FROM PostImages AS pi
+            WHERE pi.post_id = ?
+            ORDER BY pi.display_order
+        `, [postId]);
+
+        // Attach tags and images to the post
+        post.tags = tagRows.map(row => ({
+            label: row.label,
+            color: row.color,
+            value: row.value
+        }));
+        post.images = imageRows.map(row => row.path);
+
+        return post;
     } catch (err) {
         console.error(err);
         throw err;
     }
 }
-
 
 // COMMENTS
 // fixme: not needed, remove?
@@ -611,34 +695,6 @@ dataPool.getLocationsTree = async () => {
         return countryTree;
     } catch (err) {
         console.error(err);
-        throw err;
-    }
-}
-
-dataPool.togglePostPublication = async (postId) => {
-    try {
-        // First get the current publication status
-        const [rows] = await pool.query(
-            "SELECT is_published FROM Post WHERE id = ?",
-            [postId]
-        );
-
-        if (rows.length === 0) {
-            throw new Error("Post not found");
-        }
-
-        const currentStatus = rows[0].is_published;
-        const newStatus = !currentStatus;
-
-        // Update the publication status
-        await pool.query(
-            "UPDATE Post SET is_published = ? WHERE id = ?",
-            [newStatus, postId]
-        );
-
-        return { is_published: newStatus };
-    } catch (err) {
-        console.error("Error toggling post publication:", err);
         throw err;
     }
 }
