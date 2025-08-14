@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
 import {faComment, faPaperPlane, faHeart as emptyHeart, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 import {useNavigate} from "react-router-dom";
-import {API_BASE_URL} from "../constants";
+import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import axios from "axios";
 import {useTagMap} from "../contexts/TagsProvider";
 import {getCurrencySymbol} from "../utils/currency";
@@ -17,7 +17,7 @@ const PostCard = ({post}) => {
     const [postData, setPostData] = React.useState(() => {
             const images = post.images.map(img => ({
                 id: img.id,
-                src: API_BASE_URL + img.path,
+                src: UPLOADS_BASE_URL + img.path,
             }));
             return { ...post, images };
         }

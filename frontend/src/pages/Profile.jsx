@@ -4,7 +4,7 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import SecondaryButton from "../components/SecondaryButton";
-import {API_BASE_URL} from "../constants";
+import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 
 const Profile = () => {
     const [userData, setUserData] = useState({});
@@ -90,7 +90,7 @@ const Profile = () => {
                 <div className="row mb-4 gx-5">
                     <div className="col-auto d-flex flex-column align-items-center gap-3">
                         <img
-                            src={API_BASE_URL + userData.avatar_url}
+                            src={UPLOADS_BASE_URL + userData.avatar_url}
                             alt="User Avatar"
                             className="rounded-circle"
                             style={{ width: "150px", height: "150px" }}

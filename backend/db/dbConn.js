@@ -69,7 +69,7 @@ const _attachTagsAndImagesToPosts = (posts, tagsByPost, imagesByPost) => {
     });
 };
 
-dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => {
+dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], minPrice, maxPrice) => {
     // First, get the basic post data
     let query = `
         SELECT
@@ -100,6 +100,8 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => 
     const whereClauses = [];
     const queryParams = [];
 
+    whereClauses.push(`p.is_published = 1`);
+
     if (tagIds && tagIds.length > 0) {
         whereClauses.push(`
             p.id IN (
@@ -118,11 +120,21 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = []) => 
         queryParams.push(locationStrings);
     }
 
+    if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
+        whereClauses.push(`p.price >= ?`);
+        queryParams.push(parseFloat(minPrice));
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
+        whereClauses.push(`p.price <= ?`);
+        queryParams.push(parseFloat(maxPrice));
+    }
+
     if (whereClauses.length > 0) {
         query += ` WHERE ${whereClauses.join(" AND ")}`;
     }
 
-    query += ` LIMIT ? OFFSET ?`;
+    query += ` ORDER BY p.posted_at DESC LIMIT ? OFFSET ?`;
     queryParams.push(limit, offset);
 
     try {
@@ -448,7 +460,41 @@ dataPool.isPostSavedByUser = async (post_id, user_id) => {
     }
 }
 
-dataPool.getPostsByUser = async (userId, limit, offset) => {
+dataPool.getPostsByUser = async (userId, limit, offset, tagIds = [], locationStrings = [], minPrice, maxPrice) => {
+    // Build the WHERE conditions
+    let whereClauses = ['p.user_id = ?'];
+    let queryParams = [userId];
+
+    // Add tag filtering if provided
+    if (tagIds && tagIds.length > 0) {
+        whereClauses.push(`
+            p.id IN (
+                SELECT post_id
+                FROM Post_x_Tag
+                WHERE tag_id IN (?)
+                GROUP BY post_id
+                HAVING COUNT(DISTINCT tag_id) = ?
+            )
+        `);
+        queryParams.push(tagIds, tagIds.length);
+    }
+
+    // Add location filtering if provided
+    if (locationStrings && locationStrings.length > 0) {
+        whereClauses.push(`p.location IN (?)`);
+        queryParams.push(locationStrings);
+    }
+
+    // Add price filtering if provided
+    if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
+        whereClauses.push('p.price >= ?');
+        queryParams.push(parseFloat(minPrice));
+    }
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
+        whereClauses.push('p.price <= ?');
+        queryParams.push(parseFloat(maxPrice));
+    }
+
     // First get the basic post data
     const query = `
         SELECT
@@ -474,12 +520,14 @@ dataPool.getPostsByUser = async (userId, limit, offset) => {
             ) AS shares_count
         FROM Post AS p
         LEFT JOIN User AS u ON p.user_id = u.id
-        WHERE p.user_id = ?
+        WHERE ${whereClauses.join(' AND ')}
         LIMIT ? OFFSET ?
     `;
 
+    queryParams.push(limit, offset);
+
     try {
-        const [posts] = await pool.query(query, [userId, limit, offset]);
+        const [posts] = await pool.query(query, queryParams);
 
         if (posts.length === 0) {
             return posts;
@@ -583,6 +631,35 @@ dataPool.createComment = (userId, postId, parentCommentId, content) => {
     })
 }
 // update and delete comment?
+
+
+dataPool.togglePostPublication = async (postId) => {
+    try {
+        // First get the current publication status
+        const [rows] = await pool.query(
+            "SELECT is_published FROM Post WHERE id = ?",
+            [postId]
+        );
+
+        if (rows.length === 0) {
+            throw new Error("Post not found");
+        }
+
+        const currentStatus = rows[0].is_published;
+        const newStatus = !currentStatus;
+
+        // Update the publication status
+        await pool.query(
+            "UPDATE Post SET is_published = ? WHERE id = ?",
+            [newStatus, postId]
+        );
+
+        return { is_published: newStatus };
+    } catch (err) {
+        console.error("Error toggling post publication:", err);
+        throw err;
+    }
+}
 
 
 // USERS

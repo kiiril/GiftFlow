@@ -7,7 +7,7 @@ import PrimaryButton from "../components/PrimaryButton";
 import SecondaryButton from "../components/SecondaryButton";
 import SearchableDropdown from "../components/SearchableDropdown";
 import axios from "axios";
-import {API_BASE_URL} from "../constants";
+import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import {deepEqual} from "../utils/utils";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -111,7 +111,7 @@ export default function CreateEditPostPage() {
                 const post = res.data;
                 const images = post.images.map(img => ({
                     id: img.id,
-                    src: API_BASE_URL + img.path,
+                    src: UPLOADS_BASE_URL + img.path,
                 }));
                 const cleaned = { ...post, images };   // same keys as before
                 setFormData(cleaned);

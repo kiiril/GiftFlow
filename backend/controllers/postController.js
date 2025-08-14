@@ -276,10 +276,13 @@ async function getAllMyPosts(req, res, next) {
             return res.status(401).send({ message: "Unauthorized" });
         }
 
-        const {page = 1, limit = 10} = req.query;
+        const {page = 1, limit = 10, tags, locations, minPrice, maxPrice} = req.query;
         const offset = (page - 1) * limit;
 
-        const posts = await db.getPostsByUser(userId, parseInt(limit), offset);
+        const tagIds = tags ? tags.split(',').map(id => parseInt(id, 10)) : [];
+        const locationStrings = locations ? locations.split(';') : [];
+
+        const posts = await db.getPostsByUser(userId, parseInt(limit), offset, tagIds, locationStrings, minPrice, maxPrice);
         return res.status(200).json(posts);
     } catch (err) {
         console.log("Error fetching my posts:", err);
