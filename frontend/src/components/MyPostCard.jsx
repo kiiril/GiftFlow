@@ -4,7 +4,7 @@ import {faHeart as fullHeart, faStar as fullStar, faTrash} from "@fortawesome/fr
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 import {Rating} from "@mui/material";
 import PrimaryButton from "./PrimaryButton";
-import {API_BASE_URL} from "../constants";
+import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import axios from "axios";
 import {useTagMap} from "../contexts/TagsProvider";
 import {useNavigate} from "react-router-dom";
@@ -16,7 +16,7 @@ const MyPostCard = ({post, onPostDeleted}) => {
     const [postData, setPostData] = React.useState(() => {
         const images = post.images.map(img => ({
             id: img.id,
-            src: API_BASE_URL + img.path,
+            src: UPLOADS_BASE_URL + img.path,
         }));
         return { ...post, images };
     });

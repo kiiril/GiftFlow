@@ -6,7 +6,7 @@ import {Checkbox, Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCoins, faHeart as fullHeart, faLocationDot, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
-import {API_BASE_URL} from "../constants";
+import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import {useTagMap, useTags} from "../contexts/TagsProvider";
 
 const Post = () => {
@@ -43,7 +43,7 @@ const Post = () => {
         const post = response.data;
         const images = post.images.map(img => ({
             id: img.id,
-            src: API_BASE_URL + img.path,
+            src: UPLOADS_BASE_URL + img.path,
         }));
         const cleaned = { ...post, images };
         setPostData(cleaned);
@@ -184,7 +184,7 @@ const Post = () => {
                             </div>
 
                             <div className="d-flex align-items-center flex-shrink-0">
-                                <img src={API_BASE_URL + postData.publisher_info.avatar_url} alt="User Avatar"
+                                <img src={UPLOADS_BASE_URL + postData.publisher_info.avatar_url} alt="User Avatar"
                                      className="rounded-circle me-2"
                                      style={{width: '50px', height: '50px'}}/>
                                 <div>
@@ -275,7 +275,7 @@ const Post = () => {
 
                     {comments.map(comment => (
                         <div className="d-flex align-items-start mb-3 ps-3">
-                            <img src={API_BASE_URL + comment.user_info.avatar_url} alt="User Avatar" className="rounded-circle me-2"
+                            <img src={UPLOADS_BASE_URL + comment.user_info.avatar_url} alt="User Avatar" className="rounded-circle me-2"
                                  style={{width: '40px', height: '40px'}}
                             />
 

@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {faCalendarDays} from "@fortawesome/free-regular-svg-icons"
 import {AuthContext} from "../contexts/AuthProvider";
-import {API_BASE_URL} from "../constants";
+import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import {Link, useNavigate, useLocation} from "react-router-dom";
 
 const Header = () => {
@@ -89,7 +89,7 @@ const Header = () => {
                                 aria-expanded="false"
                             >
                                 <img
-                                    src={API_BASE_URL + user.avatar_url}
+                                    src={UPLOADS_BASE_URL + user.avatar_url}
                                     alt="User Avatar"
                                     className="rounded-circle"
                                     style={{width: '40px', height: '40px', cursor: 'pointer'}}

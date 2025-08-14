@@ -87,7 +87,7 @@ const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {
             >
                 {posts.map((post) => renderPost(post, handlePostDeleted))}
             </div>
-            <div ref={lastElement} style={{height: "20px", backgroundColor: "red"}}/>
+            {/*<div ref={lastElement} style={{height: "20px", backgroundColor: "red"}}/>*/}
             {/* just for indication of the last post, will be removed */}
         </div>
     );
