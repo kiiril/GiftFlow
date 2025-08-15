@@ -85,7 +85,25 @@ async function signup(req, res, next) {
     }
 }
 
+async function logout(req, res, next) {
+    try {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error("Session destruction error:", err);
+                return res.status(500).json({ message: "An error occurred during logout." });
+            }
+
+            res.clearCookie('giftflow_session');
+            return res.status(200).json({ message: "Logged out successfully." });
+        });
+    } catch (error) {
+        console.error("Error during logout:", error);
+        res.status(500).json({ message: 'An error occurred during logout.' });
+    }
+}
+
 module.exports = {
     login,
     signup,
-}
+    logout
+};

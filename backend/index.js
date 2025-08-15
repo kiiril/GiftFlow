@@ -14,6 +14,7 @@ const comments = require("./routes/comments");
 const tags = require("./routes/tags");
 const locations = require("./routes/locations");
 const auth = require("./routes/auth");
+const notes = require("./routes/notes");
 
 // MySQL session store configuration
 const sessionStore = new MySQLStore({
@@ -67,6 +68,7 @@ app.use("/api/users", users);
 app.use("/api/comments", comments);
 app.use("/api/tags", tags);
 app.use("/api/locations", locations);
+app.use("/api/notes", notes);
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));

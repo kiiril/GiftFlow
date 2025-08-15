@@ -6,7 +6,7 @@ import {API_BASE_URL} from "../constants";
 
 const Main = () => {
     return (
-        <div style={{backgroundColor: "var(--background-light)"}}>
+        <>
             <Landing/>
             <div id="scroll-feed-section">
                 <h1 className="ms-5 ps-4">Let's specify your desires:</h1>
@@ -19,7 +19,7 @@ const Main = () => {
                     )}
                 />
             </div>
-        </div>
+        </>
     );
 };
 
