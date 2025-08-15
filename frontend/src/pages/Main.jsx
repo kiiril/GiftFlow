@@ -9,7 +9,7 @@ const Main = () => {
         <>
             <Landing/>
             <div id="scroll-feed-section">
-                <h1 className="ms-5 ps-4">Let's specify your desires:</h1>
+                <h1 className="ms-5 ps-4 mb-4">Let's specify your desires:</h1>
                 <ScrollFeed
                     fetchPostsUrl={`${API_BASE_URL}/posts`}
                     renderPost={(post) => (

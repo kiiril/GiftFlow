@@ -6,6 +6,7 @@ import AutocompleteDropdown from "../components/AutocompleteDropdown";
 import PrimaryButton from "../components/PrimaryButton";
 import SecondaryButton from "../components/SecondaryButton";
 import SearchableDropdown from "../components/SearchableDropdown";
+import SuccessModal from "../components/SuccessModal";
 import axios from "axios";
 import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import {deepEqual} from "../utils/utils";
@@ -92,6 +93,7 @@ export default function CreateEditPostPage() {
         currency: "USD",
     });
     const [isChanged, setIsChanged] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const [loading, setLoading] = useState(isEdit);
 
@@ -168,34 +170,44 @@ export default function CreateEditPostPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const fd = new FormData();
-        const orderedIds = [];
+        try {
+            const fd = new FormData();
+            const orderedIds = [];
 
-        formData.images.forEach(img => {
-            if (img.id === -1) {        // new upload
-                fd.append("images", img.file);     // keeps order
+            formData.images.forEach(img => {
+                if (img.id === -1) {        // new upload
+                    fd.append("images", img.file);     // keeps order
+                }
+                orderedIds.push(img.id);
+            });
+
+            fd.append("title", formData.title);
+            fd.append("location", formData.location);
+            fd.append("description", formData.description);
+            fd.append("price", formData.price);
+            fd.append("currency", formData.currency);
+            fd.append("tagIds", JSON.stringify(formData.tagIds));
+            fd.append("images", JSON.stringify(orderedIds));
+
+            const url = isEdit
+                ? `${API_BASE_URL}/posts/${postId}`
+                : `${API_BASE_URL}/posts`;
+
+            const response = await axios[isEdit ? "put" : "post"](url, fd, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true
+            });
+
+            // Only show success modal if request was successful
+            if (response.status === 200 || response.status === 201 || response.status === 204) {
+                setIsChanged(false);
+                setOriginalFormData(formData);
+                setShowSuccessModal(true);
             }
-            orderedIds.push(img.id);
-        });
-
-        fd.append("title", formData.title);
-        fd.append("location", formData.location);
-        fd.append("description", formData.description);
-        fd.append("price", formData.price);
-        fd.append("currency", formData.currency);
-        fd.append("tagIds", JSON.stringify(formData.tagIds));
-        fd.append("images", JSON.stringify(orderedIds));
-
-        const url  = isEdit
-            ? `${API_BASE_URL}/posts/${postId}`
-            : `${API_BASE_URL}/posts`;
-
-        await axios[isEdit ? "put" : "post"](url, fd, {
-            headers: { "Content-Type": "multipart/form-data" }
-        });
-
-        setIsChanged(false);
-        setOriginalFormData(formData);
+        } catch (error) {
+            console.error("Error submitting post:", error);
+            alert("Failed to save post. Please try again.");
+        }
     };
 
     const handleDelete = async (e) => {
@@ -446,6 +458,21 @@ export default function CreateEditPostPage() {
                     </div>
                 </div>
             </form>
+
+            <SuccessModal
+                show={showSuccessModal}
+                title={isEdit ? "Post Updated!" : "Post Created!"}
+                message={isEdit
+                    ? "Your post has been updated successfully. If you want your post to appear in the scroll feed and be visible to all users, make sure to publish it from your My Posts page."
+                    : "Your new post has been created successfully. If you want your post to appear in the scroll feed and be visible to all users, make sure to publish it from your My Posts page."
+                }
+                primaryButtonText="Go to My Posts"
+                onPrimaryClick={() => {
+                    setShowSuccessModal(false);
+                    navigate("/myposts");
+                }}
+                preventClose={true}
+            />
         </div>
     );
 }
