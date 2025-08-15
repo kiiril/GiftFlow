@@ -47,8 +47,20 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Logout function
+    const logout = async () => {
+        try {
+            await axios.post(`${API_BASE_URL}/auth/logout`, {}, {withCredentials: true});
+            setUser(null);
+        } catch (error) {
+            console.error("Logout failed:", error);
+            // Even if the server request fails, we should clear the local user state
+            setUser(null);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, signup, login, loading }}>
+        <AuthContext.Provider value={{ user, signup, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

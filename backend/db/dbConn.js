@@ -784,4 +784,78 @@ dataPool.getLocationsTree = async () => {
     }
 }
 
+dataPool.getNotesForDate = async (userId, date) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT *, DATE_FORMAT(date, '%Y-%m-%d') as date FROM Note WHERE user_id = ? AND date = ?
+        `, [userId, date]);
+
+        return rows;
+    } catch (err) {
+        console.error("Error fetching notes for date:", err);
+        throw err;
+    }
+}
+
+dataPool.createNote = async (userId, title, description, date) => {
+    try {
+        const [result] = await pool.query(`
+            INSERT INTO Note (user_id, title, description, date)
+            VALUES (?, ?, ?, ?)
+        `, [userId, title, description, date]);
+
+        return {
+            id: result.insertId,
+            title,
+            description,
+            date
+        };
+    } catch (err) {
+        console.error("Error creating note:", err);
+        throw err;
+    }
+}
+
+dataPool.updateNote = async (id, userId, title, description, date) => {
+    try {
+        const [result] = await pool.query(`
+            UPDATE Note
+            SET title = ?, description = ?, date = ?
+            WHERE id = ? AND user_id = ?
+        `, [title, description, date, id, userId]);
+
+        if (result.affectedRows === 0) {
+            throw new Error("Note not found or you do not have permission to update it.");
+        }
+
+        return {
+            id,
+            title,
+            description,
+            date
+        };
+    } catch (err) {
+        console.error("Error updating note:", err);
+        throw err;
+    }
+}
+
+dataPool.deleteNote = async (id, userId) => {
+    try {
+        const [result] = await pool.query(`
+            DELETE FROM Note
+            WHERE id = ? AND user_id = ?
+        `, [id, userId]);
+
+        if (result.affectedRows === 0) {
+            throw new Error("Note not found or you do not have permission to delete it.");
+        }
+
+        return { message: "Note deleted successfully." };
+    } catch (err) {
+        console.error("Error deleting note:", err);
+        throw err;
+    }
+}
+
 module.exports = dataPool;

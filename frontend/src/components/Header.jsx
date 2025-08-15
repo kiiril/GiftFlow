@@ -9,13 +9,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {faCalendarDays} from "@fortawesome/free-regular-svg-icons"
 import {AuthContext} from "../contexts/AuthProvider";
-import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
+import {UPLOADS_BASE_URL} from "../constants";
 import {Link, useNavigate, useLocation} from "react-router-dom";
 
 const Header = () => {
-    const {user, loading} = useContext(AuthContext);
+    const {user, loading, logout} = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
+
+    const handleLogout = async (e) => {
+        e.preventDefault(); // prevent default link behavior
+        try {
+            await logout();
+            navigate('/');
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
 
     const handleDiscoverClick = () => {
         // Check if we're already on the main page
@@ -127,7 +137,8 @@ const Header = () => {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link className="dropdown-item dropdown-item-custom" to={"#"}>
+
+                                    <Link className="dropdown-item dropdown-item-custom" onClick={handleLogout} to={"#"}>
                                         <FontAwesomeIcon icon={faArrowRightFromBracket} className="fa-fw me-1"/> Log out
                                     </Link>
                                 </li>

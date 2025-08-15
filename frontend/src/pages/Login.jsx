@@ -77,9 +77,8 @@ const Login = () => {
                                             backgroundColor={"#91B58B"}
                                             className={"w-100"}
                                             onClick={handleSubmit}
-                                        >
-                                            Login
-                                        </PrimaryButton>
+                                            text={"Login"}
+                                        />
                                     </div>
 
                                     <p className="text-center mb-0">

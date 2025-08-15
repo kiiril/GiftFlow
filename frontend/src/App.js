@@ -71,9 +71,7 @@ function App() {
     return (
         <AuthProvider>
             <TagsProvider>
-                <div style={{backgroundColor: "var(--background-light)"}}>
-                    <RouterProvider router={router}/>
-                </div>
+                <RouterProvider router={router}/>
             </TagsProvider>
         </AuthProvider>
     );
