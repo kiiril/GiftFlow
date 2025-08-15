@@ -4,6 +4,7 @@ require("dotenv").config()
 const cors = require("cors");
 const path = require("path");
 const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 const cookieParser = require("cookie-parser");
 const port = 8108;
 
@@ -13,6 +14,27 @@ const comments = require("./routes/comments");
 const tags = require("./routes/tags");
 const locations = require("./routes/locations");
 const auth = require("./routes/auth");
+
+// MySQL session store configuration
+const sessionStore = new MySQLStore({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    clearExpired: true,
+    checkExpirationInterval: 900000, // 15 minutes
+    expiration: 86400000, // 24 hours
+    createDatabaseTable: true,
+    schema: {
+        tableName: 'sessions',
+        columnNames: {
+            session_id: 'session_id',
+            expires: 'expires',
+            data: 'data'
+        }
+    }
+});
 
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // server static files, TODO restrict from everyone, organise structure
@@ -27,14 +49,16 @@ app.use(cors({
 app.use(cookieParser(process.env.SESSION_SECRET));
 app.set('trust proxy', 1);
 app.use(session({
+    key: 'giftflow_session',
     secret: process.env.SESSION_SECRET,
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 1000 * 60 * 60 * 24, // 1 day
-        sameSite: 'lax',
+        sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
     },
 }));
 
