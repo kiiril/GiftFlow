@@ -666,14 +666,22 @@ dataPool.togglePostPublication = async (postId) => {
 dataPool.getUserById = async (id) => {
     try {
         const [rows] = await pool.query("SELECT * FROM User WHERE id = ?", id);
-        // fixme: check for empty
+        if (rows.length === 0) {
+            return null;
+        }
+
         const user = rows[0];
-        const dateOfBirthday = user.date_of_birthday;
-        const date = dateOfBirthday.getDate();
-        const month = dateOfBirthday.getMonth() + 1; // months are zero-based
-        const year = dateOfBirthday.getFullYear();
-        user.date_of_birthday = `${year}-${month < 10 ? '0' + month : month}-${date < 10 ? '0' + date : date}`;
-        return user
+
+        // Only process date_of_birthday if it exists
+        if (user.date_of_birthday) {
+            const dateOfBirthday = user.date_of_birthday;
+            const date = dateOfBirthday.getDate();
+            const month = dateOfBirthday.getMonth() + 1; // months are zero-based
+            const year = dateOfBirthday.getFullYear();
+            user.date_of_birthday = `${year}-${month < 10 ? '0' + month : month}-${date < 10 ? '0' + date : date}`;
+        }
+
+        return user;
     } catch (err) {
         console.error(err);
         throw err;
