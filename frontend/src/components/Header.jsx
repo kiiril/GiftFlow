@@ -13,7 +13,7 @@ import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
 import {Link, useNavigate, useLocation} from "react-router-dom";
 
 const Header = () => {
-    const {user} = useContext(AuthContext);
+    const {user, loading} = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -77,7 +77,10 @@ const Header = () => {
             </nav>
 
             {
-                user ? (
+                loading ? (
+                    // Show nothing or a skeleton/placeholder while loading
+                    <div style={{width: '80px', height: '40px'}}></div>
+                ) : user ? (
                     <div className="d-flex align-items-center gap-4">
                         <PrimaryButton text={"Create"} className="fs-5 fw-bold px-4 py-1" backgroundColor={"#2C3E50"} onClick={() => navigate("/posts/new")}/>
 
