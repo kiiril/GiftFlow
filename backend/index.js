@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     methods:["GET", "POST", "PUT", "DELETE"],
-    origin: process.env.NODE_ENV === "prod" ? true : "http://localhost:3108",
+    origin: process.env.NODE_ENV === "production" ? true : "http://localhost:3108",
     credentials: true,
 }))
 app.use(cookieParser(process.env.SESSION_SECRET));
@@ -31,9 +31,9 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "prod" && process.env.HTTPS === "true",
+        secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
         maxAge: 1000 * 60 * 60 * 24, // 1 day
-        sameSite: process.env.NODE_ENV === "prod" ? 'strict' : 'lax',
+        sameSite: process.env.NODE_ENV === "production" ? 'strict' : 'lax',
     },
 }));
 
