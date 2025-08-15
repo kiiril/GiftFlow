@@ -47,6 +47,7 @@ app.use(cors({
     credentials: true,
 }))
 app.use(cookieParser(process.env.SESSION_SECRET));
+app.set('trust proxy', 1);
 app.use(session({
     key: 'giftflow_session',
     secret: process.env.SESSION_SECRET,
