@@ -48,8 +48,8 @@ async function signup(req, res, next) {
     }
 
     try {
-        const rows = await db.getUserByEmail(email);
-        if (rows.length > 0) {
+        const existingUser = await db.getUserByEmail(email);
+        if (existingUser) {
             return res.status(409).json({
                 message: "An account with this email already exists.",
             });
@@ -59,7 +59,7 @@ async function signup(req, res, next) {
 
         const defaultAvatarUrls = ["/uploads/avatars/default1.png", "/uploads/avatars/default2.png", "/uploads/avatars/default3.png"];
         const randomAvatarUrl = defaultAvatarUrls[Math.floor(Math.random() * defaultAvatarUrls.length)];
-        const newUser = await db.createUser(username, email, hashedPassword, randomAvatarUrl);
+        const newUserId = await db.createUser(username, email, hashedPassword, randomAvatarUrl);
 
         req.session.regenerate((err) => {
             if (err) {
@@ -67,11 +67,17 @@ async function signup(req, res, next) {
                 return res.status(500).json({ message: "An error occurred during signup." });
             }
 
-            req.session.user_id = newUser.id;
+            req.session.user_id = newUserId;
 
-            delete newUser.password;
+            // Return the created user data (without password)
+            const userData = {
+                id: newUserId,
+                username,
+                email,
+                avatar_url: randomAvatarUrl
+            };
 
-            return res.status(201).json(newUser);
+            return res.status(201).json(userData);
         });
     } catch (error) {
         console.error("Error during signup:", error);
