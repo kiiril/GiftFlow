@@ -88,7 +88,6 @@ const LocationDropdown = ({ onChange, defaultValue = [] }) => {
         });
 
         setSelectedItems(newSelectedItemsWithChildren);
-        console.log("Selected locations:", locationsWithCountry);
         onChange?.(locationsWithCountry);
 
         toggledItemRef.current = {};
@@ -104,7 +103,7 @@ const LocationDropdown = ({ onChange, defaultValue = [] }) => {
                 data-bs-auto-close="outside"
                 aria-expanded="false"
             >
-                Location
+                Select Locations
             </button>
             <div className="dropdown-menu p-2" style={{width: "15em", maxHeight: "30em", overflowY: "auto"}}>
                 <input type="text"

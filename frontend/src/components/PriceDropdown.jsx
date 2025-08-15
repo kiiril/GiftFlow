@@ -37,7 +37,7 @@ const PriceDropdown = ({ defaultValue = {}, onChange }) => {
 
     const getButtonText = () => {
         if (fromInput === "" && toInput === "") {
-            return "Price";
+            return "Price Range";
         }
         if (fromInput !== "" && toInput !== "") {
             return `$${fromInput} - $${toInput}`;
@@ -48,7 +48,7 @@ const PriceDropdown = ({ defaultValue = {}, onChange }) => {
         if (toInput !== "") {
             return `Up to $${toInput}`;
         }
-        return "Price";
+        return "Price Range";
     }
 
     return (

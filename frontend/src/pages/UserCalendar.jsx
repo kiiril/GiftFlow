@@ -200,57 +200,128 @@ const UserCalendar = () => {
     };
 
     return (
-        // fixme: calendar must fit the size of the parent component
-        <div className="p-3" style={{width: "800px", height: "400px"}}>
-            <Calendar
-                locale="us-US"
-                tileContent={({date, view}) => {
-                    if (view === "month") {
-                        const dayNotes = getNotesForDate(date);
-                        if (dayNotes.length > 0) {
-                            return (
-                                <div className="d-flex justify-content-center mt-1" style={{gap: "2px"}}>
-                                    {dayNotes.slice(0, 3).map((note, index) => (
-                                        <div
-                                            key={index}
-                                            className="rounded-circle"
-                                            style={{
-                                                width: "15px",
-                                                height: "15px",
-                                                backgroundColor: getCategoryBorderColor(note.category),
-                                                flexShrink: 0
-                                            }}
-                                            title={note.title} // Show note title on hover
-                                        />
-                                    ))}
-                                    {dayNotes.length > 3 && (
-                                        <div
-                                            className="rounded-circle d-flex align-items-center justify-content-center"
-                                            style={{
-                                                width: "8px",
-                                                height: "8px",
-                                                backgroundColor: "#6c757d",
-                                                fontSize: "6px",
-                                                color: "white",
-                                                fontWeight: "bold"
-                                            }}
-                                            title={`+${dayNotes.length - 3} more notes`}
-                                        >
-                                            +
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        }
-                    }
-                    return null;
-                }}
-                tileDisabled={({activeStartDate, date, view}) => {
-                    return view === "month" && date.getMonth() !== activeStartDate.getMonth();
-                }}
-                onClickDay={(value) => showForm(value)}
-            />
-            <br/>
+        <div className="container">
+            {/* Simple Header Text */}
+            <div className="my-4">
+                <h1 className="mb-3">
+                    Your Personal Calendar
+                </h1>
+                <p className="fs-5 text-muted">
+                    Keep track of important dates, birthdays, anniversaries, and gift-giving occasions.
+                    Click on any date to add notes and never miss a special moment again.
+                </p>
+            </div>
+
+            {/* Calendar and Legend Side by Side */}
+            <div className="row" style={{ height: "100vh" }}>
+                <div className="col-9 d-flex align-items-center">
+                    <div className="w-100">
+                        <Calendar
+                            locale="us-US"
+                            className="w-100"
+                            style={{ height: "60vh" }}
+                            tileContent={({date, view}) => {
+                                if (view === "month") {
+                                    const dayNotes = getNotesForDate(date);
+                                    if (dayNotes.length > 0) {
+                                        return (
+                                            <div className="d-flex justify-content-center mt-1" style={{gap: "2px"}}>
+                                                {dayNotes.slice(0, 3).map((note, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="rounded-circle"
+                                                        style={{
+                                                            width: "15px",
+                                                            height: "15px",
+                                                            backgroundColor: getCategoryBorderColor(note.category),
+                                                            flexShrink: 0
+                                                        }}
+                                                        title={note.title}
+                                                    />
+                                                ))}
+                                                {dayNotes.length > 3 && (
+                                                    <div
+                                                        className="rounded-circle d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: "8px",
+                                                            height: "8px",
+                                                            backgroundColor: "#6c757d",
+                                                            fontSize: "6px",
+                                                            color: "white",
+                                                            fontWeight: "bold"
+                                                        }}
+                                                        title={`+${dayNotes.length - 3} more notes`}
+                                                    >
+                                                        +
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    }
+                                }
+                                return null;
+                            }}
+                            tileDisabled={({activeStartDate, date, view}) => {
+                                return view === "month" && date.getMonth() !== activeStartDate.getMonth();
+                            }}
+                            onClickDay={(value) => showForm(value)}
+                        />
+                    </div>
+                </div>
+
+                {/* Category Legend on the Right */}
+                <div className="col-3 d-flex">
+                    <div className="d-flex flex-column w-100">
+                        <h4 className="fw-semibold mb-3">
+                            Category Colors
+                        </h4>
+                        <div className="d-flex flex-column gap-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="rounded-circle me-2"
+                                    style={{ width: "12px", height: "12px", backgroundColor: "#007bff" }}
+                                ></div>
+                                <span className="text-muted">Birthday</span>
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="rounded-circle me-2"
+                                    style={{ width: "12px", height: "12px", backgroundColor: "#dc3545" }}
+                                ></div>
+                                <span className="text-muted">Anniversary</span>
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="rounded-circle me-2"
+                                    style={{ width: "12px", height: "12px", backgroundColor: "#28a745" }}
+                                ></div>
+                                <span className="text-muted">Holiday</span>
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="rounded-circle me-2"
+                                    style={{ width: "12px", height: "12px", backgroundColor: "#ffc107" }}
+                                ></div>
+                                <span className="text-muted">Work</span>
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="rounded-circle me-2"
+                                    style={{ width: "12px", height: "12px", backgroundColor: "#17a2b8" }}
+                                ></div>
+                                <span className="text-muted">Personal</span>
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="rounded-circle me-2"
+                                    style={{ width: "12px", height: "12px", backgroundColor: "#6c757d" }}
+                                ></div>
+                                <span className="text-muted">Other</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {show && (
                 // todo: change the position to the cell date
@@ -412,4 +483,3 @@ const UserCalendar = () => {
 };
 
 export default UserCalendar;
-

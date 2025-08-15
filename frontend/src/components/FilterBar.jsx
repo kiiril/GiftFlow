@@ -43,11 +43,11 @@ const FilterBar = ({ onFilterChange, filters }) => {
     };
 
     return (
-        <div className="container mb-5">
+        <div className="container mb-5 px-0">
             <div className="row gx-3 align-items-center">
                 <div className="col-12 col-md-3">
                     <SearchableDropdown
-                        label={"Tags"}
+                        label={"Select Tags"}
                         multiple={true}
                         items={tags}
                         defaultValue={filters.tags || []}
@@ -60,10 +60,7 @@ const FilterBar = ({ onFilterChange, filters }) => {
                         onChange={handlePriceChange}
                     />
                 </div>
-                <div className="col-12 col-md-2">
-                    <SortButton/>
-                </div>
-                <div className="col-12 col-md-2">
+                <div className="col-12 col-md-3">
                     <LocationDropdown
                         defaultValue={filters.locations || []}
                         onChange={handleLocationChange}
