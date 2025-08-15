@@ -692,8 +692,8 @@ dataPool.getUserByEmail = async (email) => {
 
 dataPool.createUser = async (username, email, password, avatarUrl) => {
     try {
-        const [rows] = await pool.query("INSERT INTO User (username, email, password, avatar_url) VALUES (?, ?, ?, ?)", [username, email, password, avatarUrl]);
-        // fixme: what return?
+        const [result] = await pool.query("INSERT INTO User (username, email, password, avatar_url) VALUES (?, ?, ?, ?)", [username, email, password, avatarUrl]);
+        return result.insertId;
     } catch(err) {
         console.error(err);
         throw err;
