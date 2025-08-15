@@ -9,7 +9,7 @@ const MyPosts = () => {
             {/* Header Section */}
             <div className="my-4">
                 <h1 className="mb-3" style={{ color: "#2C3E50" }}>
-                    My Posts
+                    Your Posts
                 </h1>
                 <p className="fs-5 text-muted">
                     Manage all your gift posts in one place. View, edit, publish, or delete your listings.
