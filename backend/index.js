@@ -25,15 +25,16 @@ app.use(cors({
     credentials: true,
 }))
 app.use(cookieParser(process.env.SESSION_SECRET));
+app.set('trust proxy', 1);
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
+        secure: process.env.NODE_ENV === "production",
         maxAge: 1000 * 60 * 60 * 24, // 1 day
-        sameSite: process.env.NODE_ENV === "production" ? 'strict' : 'lax',
+        sameSite: 'lax',
     },
 }));
 
