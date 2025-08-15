@@ -3,6 +3,7 @@ import Calendar from "react-calendar";
 import SecondaryButton from "../components/SecondaryButton";
 import axios from "axios";
 import {API_BASE_URL} from "../constants";
+import SearchableDropdown from "../components/SearchableDropdown";
 
 const UserCalendar = () => {
     const [show, setShow] = useState(false);
@@ -21,28 +22,28 @@ const UserCalendar = () => {
     const [editing, setEditing] = useState(false);
     const [editingNoteId, setEditingNoteId] = useState(null);
 
-    // Fetch notes for selected date when modal opens
+    // Fetch all notes for the current month when component mounts
     useEffect(() => {
-        if (show && selectedDate) {
-            fetchNotesForDate(selectedDate);
-        }
-    }, [show, selectedDate]);
+        fetchAllNotesForMonth();
+    }, []);
 
-    const fetchNotesForDate = async (date) => {
+    const fetchAllNotesForMonth = async (date = new Date()) => {
         setLoading(true);
         try {
             const year = date.getFullYear();
             const month = date.getMonth() + 1;
-            const dat = date.getDate();
 
-            const dateString = `${year}-${month < 10 ? '0' + month : month}-${dat < 10 ? '0' + dat : dat}`;
-            const response = await axios.get(`${API_BASE_URL}/notes`, {
-                params: { date: dateString },
+            // Fetch all notes for the current month
+            const response = await axios.get(`${API_BASE_URL}/notes/month`, {
+                params: {
+                    year: year,
+                    month: month
+                },
                 withCredentials: true
             });
             setNotes(response.data);
         } catch (error) {
-            console.error("Error fetching notes:", error);
+            console.error("Error fetching monthly notes:", error);
             setNotes([]);
         } finally {
             setLoading(false);
@@ -163,16 +164,16 @@ const UserCalendar = () => {
         }));
     };
 
-    const getCategoryColor = (category) => {
+    const getCategoryBorderColor = (category) => {
         const colors = {
-            birthday: "border-primary",
-            anniversary: "border-danger",
-            holiday: "border-success",
-            work: "border-warning",
-            personal: "border-info",
-            other: "border-secondary"
+            birthday: "#007bff",
+            anniversary: "#dc3545",
+            holiday: "#28a745",
+            work: "#ffc107",
+            personal: "#17a2b8",
+            other: "#6c757d"
         };
-        return colors[category] || "border-secondary";
+        return colors[category] || "#6c757d";
     };
 
     // Filter notes for the selected date
@@ -188,36 +189,61 @@ const UserCalendar = () => {
         return notes.filter(note => note.date === dateString);
     };
 
+    // Add function to get notes for a specific date
+    const getNotesForDate = (date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const dateString = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+
+        return notes.filter(note => note.date === dateString);
+    };
+
     return (
         // fixme: calendar must fit the size of the parent component
         <div className="p-3" style={{width: "800px", height: "400px"}}>
             <Calendar
                 locale="us-US"
                 tileContent={({date, view}) => {
-                    // todo: is it needed?
-                    // if (view === "month") {
-                    //     const blocks = getBlocksForDate(date);
-                    //     return (
-                    //         <div className="mt-3">
-                    //             {blocks.slice(0, 3).map((block, index) => (
-                    //                 <div
-                    //                     key={index}
-                    //                     className="bg-primary text-white rounded-pill text-truncate mb-1 px-2"
-                    //                     style={{maxWidth: "100%", fontSize: "0.75em", lineHeight: "1.3"}}
-                    //                     title={block} // to show full text on hover
-                    //                 >
-                    //                     {block}
-                    //                 </div>
-                    //             ))}
-                    //             {blocks.length > 3 && (
-                    //                 <div className="bg-secondary text-white rounded-pill text-truncate small px-2">
-                    //                     +{blocks.length - 3} more
-                    //                 </div>
-                    //             )}
-                    //         </div>
-                    //     );
-                    // }
-                    // return null;
+                    if (view === "month") {
+                        const dayNotes = getNotesForDate(date);
+                        if (dayNotes.length > 0) {
+                            return (
+                                <div className="d-flex justify-content-center mt-1" style={{gap: "2px"}}>
+                                    {dayNotes.slice(0, 3).map((note, index) => (
+                                        <div
+                                            key={index}
+                                            className="rounded-circle"
+                                            style={{
+                                                width: "15px",
+                                                height: "15px",
+                                                backgroundColor: getCategoryBorderColor(note.category),
+                                                flexShrink: 0
+                                            }}
+                                            title={note.title} // Show note title on hover
+                                        />
+                                    ))}
+                                    {dayNotes.length > 3 && (
+                                        <div
+                                            className="rounded-circle d-flex align-items-center justify-content-center"
+                                            style={{
+                                                width: "8px",
+                                                height: "8px",
+                                                backgroundColor: "#6c757d",
+                                                fontSize: "6px",
+                                                color: "white",
+                                                fontWeight: "bold"
+                                            }}
+                                            title={`+${dayNotes.length - 3} more notes`}
+                                        >
+                                            +
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+                    }
+                    return null;
                 }}
                 tileDisabled={({activeStartDate, date, view}) => {
                     return view === "month" && date.getMonth() !== activeStartDate.getMonth();
@@ -249,7 +275,8 @@ const UserCalendar = () => {
 
                                     {getNotesForSelectedDate().map((note, index) => (
                                         <div className="accordion-item rounded overflow-hidden mb-2" key={note.id}>
-                                            <h2 className="accordion-header border-primary" id={`heading${note.id}`}>
+                                            <h2 className="accordion-header" id={`heading${note.id}`}
+                                                style={{borderLeft: `15px solid ${getCategoryBorderColor(note.category)}`}}>
                                                 <div className="d-flex align-items-center w-100">
                                                     <button
                                                         className="accordion-button collapsed py-3"
@@ -329,20 +356,23 @@ const UserCalendar = () => {
                                         </div>
 
                                         <div className="mb-3">
-                                            <label className="form-label" htmlFor="noteCat">Category</label>
-                                            <select
-                                                id="noteCat"
-                                                className="form-select"
-                                                value={noteForm.category}
-                                                onChange={(e) => handleFormChange('category', e.target.value)}
-                                            >
-                                                <option value="birthday">Birthday</option>
-                                                <option value="anniversary">Anniversary</option>
-                                                <option value="holiday">Holiday</option>
-                                                <option value="work">Work</option>
-                                                <option value="personal">Personal</option>
-                                                <option value="other">Other</option>
-                                            </select>
+                                            <label htmlFor={"category"} className={"fw-bold form-label"}>
+                                                Category
+                                            </label>
+                                            <SearchableDropdown
+                                                label="Select category"
+                                                items={[
+                                                    {id: "birthday", label: "Birthday", color: "#007bff"},
+                                                    {id: "anniversary", label: "Anniversary", color: "#dc3545"},
+                                                    {id: "holiday", label: "Holiday", color: "#28a745"},
+                                                    {id: "work", label: "Work", color: "#ffc107"},
+                                                    {id: "personal", label: "Personal", color: "#17a2b8"},
+                                                    {id: "other", label: "Other", color: "#6c757d"}
+                                                ]}
+                                                multiple={false}
+                                                defaultValue={noteForm.category}
+                                                onChange={(categoryId) => handleFormChange('category', categoryId)}
+                                            />
                                         </div>
 
                                         <div className="d-flex justify-content-between gap-5 mt-4">
@@ -382,3 +412,4 @@ const UserCalendar = () => {
 };
 
 export default UserCalendar;
+

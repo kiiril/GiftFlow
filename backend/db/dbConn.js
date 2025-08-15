@@ -784,30 +784,47 @@ dataPool.getLocationsTree = async () => {
     }
 }
 
-dataPool.getNotesForDate = async (userId, date) => {
+// dataPool.getNotesForDate = async (userId, date) => {
+//     try {
+//         const [rows] = await pool.query(`
+//             SELECT *, DATE_FORMAT(date, '%Y-%m-%d') as date FROM Note WHERE user_id = ? AND date = ?
+//         `, [userId, date]);
+//
+//         return rows;
+//     } catch (err) {
+//         console.error("Error fetching notes for date:", err);
+//         throw err;
+//     }
+// }
+
+dataPool.getNotesForMonth = async (userId, year, month) => {
     try {
         const [rows] = await pool.query(`
-            SELECT *, DATE_FORMAT(date, '%Y-%m-%d') as date FROM Note WHERE user_id = ? AND date = ?
-        `, [userId, date]);
+            SELECT *, DATE_FORMAT(date, '%Y-%m-%d') as date 
+            FROM Note 
+            WHERE user_id = ? AND YEAR(date) = ? AND MONTH(date) = ?
+            ORDER BY date ASC
+        `, [userId, year, month]);
 
         return rows;
     } catch (err) {
-        console.error("Error fetching notes for date:", err);
+        console.error("Error fetching notes for month:", err);
         throw err;
     }
 }
 
-dataPool.createNote = async (userId, title, description, date) => {
+dataPool.createNote = async (userId, title, description, category, date) => {
     try {
         const [result] = await pool.query(`
-            INSERT INTO Note (user_id, title, description, date)
-            VALUES (?, ?, ?, ?)
-        `, [userId, title, description, date]);
+            INSERT INTO Note (user_id, title, description, category, date)
+            VALUES (?, ?, ?, ?, ?)
+        `, [userId, title, description, category, date]);
 
         return {
             id: result.insertId,
             title,
             description,
+            category,
             date
         };
     } catch (err) {
@@ -816,13 +833,13 @@ dataPool.createNote = async (userId, title, description, date) => {
     }
 }
 
-dataPool.updateNote = async (id, userId, title, description, date) => {
+dataPool.updateNote = async (id, userId, title, description, category, date) => {
     try {
         const [result] = await pool.query(`
             UPDATE Note
-            SET title = ?, description = ?, date = ?
+            SET title = ?, description = ?, category = ?, date = ?
             WHERE id = ? AND user_id = ?
-        `, [title, description, date, id, userId]);
+        `, [title, description, category, date, id, userId]);
 
         if (result.affectedRows === 0) {
             throw new Error("Note not found or you do not have permission to update it.");
@@ -832,6 +849,7 @@ dataPool.updateNote = async (id, userId, title, description, date) => {
             id,
             title,
             description,
+            category,
             date
         };
     } catch (err) {
