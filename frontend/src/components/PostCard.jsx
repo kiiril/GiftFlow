@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
@@ -14,7 +14,7 @@ const PostCard = ({post}) => {
 
     const navigate = useNavigate();
 
-    const [postData, setPostData] = React.useState(() => {
+    const [postData, setPostData] = useState(() => {
             const images = post.images.map(img => ({
                 id: img.id,
                 src: UPLOADS_BASE_URL + img.path,

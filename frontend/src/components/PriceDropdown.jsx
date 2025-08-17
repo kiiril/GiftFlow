@@ -26,11 +26,9 @@ const PriceDropdown = ({ defaultValue = {}, onChange }) => {
             priceFilter.max = parseInt(toInput);
         }
 
-        // Only call onChange if we have at least one price value
         if (onChange && (priceFilter.min !== undefined || priceFilter.max !== undefined)) {
             onChange(priceFilter);
         } else if (onChange && fromInput === "" && toInput === "") {
-            // Clear the filter if both inputs are empty
             onChange({});
         }
     }

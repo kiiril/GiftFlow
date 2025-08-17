@@ -6,7 +6,6 @@ import {API_BASE_URL} from "../constants";
 const MyPosts = () => {
     return (
         <div className="container mb-5">
-            {/* Header Section */}
             <div className="my-4">
                 <h1 className="mb-3" style={{ color: "#2C3E50" }}>
                     Your Posts

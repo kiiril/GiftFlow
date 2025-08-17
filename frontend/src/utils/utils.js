@@ -1,4 +1,3 @@
-// Add this helper function at the top of your component
 export const deepEqual = (obj1, obj2) => {
     if (obj1 === obj2) return true;
 

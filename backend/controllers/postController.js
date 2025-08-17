@@ -2,7 +2,6 @@ const db = require("../db/dbConn");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const {request} = require("express");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -19,7 +18,6 @@ const storage = multer.diskStorage({
     },
 });
 
-// 1.B) Filter only JPEG/PNG/GIF under 5MB (adjust size if you like)
 const fileFilter = (req, file, cb) => {
     const allowedMime = ["image/jpeg", "image/png", "image/gif"];
     if (!allowedMime.includes(file.mimetype)) {
@@ -28,7 +26,6 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
 };
 
-// 1.C) Limit to, say, max 5 images per post, 5MB each
 const upload = multer({
     storage,
     fileFilter,
@@ -46,7 +43,6 @@ async function getAllPosts(req, res, next){
         const posts = await db.getPosts(parseInt(limit), offset, tagIds, locationStrings, minPrice, maxPrice);
 
         const userId = req.session.user_id;
-        // Add isSaved field for each post
         if (userId) {
             for (const post of posts) {
                 const isSaved = await db.isPostSavedByUser(post.id, userId);
@@ -319,7 +315,6 @@ async function togglePostPublication(req, res, next) {
             return res.status(401).send({ message: "Unauthorized" });
         }
 
-        // Check if the post belongs to the user
         const post = await db.getPostByUser(postId, userId);
         if (!post) {
             return res.status(404).send({ message: "Post not found or unauthorized" });
@@ -341,7 +336,6 @@ async function togglePostPublication(req, res, next) {
 module.exports = {
     getAllPosts,
     getAllMyPosts,
-    getMyPost,
     createPost,
     getPost,
     updatePost,

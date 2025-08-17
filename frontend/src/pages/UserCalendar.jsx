@@ -11,7 +11,6 @@ const UserCalendar = () => {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Form state - single object instead of separate variables
     const [noteForm, setNoteForm] = useState({
         title: "",
         description: "",
@@ -22,7 +21,6 @@ const UserCalendar = () => {
     const [editing, setEditing] = useState(false);
     const [editingNoteId, setEditingNoteId] = useState(null);
 
-    // Fetch all notes for the current month when component mounts
     useEffect(() => {
         fetchAllNotesForMonth();
     }, []);
@@ -33,7 +31,6 @@ const UserCalendar = () => {
             const year = date.getFullYear();
             const month = date.getMonth() + 1;
 
-            // Fetch all notes for the current month
             const response = await axios.get(`${API_BASE_URL}/notes/month`, {
                 params: {
                     year: year,
@@ -78,7 +75,6 @@ const UserCalendar = () => {
 
         try {
             if (editing && editingNoteId) {
-                // UPDATE existing note - PUT /api/notes/:id
                 const year = selectedDate.getFullYear();
                 const month = selectedDate.getMonth() + 1;
                 const dat = selectedDate.getDate();
@@ -90,7 +86,6 @@ const UserCalendar = () => {
                     date: dateString,
                 }, { withCredentials: true });
 
-                // Update local state
                 setNotes(prevNotes =>
                     prevNotes.map(note =>
                         note.id === editingNoteId ? response.data : note
@@ -102,13 +97,11 @@ const UserCalendar = () => {
                 const dat = selectedDate.getDate();
 
                 const dateString = `${year}-${month < 10 ? '0' + month : month}-${dat < 10 ? '0' + dat : dat}`;
-                // CREATE new note - POST /api/notes
                 const response = await axios.post(`${API_BASE_URL}/notes`, {
                     ...noteForm,
                     date: dateString,
                 }, { withCredentials: true });
 
-                // Add to local state
                 setNotes(prevNotes => [...prevNotes, response.data]);
             }
 
@@ -141,12 +134,10 @@ const UserCalendar = () => {
         if (window.confirm(`Delete "${noteTitle}"?`)) {
             setLoading(true);
             try {
-                // DELETE note - DELETE /api/notes/:id
                 await axios.delete(`${API_BASE_URL}/notes/${noteId}`, {
                     withCredentials: true
                 });
 
-                // Remove from local state
                 setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
             } catch (error) {
                 console.error("Error deleting note:", error);
@@ -189,7 +180,6 @@ const UserCalendar = () => {
         return notes.filter(note => note.date === dateString);
     };
 
-    // Add function to get notes for a specific date
     const getNotesForDate = (date) => {
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -201,7 +191,6 @@ const UserCalendar = () => {
 
     return (
         <div className="container">
-            {/* Simple Header Text */}
             <div className="my-4">
                 <h1 className="mb-3">
                     Your Personal Calendar
@@ -212,7 +201,6 @@ const UserCalendar = () => {
                 </p>
             </div>
 
-            {/* Calendar and Legend Side by Side */}
             <div className="row" style={{ height: "100vh" }}>
                 <div className="col-9 d-flex align-items-center">
                     <div className="w-100">
@@ -269,7 +257,6 @@ const UserCalendar = () => {
                     </div>
                 </div>
 
-                {/* Category Legend on the Right */}
                 <div className="col-3 d-flex">
                     <div className="d-flex flex-column w-100">
                         <h4 className="fw-semibold mb-3">

@@ -1,15 +1,6 @@
 import React, {useState, useRef, useMemo, useEffect} from 'react';
 import {useClickOutside} from "primereact/hooks";
 
-/**
- * SearchableSelect component
- * Props:
- * - label: placeholder for dropdown button
- * - items: array of objects { value, label, color? }
- * - multiple: boolean (single vs multi-select)
- * - defaultValue: single value or array of values
- * - onChange: callback with selected value(s)
- */
 const SearchableDropdown = ({
                               label = 'Select',
                               items = [],
