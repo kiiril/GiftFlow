@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {getAllPosts, createPost, getPost, updatePost, deletePost, getComments, createComment, savePostToFavourites,
-    removePostFromFavourites, getAllMyPosts, getMyPost, togglePostPublication
+    removePostFromFavourites, getAllMyPosts, togglePostPublication
 } = require("../controllers/postController");
 
 router.get("/", getAllPosts);

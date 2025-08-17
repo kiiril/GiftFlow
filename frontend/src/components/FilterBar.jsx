@@ -1,5 +1,4 @@
 import React, {useEffect} from 'react';
-import SortButton from "./SortButton";
 import LocationDropdown from "./LocationDropdown";
 import SearchableDropdown from "./SearchableDropdown";
 import {API_BASE_URL} from "../constants";

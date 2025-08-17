@@ -43,8 +43,8 @@ const Profile = () => {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            setOriginalUserData(response.data); // Update original data
-            setUserData(response.data); // Update current data
+            setOriginalUserData(response.data);
+            setUserData(response.data);
             setIsChanged(false);
         } catch (error) {
             console.error("Error updating profile:", error);

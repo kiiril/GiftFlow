@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeart as fullHeart, faStar as fullStar, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
@@ -31,7 +31,6 @@ const MyPostCard = ({post, onPostDeleted}) => {
             const response = await axios.delete(`${API_BASE_URL}/posts/${postData.id}`);
 
             if (response.status === 204) {
-                // Optionally, you can handle the UI update after deletion
                 console.log("Post deleted successfully");
                 if (onPostDeleted) {
                     onPostDeleted(postData.id)
@@ -50,7 +49,6 @@ const MyPostCard = ({post, onPostDeleted}) => {
             const response = await axios.post(`${API_BASE_URL}/posts/${postData.id}/publish`);
 
             if (response.data.success) {
-                // Update the local state with the new publication status
                 setPostData(prev => ({
                     ...prev,
                     is_published: response.data.is_published
@@ -114,13 +112,13 @@ const MyPostCard = ({post, onPostDeleted}) => {
                             <div className="flex-grow-1 me-3">
                                 <h3 className="card-title fw-bold mb-2 title-clamp">{postData.title}</h3>
                                 <div className="d-flex meta mb-3">
-                                    {/* 1) Location block */}
+                                    {/* Location block */}
                                     <div className="d-flex fw-light align-items-center meta__loc me-2">
                                         <i className="bi bi-geo-alt me-1"></i>
                                         <span>{postData.location}</span>
                                     </div>
 
-                                    {/* 2) Badges block */}
+                                    {/* Badges block */}
                                     {
                                         postData.tagIds && (
                                             <div className="d-flex align-items-center meta__tags">

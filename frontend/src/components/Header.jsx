@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import PrimaryButton from "./PrimaryButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -28,9 +28,7 @@ const Header = () => {
     };
 
     const handleDiscoverClick = () => {
-        // Check if we're already on the main page
         if (location.pathname === '/') {
-            // We're on the main page, just scroll to the feed
             const scrollFeedElement = document.getElementById('scroll-feed-section');
             if (scrollFeedElement) {
                 scrollFeedElement.scrollIntoView({
@@ -39,9 +37,7 @@ const Header = () => {
                 });
             }
         } else {
-            // Navigate to main page first, then scroll after navigation
             navigate('/');
-            // Use setTimeout to ensure the page has loaded before scrolling
             setTimeout(() => {
                 const scrollFeedElement = document.getElementById('scroll-feed-section');
                 if (scrollFeedElement) {
@@ -88,7 +84,6 @@ const Header = () => {
 
             {
                 loading ? (
-                    // Show nothing or a skeleton/placeholder while loading
                     <div style={{width: '80px', height: '40px'}}></div>
                 ) : user ? (
                     <div className="d-flex align-items-center gap-4">

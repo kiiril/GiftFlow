@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Link, useNavigate} from "react-router-dom";
 import {AuthContext} from "../contexts/AuthProvider";
 import PrimaryButton from "../components/PrimaryButton";
@@ -27,8 +27,6 @@ const Login = () => {
 
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100">
-            {/* LOGO */}
-            {/*<img src="/logo.png" alt="Logo"/>*/}
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">

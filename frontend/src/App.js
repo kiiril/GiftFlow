@@ -8,7 +8,6 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Error from "./pages/Error";
 import Post from "./pages/Post";
 import Profile from "./pages/Profile";
-import Header from "./components/Header";
 import UserCalendar from "./pages/UserCalendar";
 import MyPosts from "./pages/MyPosts";
 import CreateEditPost from "./pages/CreateEditPost";

@@ -1,5 +1,4 @@
 const mysql = require("mysql2/promise");
-const {data} = require("express-session/session/cookie");
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -14,7 +13,6 @@ const pool = mysql.createPool({
 // fixme: adjust all functions to async/await
 const dataPool = {}
 
-// Helper function to fetch and group tags by post ID
 const _fetchTagsForPosts = async (postIds) => {
     if (postIds.length === 0) return {};
 
@@ -36,7 +34,6 @@ const _fetchTagsForPosts = async (postIds) => {
     return tagsByPost;
 };
 
-// Helper function to fetch and group images by post ID
 const _fetchImagesForPosts = async (postIds) => {
     if (postIds.length === 0) return {};
 
@@ -61,7 +58,6 @@ const _fetchImagesForPosts = async (postIds) => {
     return imagesByPost;
 };
 
-// Helper function to attach tags and images to posts
 const _attachTagsAndImagesToPosts = (posts, tagsByPost, imagesByPost) => {
     posts.forEach(post => {
         post.tagIds = tagsByPost[post.id] || [];
@@ -70,7 +66,6 @@ const _attachTagsAndImagesToPosts = (posts, tagsByPost, imagesByPost) => {
 };
 
 dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], minPrice, maxPrice) => {
-    // First, get the basic post data
     let query = `
         SELECT
             p.*,
@@ -146,13 +141,11 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], min
 
         const postIds = posts.map(post => post.id);
 
-        // Fetch tags and images using helper functions
         const [tagsByPost, imagesByPost] = await Promise.all([
             _fetchTagsForPosts(postIds),
             _fetchImagesForPosts(postIds)
         ]);
 
-        // Attach tags and images to posts
         _attachTagsAndImagesToPosts(posts, tagsByPost, imagesByPost);
 
         return posts;
@@ -163,7 +156,6 @@ dataPool.getPosts = async (limit, offset, tagIds = [], locationStrings = [], min
 }
 
 dataPool.getPost = async (id) => {
-    // First get the basic post data
     const query = `
         SELECT
             p.*,
@@ -196,13 +188,11 @@ dataPool.getPost = async (id) => {
         const post = posts[0];
         const postIds = [post.id];
 
-        // Fetch tags and images using helper functions
         const [tagsByPost, imagesByPost] = await Promise.all([
             _fetchTagsForPosts(postIds),
             _fetchImagesForPosts(postIds)
         ]);
 
-        // Attach tags and images to the post
         post.tagIds = tagsByPost[post.id] || [];
         post.images = imagesByPost[post.id] || [];
 
@@ -367,9 +357,7 @@ dataPool.savePostToFavourites = async (post_id, user_id) => {
 dataPool.removePostFromFavourites = async (post_id, user_id) => {
     try {
         const [res] = await pool.query("DELETE FROM PostLikes WHERE post_id = ? AND user_id = ?", [post_id, user_id]);
-        console.log("Removed from favourites:", res);
         return res;
-        // fixme: return smth?
     } catch (err) {
         console.error(err);
         throw err;
@@ -378,7 +366,6 @@ dataPool.removePostFromFavourites = async (post_id, user_id) => {
 
 dataPool.getPostComments = async (id) => {
     try {
-        // First get all parent comments
         const [parentComments] = await pool.query(`
             SELECT
                 c.id,
@@ -402,7 +389,6 @@ dataPool.getPostComments = async (id) => {
 
         const parentCommentIds = parentComments.map(comment => comment.id);
 
-        // Get all child comments for these parent comments
         const [childComments] = await pool.query(`
             SELECT
                 c.id,
@@ -461,11 +447,9 @@ dataPool.isPostSavedByUser = async (post_id, user_id) => {
 }
 
 dataPool.getPostsByUser = async (userId, limit, offset, tagIds = [], locationStrings = [], minPrice, maxPrice) => {
-    // Build the WHERE conditions
     let whereClauses = ['p.user_id = ?'];
     let queryParams = [userId];
 
-    // Add tag filtering if provided
     if (tagIds && tagIds.length > 0) {
         whereClauses.push(`
             p.id IN (
@@ -479,13 +463,11 @@ dataPool.getPostsByUser = async (userId, limit, offset, tagIds = [], locationStr
         queryParams.push(tagIds, tagIds.length);
     }
 
-    // Add location filtering if provided
     if (locationStrings && locationStrings.length > 0) {
         whereClauses.push(`p.location IN (?)`);
         queryParams.push(locationStrings);
     }
 
-    // Add price filtering if provided
     if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
         whereClauses.push('p.price >= ?');
         queryParams.push(parseFloat(minPrice));
@@ -495,7 +477,6 @@ dataPool.getPostsByUser = async (userId, limit, offset, tagIds = [], locationStr
         queryParams.push(parseFloat(maxPrice));
     }
 
-    // First get the basic post data
     const query = `
         SELECT
             p.*,
@@ -535,13 +516,11 @@ dataPool.getPostsByUser = async (userId, limit, offset, tagIds = [], locationStr
 
         const postIds = posts.map(post => post.id);
 
-        // Fetch tags and images using helper functions
         const [tagsByPost, imagesByPost] = await Promise.all([
             _fetchTagsForPosts(postIds),
             _fetchImagesForPosts(postIds)
         ]);
 
-        // Attach tags and images to posts
         _attachTagsAndImagesToPosts(posts, tagsByPost, imagesByPost);
 
         return posts;
@@ -552,7 +531,6 @@ dataPool.getPostsByUser = async (userId, limit, offset, tagIds = [], locationStr
 }
 
 dataPool.getPostByUser = async (postId, userId) => {
-    // First get the basic post data
     const query = `
         SELECT p.*
         FROM Post AS p
@@ -568,7 +546,6 @@ dataPool.getPostByUser = async (postId, userId) => {
 
         const post = posts[0];
 
-        // Get tags for this post with full tag information
         const [tagRows] = await pool.query(`
             SELECT t.label, t.color, t.value
             FROM Post_x_Tag AS pt
@@ -576,7 +553,6 @@ dataPool.getPostByUser = async (postId, userId) => {
             WHERE pt.post_id = ?
         `, [postId]);
 
-        // Get image paths for this post
         const [imageRows] = await pool.query(`
             SELECT pi.path
             FROM PostImages AS pi
@@ -584,7 +560,6 @@ dataPool.getPostByUser = async (postId, userId) => {
             ORDER BY pi.display_order
         `, [postId]);
 
-        // Attach tags and images to the post
         post.tags = tagRows.map(row => ({
             label: row.label,
             color: row.color,
@@ -635,7 +610,6 @@ dataPool.createComment = (userId, postId, parentCommentId, content) => {
 
 dataPool.togglePostPublication = async (postId) => {
     try {
-        // First get the current publication status
         const [rows] = await pool.query(
             "SELECT is_published FROM Post WHERE id = ?",
             [postId]
@@ -648,7 +622,6 @@ dataPool.togglePostPublication = async (postId) => {
         const currentStatus = rows[0].is_published;
         const newStatus = !currentStatus;
 
-        // Update the publication status
         await pool.query(
             "UPDATE Post SET is_published = ? WHERE id = ?",
             [newStatus, postId]
@@ -672,7 +645,6 @@ dataPool.getUserById = async (id) => {
 
         const user = rows[0];
 
-        // Only process date_of_birthday if it exists
         if (user.date_of_birthday) {
             const dateOfBirthday = user.date_of_birthday;
             const date = dateOfBirthday.getDate();

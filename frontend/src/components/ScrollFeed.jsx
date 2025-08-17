@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import FilterBar from "./FilterBar";
-import PostCard from "./PostCard";
 import axios from "axios";
 
 const ScrollFeed = ({fetchPostsUrl, renderPost, isSingleColumn = false}) => {

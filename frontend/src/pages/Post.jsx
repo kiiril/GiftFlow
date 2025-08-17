@@ -1,13 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {useParams, useSearchParams} from "react-router-dom";
 import axios from "axios";
-import TopicTag from "../components/TopicTag";
-import {Checkbox, Rating} from "@mui/material";
+import {Rating} from "@mui/material";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCoins, faHeart as fullHeart, faLocationDot, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
-import {faComment, faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
+import {faHeart as fullHeart, faStar as fullStar} from "@fortawesome/free-solid-svg-icons";
+import {faHeart as emptyHeart, faPaperPlane, faStar as emptyStar} from "@fortawesome/free-regular-svg-icons";
 import {API_BASE_URL, UPLOADS_BASE_URL} from "../constants";
-import {useTagMap, useTags} from "../contexts/TagsProvider";
+import {useTagMap} from "../contexts/TagsProvider";
 
 const Post = () => {
     const tagMap = useTagMap();
@@ -59,7 +58,6 @@ const Post = () => {
         fetchComments();
     }, []);
 
-    // Add scroll to comments functionality
     useEffect(() => {
         const scrollToComments = searchParams.get('scrollTo');
         if (scrollToComments === 'comments') {
@@ -74,7 +72,7 @@ const Post = () => {
                 }
             }, 100);
         }
-    }, [searchParams, comments]); // Include comments in dependency to ensure they're loaded
+    }, [searchParams, comments]);
 
     const [commentValue, setCommentValue] = useState("")
 
@@ -192,10 +190,6 @@ const Post = () => {
                                 </div>
                             </div>
                         </div>
-
-                        {/*<div className="card-text mb-3" style={{textAlign: "justify"}}>*/}
-                        {/*    {postData.description.length === 0 ? "No description" : postData.description}*/}
-                        {/*</div>*/}
 
                         <div className="card-text mb-3" style={{textAlign: "justify"}}>
                             {postData.description.length === 0 ? (

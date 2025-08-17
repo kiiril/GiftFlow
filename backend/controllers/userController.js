@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
     },
 });
 
-// Only accept JPEG/PNG/GIF under 2MB
 const fileFilter = (req, file, cb) => {
     const allowedMime = ["image/jpeg", "image/png", "image/gif"];
     if (!allowedMime.includes(file.mimetype)) {

@@ -69,7 +69,6 @@ async function signup(req, res, next) {
 
             req.session.user_id = newUserId;
 
-            // Return the created user data (without password)
             const userData = {
                 id: newUserId,
                 username,

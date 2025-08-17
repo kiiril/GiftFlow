@@ -13,7 +13,6 @@ import {deepEqual} from "../utils/utils";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, arrayMove, useSortable, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import {useTags} from "../contexts/TagsProvider";
 
 function SortableImageThumb({ item, index, onDelete, onReplace }) {
     const { setNodeRef, attributes, listeners, transform, transition } =
@@ -198,7 +197,6 @@ export default function CreateEditPostPage() {
                 withCredentials: true
             });
 
-            // Only show success modal if request was successful
             if (response.status === 200 || response.status === 201 || response.status === 204) {
                 setIsChanged(false);
                 setOriginalFormData(formData);
@@ -240,7 +238,7 @@ export default function CreateEditPostPage() {
                     <div className="col-6 d-flex p-4 flex-column align-items-center border-end">
                         {formData.images.length ? (
                             <>
-                                {/** big preview **/}
+                                {/* big preview */}
                                 {(() => {
                                     return (
                                         <div id={carouselId} className="carousel slide mb-3 w-100">
@@ -283,7 +281,6 @@ export default function CreateEditPostPage() {
                                     );
                                 })()}
 
-                                {/** ============ SORTABLE THUMB STRIP ============ **/}
                                 <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                                     <SortableContext
                                         items={formData.images.map((_, i) => i)}
