@@ -13,9 +13,14 @@ To add your demo video to this repository:
 
 The video should be an .mp4 file showcasing the GiftFlow application features and functionality.
 
-**Note**: GitHub has a file size limit of 100 MB. If your video is larger, consider:
+**Note**: GitHub has file size limits for uploads:
+- Web interface: 25 MB maximum
+- Command line (git): 100 MB maximum
+- For files larger than 100 MB, you must use Git Large File Storage (LFS)
+
+If your video is larger than the limits, consider:
 - Compressing the video using tools like HandBrake or FFmpeg
-- Hosting it on YouTube, Vimeo, or another video platform and linking to it instead
-- Using GitHub's Large File Storage (LFS) for large files
+- Using Git Large File Storage (LFS) for files larger than 100 MB
+- Alternatively, you can host the video on YouTube, Vimeo, or another platform and update the link in the main README.md to point to the external URL instead of the local file
 
 Once added, the demo video will be accessible via the link in the main README.md file.
