@@ -1,5 +1,9 @@
 # GiftFlow
 
+## Demo
+
+📹 Check out our [demo video](demo/demo.mp4) to see GiftFlow in action!
+
 ## Setup
 
 1. Install backend dependencies: ```cd backend && npm install```
