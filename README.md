@@ -2,7 +2,9 @@
 
 ## Demo
 
-📹 Check out our [demo video](demo/demo.mp4) to see GiftFlow in action!
+📹 Check out demo to see GiftFlow in action!
+
+https://github.com/user-attachments/assets/e8516366-2346-4cc1-bc97-76365d5492c5
 
 ## Setup
 
